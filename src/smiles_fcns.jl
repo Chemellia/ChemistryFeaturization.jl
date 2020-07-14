@@ -1,0 +1,1 @@
+# Sean to populate with ancillary functions for handling SMILES strings
