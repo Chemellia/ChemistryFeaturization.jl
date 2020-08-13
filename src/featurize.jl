@@ -25,7 +25,7 @@ end
 
 
 """
-weave featurizier
+weave featurizer
 
 input:
     inputs(Array{String}): List of SIMLES strings

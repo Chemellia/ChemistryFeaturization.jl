@@ -41,7 +41,7 @@ const atom_feat_bins = Dict(
 
 # bins for bond features
 const bond_feat_bins = Dict(
-    "bond_type" =>[chem.rdchem.BondType.SINGLE, chem.rdchem.BondType.DOUBLE,chem.rdchem.BondType.TRIPLE, chem.rdchem.BondType.AROMATIC],  #[1,2,3,12],
+    "bond_type" => [chem.rdchem.BondType.SINGLE, chem.rdchem.BondType.DOUBLE,chem.rdchem.BondType.TRIPLE, chem.rdchem.BondType.AROMATIC],  #[1,2,3,12],
     "isConjugated" => [nothing],  # [0,1],# indicates using real value
     "isInring" => [nothing]  #[0,1],# indicates using real value
 )
@@ -147,7 +147,7 @@ function pair_features(mol, bond_feats::OrderedDict, adj_list; bf_len = 6, max_d
 end
 
 """
-Helper funciton for pair_features()
+Helper function for pair_features()
 Finds distance between the input atom and all other atoms using BFS
 
 input:

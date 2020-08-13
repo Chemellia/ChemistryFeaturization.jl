@@ -6,7 +6,7 @@ mol = chem.MolFromSmiles("C1=CC=CC=C1")  # benzene
 carbon = get(mol.GetAtoms(),0)
 bond = get(mol.GetBonds(),0)
 
-@testset "SIMLES atom featurization" begin
+@testset "SMILES atom featurization" begin
     @test [k for k in keys(smiles_atom_features(carbon))] == ["symbol","degree","implicit_valence","formal_charge","radical_electrons","hybridization","aromaticity","total_H_num" ]
     try
         smiles_atom_features(carbon, feature_list = ["invalid_feat"])
