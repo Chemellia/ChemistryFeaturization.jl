@@ -1,5 +1,13 @@
 using PyCall
 
+"""
+TODO:
+ [x] tabulate element features in a dataframe (just in Python for now)
+ [ ] tabulate every oxidation state and associated ionic radii (also w/Python)
+ [ ] PyCall using oxi_state_guesses from pymatgen inside featurization to figure these out, then pull radius from table
+ [ ] maybe in future: Shannon radii (need a robust way to determine coordination)
+"""
+
 # options for decay of bond weights with distance...
 inverse_square(x) = x^-2.0
 exp_decay(x) = exp(-x)
