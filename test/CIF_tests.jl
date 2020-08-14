@@ -1,8 +1,9 @@
 using Test
 
-include("../src/cif_fcns.jl")
+include("../src/pmg_features.jl")
+include("../src/pmg_graphs.jl")
 
-@testset "featurization" begin
+@testset "binning" begin
     # test the get_bins function
     # first for categorical features
     for feature in keys(categorical_feature_vals)
@@ -33,7 +34,7 @@ include("../src/cif_fcns.jl")
     @test get_logspaced_vec([true,false,true], 2)==[true,false]
 end
 
-@testset "decode" begin
+@testset "encode/decode" begin
     # make_feature_vectors...pick some representative properties
     features = ["X", "Atomic mass", "Block"]
     vecs = make_feature_vectors(features)
@@ -42,7 +43,7 @@ end
     @test H_feat["X"][1] <= 2.2 <= H_feat["X"][2]
     @test H_feat["Block"] == "s"
     @test H_feat["Atomic mass"][1] <= 1.00794 <= H_feat["Atomic mass"][2]
-    H_feat = decode_feature_vector(vecs["Si"], features, [default_nbins, default_nbins, 4])
+    Si_feat = decode_feature_vector(vecs["Si"], features, [default_nbins, default_nbins, 4])
     @test Si_feat["X"][1] <= 1.9 <= Si_feat["X"][2]
     @test Si_feat["Block"] == "p"
     @test Si_feat["Atomic mass"][1] <= 28.0855 <= Si_feat["Atomic mass"][2]
@@ -59,5 +60,11 @@ end
 end
 
 @testset "graph-building" begin
-
+    wm, atoms = build_graph("./test_data/mp-195.cif")
+    wm_true = [0.0 1.0 1.0 1.0; 1.0 0.0 1.0 1.0; 1.0 1.0 0.0 1.0; 1.0 1.0 1.0 0.0]
+    @test wm == wm_true
+    @test atoms == ["Ho", "Pt", "Pt", "Pt"]
+    wm, atoms = build_graph("./test_data/mp-195.cif"; use_voronoi=false)
+    @test wm == wm_true
+    @test atoms == ["Ho", "Pt", "Pt", "Pt"]
 end
