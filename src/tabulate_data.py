@@ -2,14 +2,12 @@ import pandas as pd
 import numpy as np
 from pymatgen.core import periodic_table as pt
 
- # - tabulate element features in a dataframe (just in Python for now)
- # - tabulate every oxidation state and associated ionic radii (also w/Python)
-
 # dictionary where keys are element symbols and values are dictionaries with data
 data = pt._pt_data
 
 # which properties to tabulate from big dictionary?
 pmg_props = ['Atomic no', 'Name', 'Atomic mass', 'Atomic radius', 'Boiling point', 'Melting point', 'X']
+temp_props = ["Boiling point", "Melting point"]
 
 # set up
 df_data = {p:[] for p in pmg_props}
@@ -21,7 +19,18 @@ for k in data.keys():
     data_here = data[k]
     for prop in pmg_props:
         if prop in data_here.keys():
-            df_data[prop].append(data_here[prop])
+            prop_val = data_here[prop]
+            if type(prop_val)==str and "no data" in prop_val:
+                prop_val = np.nan
+            elif prop in temp_props:
+                spl = prop_val.split(" ")
+                if len(spl)>2:
+                    prop_val = float(spl[-2]) # "about" or "maybe"
+                else:
+                    prop_val = float(spl[0])
+            elif prop=="Atomic radius":
+                prop_val = float(prop_val)
+            df_data[prop].append(prop_val)
         else:
             df_data[prop].append(np.nan)
 
