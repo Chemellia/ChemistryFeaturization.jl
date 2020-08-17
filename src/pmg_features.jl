@@ -8,10 +8,12 @@ using Flux: onecold
 const default_nbins = 10
 
 # read in features...
-atom_data_df = DataFrame!(CSV.File("../data/pymatgen_atom_data.csv"))
-feature_info = JSON.parsefile("../data/feature_info.json")
+atom_data_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "pymatgen_atom_data.csv")
+atom_data_df = DataFrame!(CSV.File(atom_data_path))
+feature_info_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "feature_info.json")
+feature_info = JSON.parsefile(feature_info_path)
 global categorical_features = feature_info["categorical"]
-categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for fea in categorical_features)
+categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, Symbol(fea)])))) for fea in categorical_features)
 # but I want blocks to be in my order
 categorical_feature_vals["Block"] = ["s", "p", "d", "f"]
 global numerical_features = feature_info["numerical"]

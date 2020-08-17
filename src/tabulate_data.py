@@ -67,33 +67,6 @@ df = df.iloc[0:103]
 
 # stuff that we need to instantiate Element to get: row, group, block valence
 
-# my own valence function here until my merged PR goes live...
-def valence(element):
-    """
-    # From full electron config obtain valence subshell
-    # angular moment (L) and number of valence e- (v_e)
-
-    """
-    # the number of valence of noble gas is 0
-    if element.group == 18:
-        return (np.nan, 0)
-
-    L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
-    valence = []
-    full_electron_config = element.full_electronic_structure
-    last_orbital = full_electron_config[-1]
-    for n, l_symbol, ne in full_electron_config:
-        l = L_symbols.lower().index(l_symbol)
-        if ne < (2 * l + 1) * 2:
-            valence.append((l, ne))
-        # check for full last shell (e.g. column 2)
-        elif (n, l_symbol, ne) == last_orbital and ne == (2 * l + 1) * 2 and len(valence) == 0:
-            valence.append((l, ne))
-    if len(valence) > 1:
-        raise ValueError("Ambiguous valence")
-
-    return valence[0]
-
 rows = []
 groups = []
 valences = []

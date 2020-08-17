@@ -1,4 +1,5 @@
 using Test
+using ChemistryFeaturization
 
 include("../src/smiles_rdkit_features.jl")
 

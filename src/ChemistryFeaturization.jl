@@ -7,5 +7,8 @@ include("graph_vis.jl")
 export atom_data_df, make_feature_vectors, decode_feature_vector
 include("pmg_features.jl")
 
-# Sean: add which functions to be exported from your files
+# Sean: add which functions/variables to be exported from your files; I've just added the ones to make the tests pass
+export weave_featurize, smiles_atom_features, smiles_bond_features
 include("smiles_rdkit_features.jl")
+
+end

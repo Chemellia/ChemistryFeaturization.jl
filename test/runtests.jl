@@ -1,4 +1,3 @@
-using CrystalGraphConvNets
 using Test
 
 @testset "SMILES_functions" begin
