@@ -174,7 +174,7 @@ function make_feature_vectors(features, nbins=default_nbins*ones(Int64, size(fea
     logspaced_vec = get_logspaced_vec(logspaced, num_features)
 
     # make dict from feature name to bins
-    features_bins = Dict(features[i] => get_bins(features[i]; nbins=Int64(nbins[i]), logspaced=logspaced_vec[i]) for i in 1:num_features)
+    features_bins = Dict(features[i] => get_bins(features[i]; nbins=Int64(nbins[i]), logspaced=logspaced_vec[i]) for i in 1:length(features))
 
     # dict from feature name to number of bins for that feature
     features_nbins = Dict(zip(features, nbins))
