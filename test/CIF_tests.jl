@@ -20,11 +20,11 @@ include("../src/pmg_graphs.jl")
     # TODO: add test for categorical features
 
     # test onehot_bins function
-    @test onehot_bins("Block", "s")==[1.0, 0., 0., 0.]
+    @test onehot_bins(:Block, "s")==[1.0, 0., 0., 0.]
     @test onehot_bins("", 1, bins)==[1.0, 0.0]
 
     # and onecold_bins
-    @test onecold_bins("Block", [1,0,0,0], ["s","p","d","f"])=="s"
+    @test onecold_bins(:Block, [1,0,0,0], ["s","p","d","f"])=="s"
     @test onecold_bins("", [1, 0], bins)==(0,2)
 
     # get_logspaced_vec
@@ -36,17 +36,17 @@ end
 
 @testset "encode/decode" begin
     # make_feature_vectors...pick some representative properties
-    features = ["X", "Atomic mass", "Block"]
+    features = [:X, Symbol("Atomic mass"), :Block]
     vecs = make_feature_vectors(features)
     # test that they are what we think they should be for a couple elements
     H_feat = decode_feature_vector(vecs["H"], features, [default_nbins, default_nbins, 4])
-    @test H_feat["X"][1] <= 2.2 <= H_feat["X"][2]
-    @test H_feat["Block"] == "s"
-    @test H_feat["Atomic mass"][1] <= 1.00794 <= H_feat["Atomic mass"][2]
+    @test H_feat[:X][1] <= 2.2 <= H_feat[:X][2]
+    @test H_feat[:Block] == "s"
+    @test H_feat[Symbol("Atomic mass")][1] <= 1.00794 <= H_feat[Symbol("Atomic mass")][2]
     Si_feat = decode_feature_vector(vecs["Si"], features, [default_nbins, default_nbins, 4])
-    @test Si_feat["X"][1] <= 1.9 <= Si_feat["X"][2]
-    @test Si_feat["Block"] == "p"
-    @test Si_feat["Atomic mass"][1] <= 28.0855 <= Si_feat["Atomic mass"][2]
+    @test Si_feat[:X][1] <= 1.9 <= Si_feat[:X][2]
+    @test Si_feat[:Block] == "p"
+    @test Si_feat[Symbol("Atomic mass")][1] <= 28.0855 <= Si_feat[Symbol("Atomic mass")][2]
 
     # chunk_vec
     vec = [1,0,0,1,0]
