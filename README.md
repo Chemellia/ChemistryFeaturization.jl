@@ -12,4 +12,4 @@ Unified graph building and featurizing for Weave.jl, CrystalGraphConvNets.jl, an
 * saving out featurization metadata (features used, bins, etc.) in consistent format
 * consistent handling of numerical vs. categorical features
 * "hybrid" featurizations using features from multiple paradigms if available
-* more input file formats?
+* more input file formats? e.g. [SELFIES](https://github.com/aspuru-guzik-group/selfies)

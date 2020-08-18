@@ -12,16 +12,16 @@ atom_data_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data",
 atom_data_df = DataFrame!(CSV.File(atom_data_path))
 feature_info_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "feature_info.json")
 feature_info = JSON.parsefile(feature_info_path)
-global categorical_features = Symbol.(feature_info["categorical"])
+const categorical_features = Symbol.(feature_info["categorical"])
 categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for fea in categorical_features)
 # but I want blocks to be in my order
 categorical_feature_vals[:Block] = ["s", "p", "d", "f"]
-global numerical_features = Symbol.(feature_info["numerical"])
-global not_features = Symbol.(feature_info["not_features"]) # atomic name, symbol
+const numerical_features = Symbol.(feature_info["numerical"])
+const not_features = Symbol.(feature_info["not_features"]) # atomic name, symbol
 avail_features = cat(categorical_features, numerical_features; dims=1)
 
 # compile min and max values of each feature...
-global fea_minmax = Dict()
+const fea_minmax = Dict()
 for feature in avail_features
     if !(feature in categorical_features)
         minval = minimum(skipmissing(atom_data_df[:, feature]))
