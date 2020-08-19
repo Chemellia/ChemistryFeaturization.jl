@@ -1,6 +1,7 @@
 using Test
+using ChemistryFeaturization
 
-include("../src/smiles_fcns.jl")
+include("../src/smiles_rdkit_features.jl")
 
 mol = chem.MolFromSmiles("C1=CC=CC=C1")  # benzene
 carbon = get(mol.GetAtoms(),0)
