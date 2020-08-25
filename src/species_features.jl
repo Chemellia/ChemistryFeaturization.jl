@@ -8,6 +8,7 @@ using Flux: onecold
 const default_nbins = 10
 
 # read in features...
+# TODO: all sources, update json
 atom_data_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "pymatgen_atom_data.csv")
 atom_data_df = DataFrame!(CSV.File(atom_data_path))
 feature_info_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "feature_info.json")

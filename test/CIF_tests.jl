@@ -1,7 +1,7 @@
 using Test
 
-include("../src/pmg_features.jl")
-include("../src/pmg_graphs.jl")
+include("../src/species_features.jl")
+include("../src/build_cif_graphs.jl")
 
 @testset "binning" begin
     # test the get_bins function

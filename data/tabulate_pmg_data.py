@@ -91,4 +91,3 @@ df['Block'] = blocks
 df.to_csv("pymatgen_atom_data.csv")
 
 # TODO: oxidation states too
-# TODO: other data sources via matminer
