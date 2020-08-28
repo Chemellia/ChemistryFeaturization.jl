@@ -1,6 +1,9 @@
 # ChemistryFeaturization.jl
 Unified graph building and featurizing for Weave.jl, CrystalGraphConvNets.jl, and (maybe soon) more!
 
+## Note about Conda.jl
+This package depends on some pretty hefty Python packages that in turn have many of their own dependencies. If you have an existing Conda.jl installation, you may be able to install everything without issue, but the cleanest approach will likely be to create a conda environment just for this package and install the dependencies from scratch there.
+
 ## Features
 
 ### Graph-building and featurization from CIF files
