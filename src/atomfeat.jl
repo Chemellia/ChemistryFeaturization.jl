@@ -2,14 +2,15 @@ using Flux: onecold
 
 # Type to store featurization metadata. An array of these specifies a featurization scheme for atoms.
 # TODO for Sean, eventually: add PairFeat and BondFeat types
-struct AtomFeat
+struct AtomFeat{T}
     name::Symbol
     categorical::Bool
     num_bins::Integer
     logspaced::Bool
-    vals::Vector
+    vals::Vector{T}
     # basic standard constructor will check some things...
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
+        T = typeof(vals[1])
         if categorical
             if num_bins != length(vals)
                 DimensionMismatch("Categorical features should have a number of values equal to the number of bins.")
@@ -22,12 +23,12 @@ struct AtomFeat
             if num_bins + 1 != length(vals)
                 DimensionMismatch("Numerical features should have values specifying bin edges. This vector is the wrong length!")
             end
-            if !(typeof(vals[1])<:Real)
+            if !eltype(vals)<:Real)
                 error("Numerical features must have (real) numerical values...") # should figure out how to throw a TypeError propertly
             end
             val_list = sort(vals)
         end
-        new(name, categorical, num_bins, logspaced, val_list)
+        new{T}(name, categorical, num_bins, logspaced, val_list)
     end
 end
 
