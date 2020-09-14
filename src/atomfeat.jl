@@ -23,7 +23,7 @@ struct AtomFeat{T}
             if num_bins + 1 != length(vals)
                 DimensionMismatch("Numerical features should have values specifying bin edges. This vector is the wrong length!")
             end
-            if !eltype(vals)<:Real)
+            if !eltype(vals)<:Real
                 error("Numerical features must have (real) numerical values...") # should figure out how to throw a TypeError propertly
             end
             val_list = sort(vals)

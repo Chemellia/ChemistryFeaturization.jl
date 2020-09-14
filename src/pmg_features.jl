@@ -5,25 +5,25 @@ using DataFrames
 include("atomfeat.jl")
 
 # default number of bins for continuous features, if unspecified
-default_nbins = 10
+const default_nbins = 10
 
 # read in features...
 atom_data_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "pymatgen_atom_data.csv")
-atom_data_df = DataFrame!(CSV.File(atom_data_path))
+const atom_data_df = DataFrame!(CSV.File(atom_data_path))
 feature_info_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "feature_info.json")
-feature_info = JSON.parsefile(feature_info_path)
+const feature_info = JSON.parsefile(feature_info_path)
 
 
-categorical_feature_names = Symbol.(feature_info["categorical"])
-categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for fea in categorical_feature_names)
+const categorical_feature_names = Symbol.(feature_info["categorical"])
+const categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for fea in categorical_feature_names)
 # but I want blocks to be in my order
 categorical_feature_vals[:Block] = ["s", "p", "d", "f"]
-continuous_feature_names = Symbol.(feature_info["continuous"])
-not_features = Symbol.(feature_info["not_features"]) # atomic name, symbol
-avail_feature_names = cat(categorical_feature_names, continuous_feature_names; dims=1)
+const continuous_feature_names = Symbol.(feature_info["continuous"])
+const not_features = Symbol.(feature_info["not_features"]) # atomic name, symbol
+const avail_feature_names = cat(categorical_feature_names, continuous_feature_names; dims=1)
 
 # compile min and max values of each feature...
-fea_minmax = Dict()
+const fea_minmax = Dict{Symbol, Tuple{Real, Real}}()
 for feature in avail_feature_names
     if !(feature in categorical_feature_names)
         minval = minimum(skipmissing(atom_data_df[:, feature]))
@@ -60,6 +60,7 @@ function build_atom_feats(feature_names::Vector{Symbol}, nbins::Vector{<:Integer
     logspaced_vec = get_logspaced_vec(logspaced, num_features)
 
     # build AtomFeat objects
+    # TODO: make this a preallocation since we know the length
     feature_specs = AtomFeat[]
     #for i in 1:num_features
     for t in zip(feature_names, nbins, logspaced_vec)
