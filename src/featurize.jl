@@ -1,5 +1,4 @@
 # this file will have the "master" function that's actually exposed to the user
-include("pmg_features.jl")
 include("pmg_graphs.jl")
 include("smiles_rdkit_features.jl")
 

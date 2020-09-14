@@ -1,6 +1,8 @@
 using LightGraphs; const lg=LightGraphs
 using SimpleWeightedGraphs
 using LinearAlgebra
+using GraphPlot
+using Colors
 
 # Type to store atomic graphs
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter?
@@ -57,6 +59,8 @@ lg.has_edge(g::AtomGraph, i, j) = lg.has_edge(g.graph, i, j)
 
 # TODO: implement zero to return one with zero(G) and use constructors from above to populate other stuff, this is the last one for all of the LightGraphs functions to "just work"
 
+# TODO: maybe some subgraph stuff for cutting up graphs later, will need to make sure to account for feature matrix and element list properly as well as recompute laplacian, would be cool to be able to e.g. filter on particular features and only pull matching nodes
+
 # this cribbed from GeometricFlux
 function normalized_laplacian(g::G) where G<:lg.AbstractGraph
     a = adjacency_matrix(g)
@@ -65,8 +69,9 @@ function normalized_laplacian(g::G) where G<:lg.AbstractGraph
     I - inv_sqrt_d * a * inv_sqrt_d
 end
 
-# function to add node features if only the "bare" graph has been initialized
-# featurization scheme must be specified!
+normalized_laplacian(g::AtomGraph) = g.lapl
+
+# function to add node features if only the "bare" graph has been initialized, note that featurization scheme must be specified!
 function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat})
     num_atoms = nv(g)
 
@@ -81,4 +86,31 @@ end
 
 # TODO: pretty printing: https://docs.julialang.org/en/v1/manual/types/#man-custom-pretty-printing
 
-# TODO: visualization: pull in stuff from graph_vis.jl
+# now visualization stuff...
+
+"Get a list of colors to use for graph visualization."
+function graph_colors(atno_list, seed_color=colorant"cyan4")
+    atom_types = unique(atno_list)
+    atom_type_inds = Dict(atom_types[i]=>i for i in 1:length(atom_types))
+    color_inds = [atom_type_inds[i] for i in atno_list]
+    colors = distinguishable_colors(length(atom_types), seed_color)
+    return colors[color_inds]
+end
+
+"Compute edge widths (proportional to weights on graph) for graph visualization."
+function graph_edgewidths(g, weight_mat)
+    edgewidths = []
+    # should be able to do this as
+    for e in edges(g)
+        append!(edgewidths, weight_mat[e.src, e.dst])
+    end
+    return edgewidths
+end
+
+"Visualize a given graph."
+function visualize_graph(g, element_list)
+    # gplot doesn't work on weighted graphs
+    sg = SimpleGraph(adjacency_matrix(g))
+    plt = gplot(sg, nodefillc=graph_colors(element_list), nodelabel=element_list, edgelinewidth=graph_edgewidths(sg, g.weights))
+    display(plt)
+end

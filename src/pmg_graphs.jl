@@ -1,3 +1,7 @@
+#=
+Building graphs from CIF files using PyCall to the pymatgen package.
+=#
+
 using PyCall
 
 # options for decay of bond weights with distance...
