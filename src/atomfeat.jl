@@ -41,7 +41,7 @@ struct AtomFeat{T}
     vals::Vector{T}
     # basic standard constructor will check some things...
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
-        T = typeof(vals[1])
+        T = eltype(vals)
         if categorical
             if num_bins != length(vals)
                 DimensionMismatch("Categorical features should have a number of values equal to the number of bins.")
@@ -133,7 +133,7 @@ function get_logspaced_vec(vec, num_features::Integer)
         logspaced_vec = vec
     elseif length(vec) < num_features
         println("logspaced vector too short. Padding end with falses.")
-        logspaced_vec = hcat(vec, [false for i in 1:num_features-size(vec,1)])
+        logspaced_vec = vcat(vec, [false for i in 1:num_features-size(vec,1)])
     elseif size(vec, 1) > num_features
         println("logspaced vector too long. Cutting off at appropriate length.")
         logspaced_vec = vec[1:num_features]
@@ -143,15 +143,17 @@ end
 
 """
 Function to build a featurization given vectors of metadata.
+
+Note that nbins will be ignored for categorical features.
 """
-function build_atom_feats(feature_names::Vector{Symbol}, nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+function build_atom_feats(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
     num_features = length(feature_names)
 
     # figure out spacing for each feature
     logspaced_vec = get_logspaced_vec(logspaced, num_features)
 
     # build AtomFeat objects
-    # TODO: make this a preallocation since we know the length
+    # TODO: could make this a preallocation since we know the length, probably not critical though
     feature_specs = AtomFeat[]
     #for i in 1:num_features
     for t in zip(feature_names, nbins, logspaced_vec)
@@ -218,7 +220,7 @@ function make_feature_vectors(features::Vector{AtomFeat})
 end
 
 # alternate call signature
-make_feature_vectors(feature_names::Vector{Symbol}, nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_atom_feats(feature_names, nbins, logspaced))
+make_feature_vectors(feature_names::Vector{Symbol}, nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
 
 """
     chunk_vec(vec, nbins)

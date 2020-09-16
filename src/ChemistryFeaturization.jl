@@ -1,6 +1,6 @@
 module ChemistryFeaturization
 
-export AtomFeat, atom_data_df, make_feature_vectors, decode_feature_vector
+export AtomFeat, atom_data_df, build_atom_feats, make_feature_vectors, decode_feature_vector
 include("atomfeat.jl")
 
 export AtomGraph, normalized_laplacian, add_features!, visualize_graph

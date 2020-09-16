@@ -23,12 +23,55 @@ const cf = ChemistryFeaturization
 end
 
 @testset "AtomFeat" begin
-    # checks that bins get created correctly
-    # first for categorical features, of at least a couple different types
+    # test that both constructors for categorical variables give the same result
+    cat1 = AtomFeat(:feat, true, 3, false, ['a','b','c'])
+    cat2 = AtomFeat(:feat, ['a','b','c'])
+    for name in propertynames(cat1)
+        @test getproperty(cat1,name)==getproperty(cat2,name)
+    end
 
-    # and for numerical features, both linear and log spaced
+    # and now with categorical features that are numbers
+    cat3 = AtomFeat(:feat, true, 3, 1, 3)
+    cat3b = AtomFeat(:feat, true, 3, 1.0, 3)
+    cat4 = AtomFeat(:feat, true, 3, false, [1,2,3])
+    cat5 = AtomFeat(:feat, [1,2,3])
 
-    # test all the constructors and functions obviously...
+    for name in [:name, :categorical, :num_bins, :logspaced]
+        results = getproperty.([cat3, cat3b, cat4, cat5], name)
+        @test all(y->y==results[1], results)
+    end
+
+    @test cat3.vals==cat4.vals==cat5.vals==[1,2,3]
+    @test cat3b.vals==[1.0,2.0,3.0]
+
+    # and for numerical features, first linearly spaced...
+    lin1 = AtomFeat(:feat, false, 3, false, [1.0,2,3,4])
+    lin2 = AtomFeat(:feat, false, 3, 1.0, 4)
+    @test lin1.vals==lin2.vals
+
+    # now log...
+    log1 = AtomFeat(:feat, false, 3, true, [0.1, 1, 10, 100])
+    log2 = AtomFeat(:feat, false, 3, 0.1, 100, true)
+    @test log1.vals==log2.vals
+
+    # check that arbitrary spacing does work, though I don't see a need for it right now...
+    arb = AtomFeat(:feat, false, 3, false, [1,2,4,5])
+    @test arb.vals==[1,2,4,5]
+
+    # test build_atom_feats function
+    X, MP, block = build_atom_feats([:X, Symbol("Melting point"), :Block]; logspaced=[false, true])
+    @test X.name==:X
+    @test X.categorical==false
+    @test X.logspaced==false
+    @test X.vals[1]==0.7
+    @test X.vals[end]==3.98
+
+    @test MP.categorical==false
+    @test MP.logspaced==true
+
+    @test block.categorical==true
+    @test block.logspaced==false
+    @test block.vals==["s", "p", "d", "f"]
 end
 
 @testset "encode/decode" begin
