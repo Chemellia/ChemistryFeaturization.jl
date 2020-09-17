@@ -6,16 +6,16 @@ using Colors
 
 # Type to store atomic graphs
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter?
-mutable struct AtomGraph{T <: AbstractSimpleWeightedGraph{Int64, Float32}} <: lg.AbstractGraph{Float32}
-    graph::T
-    elements::Vector{String}
-    lapl::Matrix{Float32}
-    features::Matrix{Float32}
-    featurization::Vector{AtomFeat}
+mutable struct AtomGraph{T <: AbstractSimpleWeightedGraph{Int32, Float32}} <: lg.AbstractGraph{Float32}
+    graph::T # actual graph, for now only SimpleWeightedGraph types work
+    elements::Vector{String} # list of elemental symbols corresponding to each node
+    lapl::Matrix{Float32} # graph laplacian (normalized)
+    features::Matrix{Float32} # feature matrix (size (# features, # nodes))
+    featurization::Vector{AtomFeat} # featurization scheme in the form of a list of AtomFeat objects
 end
 
 # basic constructor
-function AtomGraph(gr::G, el_list::Vector{String}; features::Matrix{Float32}, featurization::Vector{AtomFeat}) where G <: lg.AbstractGraph
+function AtomGraph(gr::G, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat}) where G <: AbstractSimpleWeightedGraph{Int32,Float32}
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
@@ -30,8 +30,7 @@ function AtomGraph(gr::G, el_list::Vector{String}; features::Matrix{Float32}, fe
 end
 
 # one without features or featurization initialized yet
-function AtomGraph(gr::G, el_list::Vector{String}) where G <: lg.AbstractGraph
-    # check that el_list is the right length
+function AtomGraph(gr::G, el_list::Vector{String}) where G <: AbstractSimpleWeightedGraph{Int32,Float32}    # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
 
@@ -66,7 +65,7 @@ function normalized_laplacian(g::G) where G<:lg.AbstractGraph
     a = adjacency_matrix(g)
     d = vec(sum(a, dims=1))
     inv_sqrt_d = diagm(0=>d.^(-0.5))
-    I - inv_sqrt_d * a * inv_sqrt_d
+    Float32.(I - inv_sqrt_d * a * inv_sqrt_d)
 end
 
 normalized_laplacian(g::AtomGraph) = g.lapl

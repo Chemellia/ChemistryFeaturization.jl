@@ -34,11 +34,11 @@ end
 # TODO for Sean, eventually: add PairFeat and BondFeat types (maybe in another file for tidiness)
 # TODO, maybe: we could define AbstractFeat{T} that all of these would inherit from, but TBD if that would be useful or not
 struct AtomFeat{T}
-    name::Symbol
-    categorical::Bool
-    num_bins::Integer
-    logspaced::Bool
-    vals::Vector{T}
+    name::Symbol # name of feature
+    categorical::Bool # whether it's categorical (vs. numerical)
+    num_bins::Integer # length of associated subvector
+    logspaced::Bool # whether it's logspaced (most relevant for numerical)
+    vals::Vector{T} # list of values (length equal to num_bins for categorical, num_bins+1 (specifying bin edges) for numerical)
     # basic standard constructor will check some things...
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
         T = eltype(vals)
@@ -64,18 +64,20 @@ struct AtomFeat{T}
 end
 
 # constructor for features where vals gets calculated rather than passed in, works for categorical too if their values are numbers
-function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false)
+function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false; T=Float32)
     categorical ? len = num_bins : len = num_bins + 1
     if logspaced
         vals = 10 .^ range(log10(min_val), log10(max_val), length=len)
     else
         vals = range(min_val, max_val, length=len)
     end
-    AtomFeat(name, categorical, num_bins, logspaced, [v for v in vals])
+    AtomFeat(name, categorical, num_bins, logspaced, T.([v for v in vals]))
 end
 
 # constructor that will assume categorical features
 AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
+
+# TODO: pretty printing
 
 """
 Create onehot style vector.
@@ -93,6 +95,9 @@ function onehot_bins(f::AtomFeat, val)
         bin_index = searchsorted(f.vals, val).stop
         if bin_index == length(f.vals) # got the max value
             bin_index = bin_index - 1
+        elseif isapprox(val, f.vals[1])
+            # sometimes it gives 0 otherwise
+            bin_index = 1
         end
     end
     onehot_vec = [0.0 for i in 1:f.num_bins]
