@@ -40,6 +40,26 @@ end
 
 # TODO, maybe: constructor where you give adjacency matrix and it builds the graph for you also
 
+# pretty printing, short version
+function Base.show(io::IO, g::AtomGraph)
+    st = "AtomGraph with $(nv(g)) nodes, $(ne(g)) edges"
+    if length(g.featurization)!=0
+        st = string(st, ", feature vector length $(size(g.features)[1])")
+    end
+    print(io, st)
+end
+
+# pretty printing, long version
+function Base.show(io::IO, ::MIME"text/plain", g::AtomGraph)
+    st = "AtomGraph with $(nv(g)) nodes, $(ne(g)) edges\n   atoms: $(g.elements)\n   feature vector length: "
+    if length(g.featurization)==0
+        st = string(st, "uninitialized\n   encoded features: uninitialized")
+    else
+        st = string(st, "$(size(g.features)[1])\n   encoded features: ",  [string(f.name, ", ") for f in g.featurization]...)[1:end-2]
+    end
+    print(io, st)
+end
+
 # now define some functions...
 
 # first, the LightGraphs required ones (easy, just run them on the graph contents)
@@ -82,8 +102,6 @@ function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::V
     g.features = features
     g.featurization = featurization
 end
-
-# TODO: pretty printing: https://docs.julialang.org/en/v1/manual/types/#man-custom-pretty-printing
 
 # now visualization stuff...
 

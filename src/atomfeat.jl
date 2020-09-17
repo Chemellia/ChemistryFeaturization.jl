@@ -77,7 +77,11 @@ end
 # constructor that will assume categorical features
 AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
 
-# TODO: pretty printing
+# pretty printing, short form
+Base.show(io::IO, f::AtomFeat{T}) where {T} = print(io, "$(f.name): AtomFeat{$T} with $(f.num_bins) bins")
+
+# pretty printing, long form
+Base.show(io::IO, ::MIME"text/plain", f::AtomFeat{T}) where{T} = print(io, "AtomFeat{$T}\n   name: $(f.name)\n   categorical: $(f.categorical)\n   length: $(f.num_bins)\n   logspaced: $(f.logspaced)\n   bins: $(f.vals)")
 
 """
 Create onehot style vector.
