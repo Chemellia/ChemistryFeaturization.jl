@@ -4,16 +4,6 @@ using JLD2
 include("../src/pmg_graphs.jl")
 include("../src/atomgraph.jl")
 
-@testset "graph-building" begin
-    wm, atoms = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"))
-    wm_true = [0.0 1.0 1.0 1.0; 1.0 0.0 1.0 1.0; 1.0 1.0 0.0 1.0; 1.0 1.0 1.0 0.0]
-    @test wm == wm_true
-    @test atoms == ["Ho", "Pt", "Pt", "Pt"]
-    wm, atoms = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"); use_voronoi=false)
-    @test wm == wm_true
-    @test atoms == ["Ho", "Pt", "Pt", "Pt"]
-end
-
 @testset "AtomGraph" begin
     # build a silly little triangle graph
     g = SimpleWeightedGraph{Int32}(Float32.([0 1 1; 1 0 1; 1 1 0]))
@@ -43,6 +33,16 @@ end
     @test_throws AssertionError add_features!(ag, bad_fmat, featurization)
     add_features!(ag, good_fmat, featurization)
     @test ag.features==good_fmat
+end
+
+@testset "graph-building" begin
+    ag = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"))
+    wm_true = [0.0 1.0 1.0 1.0; 1.0 0.0 1.0 1.0; 1.0 1.0 0.0 1.0; 1.0 1.0 1.0 0.0]
+    @test weights(ag) == wm_true
+    @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
+    ag = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"); use_voronoi=false)
+    @test weights(ag) == wm_true
+    @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
 end
 
 @testset "save/load" begin

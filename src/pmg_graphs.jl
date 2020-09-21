@@ -3,6 +3,7 @@ Building graphs from CIF files using PyCall to the pymatgen package.
 =#
 
 using PyCall
+using ChemistryFeaturization
 
 # options for decay of bond weights with distance...
 inverse_square(x) = x^-2.0
@@ -37,7 +38,7 @@ end
 
 
 """
-Function to build graph from a CIF file of a crystal structure. Returns a tuple of the adjacency matrix and the list of elements in order of the graph nodes.
+Function to build graph from a CIF file of a crystal structure. Returns an AtomGraph object.
 
 # Arguments
 - `cif_path::String`: path to CIF file
@@ -58,9 +59,9 @@ function build_graph(cif_path; use_voronoi=true, radius=8.0, max_num_nbr=12, dis
     atom_ids = [site_element(s) for s in c]
 
     if use_voronoi
-        weight_mat = build_graph_voronoi(c)
+        weight_mat = weights_voronoi(c)
     else
-        weight_mat = build_graph_cutoff(c; radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
+        weight_mat = weights_cutoff(c; radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
     end
 
     # normalize weights
@@ -68,13 +69,14 @@ function build_graph(cif_path; use_voronoi=true, radius=8.0, max_num_nbr=12, dis
         weight_mat = weight_mat ./ maximum(weight_mat)
     end
 
-    return (weight_mat, atom_ids)
+    g = SimpleWeightedGraph{Int32}(Float32.(weight_mat))
+    return AtomGraph(g, atom_ids)
 end
 
 """
 Build graph using neighbors from faces of Voronoi polyedra and weights from areas. Based on the approach from https://github.com/ulissigroup/uncertainty_benchmarking/blob/aabb407807e35b5fd6ad06b14b440609ae09e6ef/BNN/data_pyro.py#L268
 """
-function build_graph_voronoi(struc)
+function weights_voronoi(struc)
     num_atoms = size(struc)[1]
     sa = pyimport("pymatgen.analysis.structure_analyzer")
     vc = sa.VoronoiConnectivity(struc)
@@ -104,7 +106,7 @@ Build graph using neighbor number cutoff method adapted from original CGCNN. Not
 # TODO
 - option to cut off by nearest, next-nearest, etc. by DISTANCE rather than NUMBER of neighbors
 """
-function build_graph_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square)
+function weights_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square)
     #= find neighbors, requires a cutoff radius
     returns a NxM Array of PyObject PeriodicSite
     ...except when it returns a list of N of lists of length M...
