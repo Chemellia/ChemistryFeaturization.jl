@@ -1,5 +1,6 @@
 using Test
 using LightGraphs
+using JLD2
 include("../src/pmg_graphs.jl")
 include("../src/atomgraph.jl")
 
@@ -42,4 +43,17 @@ end
     @test_throws AssertionError add_features!(ag, bad_fmat, featurization)
     add_features!(ag, good_fmat, featurization)
     @test ag.features==good_fmat
+end
+
+@testset "save/load" begin
+    g = SimpleWeightedGraph{Int32}(Float32.([0 1 1; 1 0 1; 1 1 0]))
+    fmat = Float32.([1 2 3; 4 5 6])
+    featurization = [AtomFeat(:feat, true, 2, false, ['a','b'])]
+    ag = AtomGraph(g, ["C", "C", "C"], fmat, featurization)
+    @save "./test_data/testgraph.jld2" ag
+    ag = nothing
+    @load "./test_data/testgraph.jld2" ag
+    @test ag.features==fmat
+    @test ag.elements==["C", "C", "C"]
+    @test ag.lapl==Float32.([1 -0.5 -0.5; -0.5 1 -0.5; -0.5 -0.5 1])
 end

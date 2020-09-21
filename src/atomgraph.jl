@@ -5,7 +5,7 @@ using GraphPlot
 using Colors
 
 # Type to store atomic graphs
-# TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter?
+# TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 mutable struct AtomGraph{G <: AbstractSimpleWeightedGraph{Int32, Float32}} <: lg.AbstractGraph{Float32}
     graph::G # actual graph, for now only SimpleWeightedGraph types work
     elements::Vector{String} # list of elemental symbols corresponding to each node

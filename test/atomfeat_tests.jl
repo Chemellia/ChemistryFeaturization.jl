@@ -1,4 +1,5 @@
 using Test
+using JLD2
 const cf = ChemistryFeaturization
 
 @testset "binning" begin
@@ -97,4 +98,16 @@ end
     @test cf.vec_valid(vec, [3,2])
     @test !cf.vec_valid(vec, [3,3])
     @test !cf.vec_valid([1,0,1,1,0], [3,2])
+end
+
+@testset "save/load" begin
+    f = AtomFeat(:feat, [1,2,3])
+    @save "./test_data/testfeat.jld2" f
+    f = nothing
+    @load "./test_data/testfeat.jld2" f
+    @test f.name==:feat
+    @test f.categorical
+    @test f.num_bins==3
+    @test f.vals==[1,2,3]
+    @test !f.logspaced
 end
