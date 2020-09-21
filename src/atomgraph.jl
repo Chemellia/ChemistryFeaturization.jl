@@ -6,8 +6,8 @@ using Colors
 
 # Type to store atomic graphs
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter?
-mutable struct AtomGraph{T <: AbstractSimpleWeightedGraph{Int32, Float32}} <: lg.AbstractGraph{Float32}
-    graph::T # actual graph, for now only SimpleWeightedGraph types work
+mutable struct AtomGraph{G <: AbstractSimpleWeightedGraph{Int32, Float32}} <: lg.AbstractGraph{Float32}
+    graph::G # actual graph, for now only SimpleWeightedGraph types work
     elements::Vector{String} # list of elemental symbols corresponding to each node
     lapl::Matrix{Float32} # graph laplacian (normalized)
     features::Matrix{Float32} # feature matrix (size (# features, # nodes))
@@ -91,7 +91,7 @@ end
 normalized_laplacian(g::AtomGraph) = g.lapl
 
 # function to add node features if only the "bare" graph has been initialized, note that featurization scheme must be specified!
-function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat{T}}) where T
+function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat})
     num_atoms = nv(g)
 
     # check that features is the right dimensions (# features x # nodes)

@@ -32,13 +32,13 @@ end
 
 # Type to store featurization metadata. An array of these specifies a featurization scheme for atoms.
 # TODO for Sean, eventually: add PairFeat and BondFeat types (maybe in another file for tidiness)
-# TODO, maybe: we could define AbstractFeat{T} that all of these would inherit from, but TBD if that would be useful or not
-struct AtomFeat{T}
+# TODO, maybe: we could define AbstractFeat that all of these would inherit from, but TBD if that would be useful or not
+struct AtomFeat
     name::Symbol # name of feature
     categorical::Bool # whether it's categorical (vs. numerical)
     num_bins::Integer # length of associated subvector
     logspaced::Bool # whether it's logspaced (most relevant for numerical)
-    vals::Vector{T} # list of values (length equal to num_bins for categorical, num_bins+1 (specifying bin edges) for numerical)
+    vals::Vector # list of values (length equal to num_bins for categorical, num_bins+1 (specifying bin edges) for numerical)
     # basic standard constructor will check some things...
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
         T = eltype(vals)
@@ -54,12 +54,12 @@ struct AtomFeat{T}
             if num_bins + 1 != length(vals)
                 DimensionMismatch("Numerical features should have values specifying bin edges. This vector is the wrong length!")
             end
-            if !(eltype(vals)<:Real)
+            if !(T<:Real)
                 error("Numerical features must have (real) numerical values...") # should figure out how to throw a TypeError propertly
             end
             val_list = sort(vals)
         end
-        new{T}(name, categorical, num_bins, logspaced, val_list)
+        new(name, categorical, num_bins, logspaced, val_list)
     end
 end
 
@@ -78,10 +78,10 @@ end
 AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
 
 # pretty printing, short form
-Base.show(io::IO, f::AtomFeat{T}) where {T} = print(io, "$(f.name): AtomFeat{$T} with $(f.num_bins) bins")
+Base.show(io::IO, f::AtomFeat) = print(io, "$(f.name): AtomFeat with $(f.num_bins) bins")
 
 # pretty printing, long form
-Base.show(io::IO, ::MIME"text/plain", f::AtomFeat{T}) where{T} = print(io, "AtomFeat{$T}\n   name: $(f.name)\n   categorical: $(f.categorical)\n   length: $(f.num_bins)\n   logspaced: $(f.logspaced)\n   bins: $(f.vals)")
+Base.show(io::IO, ::MIME"text/plain", f::AtomFeat) = print(io, "AtomFeat\n   name: $(f.name)\n   categorical: $(f.categorical)\n   length: $(f.num_bins)\n   logspaced: $(f.logspaced)\n   bins: $(f.vals)")
 
 """
 Create onehot style vector.
