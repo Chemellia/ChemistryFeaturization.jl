@@ -17,6 +17,18 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 SimpleWeightedGraphs = "47aef6b3-ad0c-573a-a1e2-d07658019622"
 
+[compat]
+CSV = "0.7"
+Colors = "0.12"
+Conda = "1.4"
+DataFrames = "0.21"
+Flux = "0.11"
+GraphPlot = "0.4"
+JSON = "0.21"
+LightGraphs = "1"
+PyCall = "1"
+SimpleWeightedGraphs = "1"
+
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
