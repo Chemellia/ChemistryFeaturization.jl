@@ -76,7 +76,7 @@ lg.inneighbors(g::AtomGraph, node) = lg.inneighbors(g.graph, node)
 lg.has_vertex(g::AtomGraph, v::Integer) = lg.has_vertex(g.graph, v)
 lg.has_edge(g::AtomGraph, i, j) = lg.has_edge(g.graph, i, j)
 
-# TODO: implement zero to return one with zero(G) and use constructors from above to populate other stuff, this is the last one for all of the LightGraphs functions to "just work"
+lg.zero(AtomGraph) = AtomGraph(zero(SimpleWeightedGraph{Int32,Float32}), String[])
 
 # TODO: maybe some subgraph stuff for cutting up graphs later, will need to make sure to account for feature matrix and element list properly as well as recompute laplacian, would be cool to be able to e.g. filter on particular features and only pull matching nodes
 
@@ -91,7 +91,7 @@ end
 normalized_laplacian(g::AtomGraph) = g.lapl
 
 # function to add node features if only the "bare" graph has been initialized, note that featurization scheme must be specified!
-function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat})
+function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat{T}}) where T
     num_atoms = nv(g)
 
     # check that features is the right dimensions (# features x # nodes)

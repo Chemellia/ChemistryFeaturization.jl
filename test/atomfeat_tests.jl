@@ -50,21 +50,21 @@ end
     @test lin1.vals==lin2.vals
 
     # now log...
-    log1 = AtomFeat(:feat, false, 3, true, [0.1, 1, 10, 100])
+    log1 = AtomFeat(:feat, false, 3, true, Float32.([0.1, 1, 10, 100]))
     log2 = AtomFeat(:feat, false, 3, 0.1, 100, true)
     @test log1.vals==log2.vals
 
     # check that arbitrary spacing does work, though I don't see a need for it right now...
     arb = AtomFeat(:feat, false, 3, false, [1,2,4,5])
-    @test arb.vals==[1,2,4,5]
+    @test arb.vals==Float32.([1,2,4,5])
 
     # test build_atom_feats function
     X, MP, block = build_atom_feats([:X, Symbol("Melting point"), :Block]; logspaced=[false, true])
     @test X.name==:X
     @test X.categorical==false
     @test X.logspaced==false
-    @test X.vals[1]==0.7
-    @test X.vals[end]==3.98
+    @test X.vals[1]==Float32(0.7)
+    @test X.vals[end]==Float32(3.98)
 
     @test MP.categorical==false
     @test MP.logspaced==true
@@ -82,7 +82,7 @@ end
     H_feat = decode_feature_vector(vecs["H"], features)
     @test H_feat[:X][1] <= 2.2 <= H_feat[:X][2]
     @test H_feat[:Block] == "s"
-    @test H_feat[Symbol("Atomic mass")][1] <= 1.00794 <= H_feat[Symbol("Atomic mass")][2]
+    @test H_feat[Symbol("Atomic mass")][1] <= Float32(1.00794) <= H_feat[Symbol("Atomic mass")][2]
     Si_feat = decode_feature_vector(vecs["Si"], features)
     @test Si_feat[:X][1] <= 1.9 <= Si_feat[:X][2]
     @test Si_feat[:Block] == "p"
