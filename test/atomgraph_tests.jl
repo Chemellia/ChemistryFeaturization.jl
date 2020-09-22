@@ -33,6 +33,19 @@ include("../src/atomgraph.jl")
     @test_throws AssertionError add_features!(ag, bad_fmat, featurization)
     add_features!(ag, good_fmat, featurization)
     @test ag.features==good_fmat
+
+    # tests for other signatures of add_features! where feature vectors are built automatically
+    ag = AtomGraph(g, ["C", "C", "C"])
+    ag2 = deepcopy(ag)
+    ag3 = deepcopy(ag)
+    feature_names = [:Block, :X]
+    vecs, featurization = make_feature_vectors(feature_names, nbins=[4,3])
+
+    add_features!(ag, vecs, featurization)
+    add_features!(ag2, featurization)
+    add_features!(ag3, feature_names, Int32.([4,3]))
+
+    @test ag.features==ag2.features==ag3.features==Float32.(hcat([vecs["C"] for i in 1:3]...))
 end
 
 @testset "graph-building" begin

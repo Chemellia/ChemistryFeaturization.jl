@@ -181,27 +181,24 @@ function build_atom_feats(feature_names::Vector{Symbol}; nbins::Vector{<:Integer
 end
 
 """
-    make_feature_vectors(features)
+    make_feature_vectors(featurization)
     make_feature_vectors(feature_names)
     make_feature_vectors(feature_names, nbins)
     make_feature_vectors(feature_names, nbins, logspaced)
-
 
 Make custom feature vectors, using specified features and numbers of bins. Can be called with an array of AtomFeat objects or by specifying names and other metadata and the objects will be built.
 
 Note that in the latter case, bin numbers will be ignored for categorical features (block, group, and row), but features and nbins vectors should still be the same length. Optionally, feed in vector of booleans with trues at the index of any (continous valued) feature whose bins should be log spaced.
 
 # Arguments
-- `feature_names::Vector{String}`: list of features to be encoded
-- `nbins::Vector{Integer}`: number of bins for each feature (in same order)
-- `logspaced=false`: (single Bool or vector of them) whether or not to logarithmically space each feature
+- `featurization::Vector{AtomFeat}`: Featurization scheme in the form of a list of AtomFeat objects. (See below for alternate call signature that generates this list from more primitive inputs)
 
 # Returns 
 - a dictionary from element symbol => one-hot style feature vector, concatenated in order of feature list.
 - A Vector of AtomFeat objects
 """
-function make_feature_vectors(features::Vector{AtomFeat})
-    feature_names = [f.name for f in features]
+function make_feature_vectors(featurization::Vector{AtomFeat})
+    feature_names = [f.name for f in featurization]
     usable_atom_data =  dropmissing(atom_data_df[:, cat(Symbol.(feature_names), not_features, dims=1)])
     num_dropped = size(atom_data_df)[1] - size(usable_atom_data)[1]
     if num_dropped != 0
@@ -218,18 +215,25 @@ function make_feature_vectors(features::Vector{AtomFeat})
         el = usable_atom_data.Symbol[i]
         featurevec = []
         # make onehot vector for each feature
-        for f in features
+        for f in featurization
             val = usable_atom_data[i, Symbol(f.name)]
             subvec = onehot_bins(f, val)
             append!(featurevec, subvec)
         end
         sym_featurevec[el] = featurevec
     end
-    return sym_featurevec, features
+    return sym_featurevec, featurization
 end
 
-# alternate call signature
-make_feature_vectors(feature_names::Vector{Symbol}, nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
+"""
+alternate call signature...
+
+# Arguments
+- `feature_names::Vector{String}`: list of features to be encoded
+- `nbins::Vector{Integer}`: number of bins for each feature (in same order)
+- `logspaced=false`: (single Bool or vector of them) whether or not to logarithmically space each feature
+"""
+make_feature_vectors(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
 
 """
     chunk_vec(vec, nbins)

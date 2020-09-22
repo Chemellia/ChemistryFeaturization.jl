@@ -104,6 +104,28 @@ function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::V
     g.featurization = featurization
 end
 
+# alternate version where it builds the features too, you have to pass in the results of the make_feature_vectors function
+function add_features!(g::AtomGraph, atom_feature_vecs::Dict{String, Vector{Float32}}, featurization::Vector{AtomFeat})
+    feature_mat = Float32.(hcat([atom_feature_vecs[e] for e in g.elements]...))
+    add_features!(g, feature_mat, featurization)
+end
+
+# and finally the ones where it makes the feature vectors too...(defined for both signatures of the make_feature_vectors function just for completeness)
+function add_features!(g::AtomGraph, featurization::Vector{AtomFeat})
+    feature_mat, featurization = make_feature_vectors(featurization)
+    add_features!(g, feature_mat, featurization)
+end
+
+function add_features!(g::AtomGraph, feature_names::Vector{Symbol})
+    feature_mat, featurization = make_feature_vectors(feature_names)
+    add_features!(g, feature_mat, featurization)
+end
+
+function add_features!(g::AtomGraph, feature_names::Vector{Symbol}, nbins::Vector{<:Integer}, logspaced=false)
+    feature_mat, featurization = make_feature_vectors(feature_names, nbins=nbins, logspaced=logspaced)
+    add_features!(g, feature_mat, featurization)
+end
+
 # now visualization stuff...
 
 "Get a list of colors to use for graph visualization."
