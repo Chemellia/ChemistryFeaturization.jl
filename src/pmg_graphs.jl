@@ -4,6 +4,7 @@ Building graphs from CIF files using PyCall to the pymatgen package.
 
 using PyCall
 using ChemistryFeaturization
+using Glob
 
 # options for decay of bond weights with distance...
 inverse_square(x) = x^-2.0
@@ -36,7 +37,7 @@ function are_equidistant(site1, site2, atol=1e-4)
     isapprox(site_distance(site1), site_distance(site2), atol=atol)
 end
 
-
+# TODO: add featurization options here
 """
 Function to build graph from a CIF file of a crystal structure. Returns an AtomGraph object.
 
@@ -153,3 +154,38 @@ function weights_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=inver
     # average across diagonal (because neighborness isn't strictly symmetric in the way we're defining it here)
     weight_mat = 0.5.* (weight_mat .+ weight_mat')
 end
+
+# bulk processing fcn: i.e. given path to folder of CIF's, save a bunch of JLD2 files with (optionally, featurized) graphs
+# saved JLD2 files will have same names as CIF files just with extension changed
+# TODO: add proper docstring for this
+"""
+function graphs_from_cifs(cif_folder, output_folder; atom_featurevecs=Dict{String, Vector{Float32}}(), featurization=AtomFeat[], use_voronoi=true, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+    # check if input folder exists and contains CIFs, if not throw error
+    ciflist = glob(joinpath(cif_folder, "*.jl"))
+    if length(ciflist)==0
+        raise ErrorException("No CIF's in provided CIF directory!")
+    end
+
+    # check if output folder exists, if not create it
+    if !isdir(output_folder)
+        mkdir(output_folder)
+        @info "Output path provided did not exist, creating folder there."
+    end
+
+    # check if only one or the other of feature vectors and featurization were provided, if so warn that will not featurize, only build graphs (set a boolean appropriately)
+    featurize = false
+    if length(atom_featurevecs)==0 ⊻ length(featurization)==0
+        @warn "You have supplied only feature vectors or only a featurization scheme but not both, so graphs will be built but not featurized."
+    elseif length(atom_featurevecs)!=0 & length(featurization)!=0
+        featurize = true
+    end
+
+    # loop over CIFs
+
+
+    
+end
+
+# TODO: add alternate signatures for this...
+"""
+

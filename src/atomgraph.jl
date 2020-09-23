@@ -3,12 +3,13 @@ using SimpleWeightedGraphs
 using LinearAlgebra
 using GraphPlot
 using Colors
+using JSON
 
 # Type to store atomic graphs
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 # TO CONSIDER: store an ID of some kind? (e.g. mp-123 or whatever)
-mutable struct AtomGraph{G <: AbstractSimpleWeightedGraph{Int32, Float32}} <: lg.AbstractGraph{Float32}
-    graph::G # actual graph, for now only SimpleWeightedGraph types work
+mutable struct AtomGraph <: lg.AbstractGraph{Float32}
+    graph::SimpleWeightedGraph{Int32,Float32}
     elements::Vector{String} # list of elemental symbols corresponding to each node
     lapl::Matrix{Float32} # graph laplacian (normalized)
     features::Matrix{Float32} # feature matrix (size (# features, # nodes))
@@ -16,7 +17,7 @@ mutable struct AtomGraph{G <: AbstractSimpleWeightedGraph{Int32, Float32}} <: lg
 end
 
 # basic constructor
-function AtomGraph(gr::G, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat}) where G <: AbstractSimpleWeightedGraph{Int32,Float32}
+function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat})
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
@@ -31,7 +32,8 @@ function AtomGraph(gr::G, el_list::Vector{String}, features::Matrix{Float32}, fe
 end
 
 # one without features or featurization initialized yet
-function AtomGraph(gr::G, el_list::Vector{String}) where G <: AbstractSimpleWeightedGraph{Int32,Float32}    # check that el_list is the right length
+function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String})
+    # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
 
@@ -40,6 +42,24 @@ function AtomGraph(gr::G, el_list::Vector{String}) where G <: AbstractSimpleWeig
 end
 
 # TODO, maybe: constructor where you give adjacency matrix and it builds the graph for you also
+
+JSON.lower(ag::AtomGraph) = Dict("graph"=>ag.graph.weights, "elements"=>ag.elements, "lapl"=>ag.lapl, "features"=>ag.features, "featurization"=>JSON.lower.(ag.featurization))
+
+function save_json(ag::AtomGraph, fpath::String)
+    open(fpath, "w") do f
+        write(f, json(ag))
+    end
+end
+
+function AtomGraph(d::Dict{String,Any})
+    graph = SimpleWeightedGraph{Int32,Float32}(Float32.(hcat([v for v in d["graph"]]...)))
+    elements = d["elements"]
+    lapl = Float32.(hcat([v for v in d["lapl"]]...))
+    features = Float32.(hcat([v for v in d["features"]]...))
+    featurization = [AtomFeat(fd) for fd in d["featurization"]]
+end
+
+AtomGraph(json_path::String) = AtomGraph(JSON.parsefile(json_path))
 
 # pretty printing, short version
 function Base.show(io::IO, g::AtomGraph)
@@ -106,6 +126,7 @@ end
 
 # alternate version where it builds the features too, you have to pass in the results of the make_feature_vectors function
 function add_features!(g::AtomGraph, atom_feature_vecs::Dict{String, Vector{Float32}}, featurization::Vector{AtomFeat})
+    @assert Set(String.(g.elements)) <= Set(keys(atom_feature_vecs)) "Some atoms in your graph do not have corresponding feature vectors! This could be because some features you requested had missing values for these atoms."
     feature_mat = Float32.(hcat([atom_feature_vecs[e] for e in g.elements]...))
     add_features!(g, feature_mat, featurization)
 end
@@ -116,6 +137,7 @@ function add_features!(g::AtomGraph, featurization::Vector{AtomFeat})
     add_features!(g, feature_mat, featurization)
 end
 
+# is there a clever way to roll this into the previous one since the syntax is identical?
 function add_features!(g::AtomGraph, feature_names::Vector{Symbol})
     feature_mat, featurization = make_feature_vectors(feature_names)
     add_features!(g, feature_mat, featurization)

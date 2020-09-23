@@ -2,6 +2,7 @@ using Flux: onecold
 using JSON
 using CSV
 using DataFrames
+using JSON
 
 # default number of bins for continuous features, if unspecified
 const default_nbins = 10
@@ -42,6 +43,11 @@ struct AtomFeat
     # basic standard constructor will check some things...
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
         T = eltype(vals)
+        if T==Float64
+            T = Float32
+        elseif T==Int64
+            T = Int32
+        end
         if categorical
             if num_bins != length(vals)
                 DimensionMismatch("Categorical features should have a number of values equal to the number of bins.")
@@ -76,6 +82,13 @@ end
 
 # constructor that will assume categorical features
 AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
+
+# reading/writing from/to JSON
+JSON.lower(f::AtomFeat) = Dict("name"=>f.name, "categorical"=>f.categorical, "num_bins"=>f.num_bins, "logspaced"=>f.logspaced, "vals"=>f.vals)
+
+# helper constructors when parsing from JSON
+AtomFeat(d::Dict{String,Any}) = AtomFeat(d["name"], d["categorical"], d["num_bins"], d["logspaced"], d["vals"])
+#AtomFeat(json_path::String) = AtomFeat(JSON.parsefile(json_path))
 
 # pretty printing, short form
 Base.show(io::IO, f::AtomFeat) = print(io, "$(f.name): AtomFeat with $(f.num_bins) bins")

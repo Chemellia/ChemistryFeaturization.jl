@@ -100,6 +100,13 @@ end
     @test !cf.vec_valid([1,0,1,1,0], [3,2])
 end
 
+#TODO: redo with JSON versions
+@testset "save/load" begin
+    f = AtomFeat(:feat, [1,2,3])
+    
+end
+
+"""
 @testset "save/load" begin
     f = AtomFeat(:feat, [1,2,3])
     @save "./test_data/testfeat.jld2" f
@@ -111,3 +118,4 @@ end
     @test f.vals==[1,2,3]
     @test !f.logspaced
 end
+"""

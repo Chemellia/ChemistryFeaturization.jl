@@ -58,6 +58,12 @@ end
     @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
 end
 
+#TODO: redo with JSON versions, make sure to test order of features in featurization
+@testset "save/load" begin
+    
+end
+
+"""
 @testset "save/load" begin
     g = SimpleWeightedGraph{Int32}(Float32.([0 1 1; 1 0 1; 1 1 0]))
     fmat = Float32.([1 2 3; 4 5 6])
@@ -70,3 +76,4 @@ end
     @test ag.elements==["C", "C", "C"]
     @test ag.lapl==Float32.([1 -0.5 -0.5; -0.5 1 -0.5; -0.5 -0.5 1])
 end
+"""
