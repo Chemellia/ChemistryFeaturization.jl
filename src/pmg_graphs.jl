@@ -155,8 +155,8 @@ function weights_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=inver
     weight_mat = 0.5.* (weight_mat .+ weight_mat')
 end
 
-# bulk processing fcn: i.e. given path to folder of CIF's, save a bunch of JLD2 files with (optionally, featurized) graphs
-# saved JLD2 files will have same names as CIF files just with extension changed
+# bulk processing fcn: i.e. given path to folder of CIF's, save a bunch of files with (optionally, featurized) graphs
+# saved .jls files will have same names as CIF files just with extension changed
 # TODO: add proper docstring for this
 """
 function graphs_from_cifs(cif_folder, output_folder; atom_featurevecs=Dict{String, Vector{Float32}}(), featurization=AtomFeat[], use_voronoi=true, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)

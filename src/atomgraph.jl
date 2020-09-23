@@ -43,24 +43,6 @@ end
 
 # TODO, maybe: constructor where you give adjacency matrix and it builds the graph for you also
 
-JSON.lower(ag::AtomGraph) = Dict("graph"=>ag.graph.weights, "elements"=>ag.elements, "lapl"=>ag.lapl, "features"=>ag.features, "featurization"=>JSON.lower.(ag.featurization))
-
-function save_json(ag::AtomGraph, fpath::String)
-    open(fpath, "w") do f
-        write(f, json(ag))
-    end
-end
-
-function AtomGraph(d::Dict{String,Any})
-    graph = SimpleWeightedGraph{Int32,Float32}(Float32.(hcat([v for v in d["graph"]]...)))
-    elements = d["elements"]
-    lapl = Float32.(hcat([v for v in d["lapl"]]...))
-    features = Float32.(hcat([v for v in d["features"]]...))
-    featurization = [AtomFeat(fd) for fd in d["featurization"]]
-end
-
-AtomGraph(json_path::String) = AtomGraph(JSON.parsefile(json_path))
-
 # pretty printing, short version
 function Base.show(io::IO, g::AtomGraph)
     st = "AtomGraph with $(nv(g)) nodes, $(ne(g)) edges"

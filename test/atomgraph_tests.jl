@@ -1,6 +1,6 @@
 using Test
 using LightGraphs
-using JLD2
+using Serialization
 include("../src/pmg_graphs.jl")
 include("../src/atomgraph.jl")
 
@@ -58,22 +58,20 @@ end
     @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
 end
 
-#TODO: redo with JSON versions, make sure to test order of features in featurization
-@testset "save/load" begin
-    
-end
-
-"""
 @testset "save/load" begin
     g = SimpleWeightedGraph{Int32}(Float32.([0 1 1; 1 0 1; 1 1 0]))
-    fmat = Float32.([1 2 3; 4 5 6])
-    featurization = [AtomFeat(:feat, true, 2, false, ['a','b'])]
+    @test_throws AssertionError AtomGraph(g, ["C"])
+    fmat = Float32.([1 2 3; 4 5 6; 0 1 0; 9 8 7])
+    featurization = [AtomFeat(:feat, true, 2, false, ['a','b']), AtomFeat(:feat2, false, 2, false, [-1,0,1])]
     ag = AtomGraph(g, ["C", "C", "C"], fmat, featurization)
-    @save "./test_data/testgraph.jld2" ag
-    ag = nothing
-    @load "./test_data/testgraph.jld2" ag
-    @test ag.features==fmat
-    @test ag.elements==["C", "C", "C"]
-    @test ag.lapl==Float32.([1 -0.5 -0.5; -0.5 1 -0.5; -0.5 -0.5 1])
+    serialize("./test_data/testgraph.jls", ag)
+    ag2 = deserialize("./test_data/testgraph.jls")
+    @test ag2.elements==ag.elements
+    @test ag.lapl==ag2.lapl
+    @test ag.features==ag2.features
+    for i in 1:2
+        for field in [:name, :categorical, :num_bins, :logspaced, :vals]
+            @test getfield(ag.featurization[i], field)==getfield(ag2.featurization[i], field)
+        end
+    end
 end
-"""

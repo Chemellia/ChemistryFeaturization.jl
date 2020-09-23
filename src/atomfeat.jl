@@ -83,13 +83,6 @@ end
 # constructor that will assume categorical features
 AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
 
-# reading/writing from/to JSON
-JSON.lower(f::AtomFeat) = Dict("name"=>f.name, "categorical"=>f.categorical, "num_bins"=>f.num_bins, "logspaced"=>f.logspaced, "vals"=>f.vals)
-
-# helper constructors when parsing from JSON
-AtomFeat(d::Dict{String,Any}) = AtomFeat(d["name"], d["categorical"], d["num_bins"], d["logspaced"], d["vals"])
-#AtomFeat(json_path::String) = AtomFeat(JSON.parsefile(json_path))
-
 # pretty printing, short form
 Base.show(io::IO, f::AtomFeat) = print(io, "$(f.name): AtomFeat with $(f.num_bins) bins")
 
