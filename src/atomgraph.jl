@@ -4,6 +4,7 @@ using LinearAlgebra
 using GraphPlot
 using Colors
 using JSON
+include("pmg_graphs.jl")
 
 # Type to store atomic graphs
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
@@ -142,19 +143,19 @@ function graph_colors(atno_list, seed_color=colorant"cyan4")
 end
 
 "Compute edge widths (proportional to weights on graph) for graph visualization."
-function graph_edgewidths(g, weight_mat)
+function graph_edgewidths(ag::AtomGraph)
     edgewidths = []
     # should be able to do this as
-    for e in edges(g)
-        append!(edgewidths, weight_mat[e.src, e.dst])
+    for e in edges(ag)
+        append!(edgewidths, ag.weights[e.src, e.dst])
     end
     return edgewidths
 end
 
 "Visualize a given graph."
-function visualize_graph(g, element_list)
+function visualize_graph(ag::AtomGraph)
     # gplot doesn't work on weighted graphs
-    sg = SimpleGraph(adjacency_matrix(g))
-    plt = gplot(sg, nodefillc=graph_colors(element_list), nodelabel=element_list, edgelinewidth=graph_edgewidths(sg, g.weights))
+    sg = SimpleGraph(adjacency_matrix(ag))
+    plt = gplot(sg, nodefillc=graph_colors(ag.elements), nodelabel=ag.elements, edgelinewidth=graph_edgewidths(sg, weights(ag)))
     display(plt)
 end
