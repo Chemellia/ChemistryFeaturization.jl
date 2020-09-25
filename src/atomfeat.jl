@@ -2,7 +2,6 @@ using Flux: onecold
 using JSON
 using CSV
 using DataFrames
-using JSON
 
 # default number of bins for continuous features, if unspecified
 const default_nbins = 10
