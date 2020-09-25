@@ -52,7 +52,7 @@ Function to build graph from a CIF file of a crystal structure. Returns an AtomG
 - `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
 - `dist_decay_func`: function (e.g. inverse_square or exp_decay) to determine falloff of graph edge weights with neighbor distance
 """
-function build_graph(cif_path; use_voronoi=true, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graph(cif_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     s = pyimport("pymatgen.core.structure")
     c = s.Structure.from_file(cif_path)
     num_atoms = size(c)[1]
@@ -171,7 +171,7 @@ Other optional arguments are the optional arguments to `build_graph`: `use_voron
 This function does not return anything.
     TODO: decide if there should be an option to return the graphs
 """
-function build_graphs_from_cifs(cif_folder::String, output_folder::String; atom_featurevecs=Dict{String, Vector{Float32}}(), featurization=AtomFeat[], use_voronoi=true, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graphs_from_cifs(cif_folder::String, output_folder::String; atom_featurevecs=Dict{String, Vector{Float32}}(), featurization=AtomFeat[], use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # check if input folder exists and contains CIFs, if not throw error
     ciflist = glob(joinpath(cif_folder, "*.cif"))
     if length(ciflist)==0
