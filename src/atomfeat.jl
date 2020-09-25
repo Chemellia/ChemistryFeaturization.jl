@@ -83,6 +83,7 @@ end
 # constructor that will assume categorical features
 AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
 
+
 # pretty printing, short form
 Base.show(io::IO, f::AtomFeat) = print(io, "$(f.name): AtomFeat with $(f.num_bins) bins")
 
@@ -180,6 +181,8 @@ function build_atom_feats(feature_names::Vector{Symbol}; nbins::Vector{<:Integer
             feature = AtomFeat(feature_name, vals)
         elseif feature_name in continuous_feature_names
             feature = AtomFeat(feature_name, false, nbins, fea_minmax[feature_name]..., logspaced)
+        else
+            @warn "$feature_name not found in atom_data_df..."
         end
         push!(feature_specs, feature)
     end

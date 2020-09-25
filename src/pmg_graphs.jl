@@ -5,6 +5,7 @@ Building graphs from CIF files using PyCall to the pymatgen package.
 using PyCall
 using ChemistryFeaturization
 using Glob
+using Serialization
 
 # options for decay of bond weights with distance...
 inverse_square(x) = x^-2.0
@@ -37,7 +38,7 @@ function are_equidistant(site1, site2, atol=1e-4)
     isapprox(site_distance(site1), site_distance(site2), atol=atol)
 end
 
-# TODO: add featurization options here
+# TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
 """
 Function to build graph from a CIF file of a crystal structure. Returns an AtomGraph object.
 
@@ -155,15 +156,26 @@ function weights_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=inver
     weight_mat = 0.5.* (weight_mat .+ weight_mat')
 end
 
-# bulk processing fcn: i.e. given path to folder of CIF's, save a bunch of files with (optionally, featurized) graphs
-# saved .jls files will have same names as CIF files just with extension changed
-# TODO: add proper docstring for this
+
 """
-function graphs_from_cifs(cif_folder, output_folder; atom_featurevecs=Dict{String, Vector{Float32}}(), featurization=AtomFeat[], use_voronoi=true, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+Function to build and serialize to file a batch of CIFs, optionally featurizing them as well. Saved .jls files will have the same names as the .cif ones but with the extensions modified.
+
+# Arguments
+- `cif_folder::String`: path to folder containing CIF files
+- `output_folder::String`: path to folder where .jls files containing AtomGraph objects should be saved (will be created if it doesn't exist already)
+
+If you want to featurize the graphs, at least the vector of `AtomFeat` objects describing the featurization procedure is required, and optionally the Dict mapping from elemental symbols to feature vectors (if it is not provided, it will be generated).
+
+Other optional arguments are the optional arguments to `build_graph`: `use_voronoi`, `radius`, `max_num_nbr`, `dist_decay_func`, `normalize`
+
+This function does not return anything.
+    TODO: decide if there should be an option to return the graphs
+"""
+function build_graphs_from_cifs(cif_folder::String, output_folder::String; atom_featurevecs=Dict{String, Vector{Float32}}(), featurization=AtomFeat[], use_voronoi=true, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # check if input folder exists and contains CIFs, if not throw error
-    ciflist = glob(joinpath(cif_folder, "*.jl"))
+    ciflist = glob(joinpath(cif_folder, "*.cif"))
     if length(ciflist)==0
-        raise ErrorException("No CIF's in provided CIF directory!")
+        error("No CIF's in provided CIF directory!")
     end
 
     # check if output folder exists, if not create it
@@ -172,20 +184,29 @@ function graphs_from_cifs(cif_folder, output_folder; atom_featurevecs=Dict{Strin
         @info "Output path provided did not exist, creating folder there."
     end
 
-    # check if only one or the other of feature vectors and featurization were provided, if so warn that will not featurize, only build graphs (set a boolean appropriately)
-    featurize = false
-    if length(atom_featurevecs)==0 ⊻ length(featurization)==0
-        @warn "You have supplied only feature vectors or only a featurization scheme but not both, so graphs will be built but not featurized."
-    elseif length(atom_featurevecs)!=0 & length(featurization)!=0
-        featurize = true
+    # check if there is enough information to actually featurize
+    featurize = length(featurization)>0
+    atom_featurevecs = (length(atom_featurevecs)>0 & featurize) ? atom_featurevecs : make_feature_vectors(featurization)[1]
+
+    if (length(atom_featurevecs)>0) & (length(featurization)==0)
+        @warn "You have supplied only feature vectors but no featurization scheme, so graphs will be built but not featurized."
     end
 
     # loop over CIFs
-
-
-    
+    for cif in ciflist
+        id = split(split(cif, "/")[end], ".")[1]
+        ag = build_graph(cif; use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize)
+        if featurize
+            add_features!(ag, atom_featurevecs, featurization)
+        end
+        graph_path = joinpath(output_folder, string(id, ".jls"))
+        serialize(graph_path, ag)
+    end
 end
 
-# TODO: add alternate signatures for this...
-"""
+# alternate call signature where featurization is generated
+function build_graphs_from_cifs(cif_folder::String, output_folder::String; feature_names::Vector(Symbol), nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+    atom_featurevecs, featurization = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
+    build_graphs_from_cifs(cif_folder, output_folder; featurization=featurization, atom_featurevecs = atom_featurevecs)
+end
 
