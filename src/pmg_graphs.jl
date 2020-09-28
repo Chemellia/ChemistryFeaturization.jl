@@ -52,13 +52,14 @@ Function to build graph from a file storing a crystal structure (currently suppo
 - `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
 - `dist_decay_func`: function (e.g. inverse_square or exp_decay) to determine falloff of graph edge weights with neighbor distance
 """
+# TODO: featurize here
 function build_graph(file_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     s = pyimport("pymatgen.core.structure")
 
     # TODO: this bit can probably be abstracted out to another fcn...
-    if file_path[end-4:end]==".cif"
+    if file_path[end-3:end]==".cif"
         c = s.Structure.from_file(cif_path)
-    elseif file_path[end-5:end]==".traj"
+    elseif file_path[end-4:end]==".traj"
         aseio = pyimport("ase.io")
         pmgase = pyimport("pymatgen.io.ase")
         atoms_object = aseio.read(file_path)
@@ -218,7 +219,7 @@ function build_graphs_from_cifs(cif_folder::String, output_folder::String; atom_
 end
 
 # alternate call signature where featurization is generated
-function build_graphs_from_cifs(cif_folder::String, output_folder::String; feature_names::Vector(Symbol), nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+function build_graphs_from_cifs(cif_folder::String, output_folder::String; feature_names::Vector{Symbol}, nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
     atom_featurevecs, featurization = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
     build_graphs_from_cifs(cif_folder, output_folder; featurization=featurization, atom_featurevecs = atom_featurevecs)
 end
