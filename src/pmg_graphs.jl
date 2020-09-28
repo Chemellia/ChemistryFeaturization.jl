@@ -40,7 +40,7 @@ end
 
 # TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
 """
-Function to build graph from a CIF file of a crystal structure. Returns an AtomGraph object.
+Function to build graph from a file storing a crystal structure (currently supports .cif files and ASE .traj files). Returns an AtomGraph object.
 
 # Arguments
 - `cif_path::String`: path to CIF file
@@ -52,9 +52,22 @@ Function to build graph from a CIF file of a crystal structure. Returns an AtomG
 - `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
 - `dist_decay_func`: function (e.g. inverse_square or exp_decay) to determine falloff of graph edge weights with neighbor distance
 """
-function build_graph(cif_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graph(file_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     s = pyimport("pymatgen.core.structure")
-    c = s.Structure.from_file(cif_path)
+
+    # TODO: this bit can probably be abstracted out to another fcn...
+    if file_path[end-4:end]==".cif"
+        c = s.Structure.from_file(cif_path)
+    elseif file_path[end-5:end]==".traj"
+        aseio = pyimport("ase.io")
+        pmgase = pyimport("pymatgen.io.ase")
+        atoms_object = aseio.read(file_path)
+        aa = pmgase.AseAtomsAdaptor()
+        c = aa.get_structure(atoms_object)
+    else
+        error("file format not supported")
+    end
+
     num_atoms = size(c)[1]
 
     # list of atom symbols

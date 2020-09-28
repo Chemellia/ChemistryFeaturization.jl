@@ -56,6 +56,9 @@ end
     ag = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"); use_voronoi=false)
     @test weights(ag) == wm_true
     @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
+
+    # TODO: add one for a traj file
+    
 end
 
 @testset "save/load" begin
