@@ -49,7 +49,7 @@ include("../src/atomgraph.jl")
 end
 
 @testset "graph-building" begin
-    ag = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"))
+    ag = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"), use_voronoi=true)
     wm_true = [0.0 1.0 1.0 1.0; 1.0 0.0 1.0 1.0; 1.0 1.0 0.0 1.0; 1.0 1.0 1.0 0.0]
     @test weights(ag) == wm_true
     @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
@@ -57,8 +57,15 @@ end
     @test weights(ag) == wm_true
     @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
 
-    # TODO: add one for a traj file
-    
+    # tests for some other file formats
+    graphs = AtomGraph[]
+    for fp in ["mp-195.poscar", "mp-195.traj", "mp-195.xyz"]
+        push!(graphs, build_graph(joinpath(@__DIR__, "./test_data/", fp)))
+    end
+    for g in graphs
+        @test ag.elements == g.elements
+        @test weights(ag) == weights(g)
+    end
 end
 
 @testset "save/load" begin
@@ -81,7 +88,7 @@ end
 
 @testset "batch processing" begin
     featurization = build_atom_feats([Symbol("Atomic mass"), :Block])
-    build_graphs_from_cifs("./test_data/", "./test_data/graphs/", featurization=featurization)
+    build_graphs_from_cifs("./test_data/", "./test_data/graphs/", featurization)
     g1 = deserialize("./test_data/graphs/mp-195.jls")
     @test size(g1)==(4,4)
     @test size(g1.features)==(14,4)

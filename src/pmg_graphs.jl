@@ -40,10 +40,10 @@ end
 
 # TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
 """
-Function to build graph from a file storing a crystal structure (currently supports .cif files and ASE .traj files). Returns an AtomGraph object.
+Function to build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
 
 # Arguments
-- `cif_path::String`: path to CIF file
+- `file_path::String`: path to structure file
 - `use_voronoi::bool`: if true, use Voronoi method for neighbor lists, if false use cutoff method
 
     (The rest of these parameters are only used if use_voronoi is false)
@@ -56,17 +56,15 @@ Function to build graph from a file storing a crystal structure (currently suppo
 function build_graph(file_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     s = pyimport("pymatgen.core.structure")
 
-    # TODO: this bit can probably be abstracted out to another fcn...
+    # this bit coulds probably be abstracted out to another fcn...
     if file_path[end-3:end]==".cif"
-        c = s.Structure.from_file(cif_path)
-    elseif file_path[end-4:end]==".traj"
+        c = s.Structure.from_file(file_path)
+    else # hopefully it's one of the ones ASE can read...
         aseio = pyimport("ase.io")
         pmgase = pyimport("pymatgen.io.ase")
         atoms_object = aseio.read(file_path)
         aa = pmgase.AseAtomsAdaptor()
         c = aa.get_structure(atoms_object)
-    else
-        error("file format not supported")
     end
 
     num_atoms = size(c)[1]
@@ -185,7 +183,7 @@ Other optional arguments are the optional arguments to `build_graph`: `use_voron
 This function does not return anything.
     TODO: decide if there should be an option to return the graphs
 """
-function build_graphs_from_cifs(cif_folder::String, output_folder::String; atom_featurevecs=Dict{String, Vector{Float32}}(), featurization=AtomFeat[], use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graphs_from_cifs(cif_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # check if input folder exists and contains CIFs, if not throw error
     ciflist = glob(joinpath(cif_folder, "*.cif"))
     if length(ciflist)==0
@@ -219,7 +217,7 @@ function build_graphs_from_cifs(cif_folder::String, output_folder::String; atom_
 end
 
 # alternate call signature where featurization is generated
-function build_graphs_from_cifs(cif_folder::String, output_folder::String; feature_names::Vector{Symbol}, nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+function build_graphs_from_cifs(cif_folder::String, output_folder::String, feature_names::Vector{Symbol}=Symbol[]; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
     atom_featurevecs, featurization = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
     build_graphs_from_cifs(cif_folder, output_folder; featurization=featurization, atom_featurevecs = atom_featurevecs)
 end
