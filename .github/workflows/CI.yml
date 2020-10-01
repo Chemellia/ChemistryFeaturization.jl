@@ -4,6 +4,8 @@ on: [push, pull_request]
 
 jobs:
   test:
+    env:
+      PYTHON: ""
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
