@@ -3,6 +3,9 @@ Building graphs from CIF files using PyCall to the pymatgen package.
 =#
 
 using PyCall
+using ChemistryFeaturization
+using Glob
+using Serialization
 
 # options for decay of bond weights with distance...
 inverse_square(x) = x^-2.0
@@ -35,12 +38,12 @@ function are_equidistant(site1, site2, atol=1e-4)
     isapprox(site_distance(site1), site_distance(site2), atol=atol)
 end
 
-
+# TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
 """
-Function to build graph from a CIF file of a crystal structure. Returns a tuple of the adjacency matrix and the list of elements in order of the graph nodes.
+Function to build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
 
 # Arguments
-- `cif_path::String`: path to CIF file
+- `file_path::String`: path to structure file
 - `use_voronoi::bool`: if true, use Voronoi method for neighbor lists, if false use cutoff method
 
     (The rest of these parameters are only used if use_voronoi is false)
@@ -49,18 +52,31 @@ Function to build graph from a CIF file of a crystal structure. Returns a tuple 
 - `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
 - `dist_decay_func`: function (e.g. inverse_square or exp_decay) to determine falloff of graph edge weights with neighbor distance
 """
-function build_graph(cif_path; use_voronoi=true, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
-    s = pyimport_conda("pymatgen.core.structure", "pymatgen", "conda-forge")
-    c = s.Structure.from_file(cif_path)
+
+# TODO: featurize here
+function build_graph(file_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+    s = pyimport("pymatgen.core.structure")
+
+    # this bit coulds probably be abstracted out to another fcn...
+    if file_path[end-3:end]==".cif"
+        c = s.Structure.from_file(file_path)
+    else # hopefully it's one of the ones ASE can read...
+        aseio = pyimport("ase.io")
+        pmgase = pyimport("pymatgen.io.ase")
+        atoms_object = aseio.read(file_path)
+        aa = pmgase.AseAtomsAdaptor()
+        c = aa.get_structure(atoms_object)
+    end
+
     num_atoms = size(c)[1]
 
     # list of atom symbols
     atom_ids = [site_element(s) for s in c]
 
     if use_voronoi
-        weight_mat = build_graph_voronoi(c)
+        weight_mat = weights_voronoi(c)
     else
-        weight_mat = build_graph_cutoff(c; radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
+        weight_mat = weights_cutoff(c; radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
     end
 
     # normalize weights
@@ -68,13 +84,14 @@ function build_graph(cif_path; use_voronoi=true, radius=8.0, max_num_nbr=12, dis
         weight_mat = weight_mat ./ maximum(weight_mat)
     end
 
-    return (weight_mat, atom_ids)
+    g = SimpleWeightedGraph{Int32}(Float32.(weight_mat))
+    return AtomGraph(g, atom_ids)
 end
 
 """
 Build graph using neighbors from faces of Voronoi polyedra and weights from areas. Based on the approach from https://github.com/ulissigroup/uncertainty_benchmarking/blob/aabb407807e35b5fd6ad06b14b440609ae09e6ef/BNN/data_pyro.py#L268
 """
-function build_graph_voronoi(struc)
+function weights_voronoi(struc)
     num_atoms = size(struc)[1]
     sa = pyimport_conda("pymatgen.analysis.structure_analyzer", "pymatgen", "conda-forge")
     vc = sa.VoronoiConnectivity(struc)
@@ -104,7 +121,7 @@ Build graph using neighbor number cutoff method adapted from original CGCNN. Not
 # TODO
 - option to cut off by nearest, next-nearest, etc. by DISTANCE rather than NUMBER of neighbors
 """
-function build_graph_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square)
+function weights_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square)
     #= find neighbors, requires a cutoff radius
     returns a NxM Array of PyObject PeriodicSite
     ...except when it returns a list of N of lists of length M...
@@ -151,3 +168,58 @@ function build_graph_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=i
     # average across diagonal (because neighborness isn't strictly symmetric in the way we're defining it here)
     weight_mat = 0.5.* (weight_mat .+ weight_mat')
 end
+
+
+"""
+Function to build and serialize to file a batch of CIFs, optionally featurizing them as well. Saved .jls files will have the same names as the .cif ones but with the extensions modified.
+
+# Arguments
+- `cif_folder::String`: path to folder containing CIF files
+- `output_folder::String`: path to folder where .jls files containing AtomGraph objects should be saved (will be created if it doesn't exist already)
+
+If you want to featurize the graphs, at least the vector of `AtomFeat` objects describing the featurization procedure is required, and optionally the Dict mapping from elemental symbols to feature vectors (if it is not provided, it will be generated).
+
+Other optional arguments are the optional arguments to `build_graph`: `use_voronoi`, `radius`, `max_num_nbr`, `dist_decay_func`, `normalize`
+
+This function does not return anything.
+    TODO: decide if there should be an option to return the graphs
+"""
+function build_graphs_from_cifs(cif_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+    # check if input folder exists and contains CIFs, if not throw error
+    ciflist = glob(joinpath(cif_folder, "*.cif"))
+    if length(ciflist)==0
+        error("No CIF's in provided CIF directory!")
+    end
+
+    # check if output folder exists, if not create it
+    if !isdir(output_folder)
+        mkdir(output_folder)
+        @info "Output path provided did not exist, creating folder there."
+    end
+
+    # check if there is enough information to actually featurize
+    featurize = length(featurization)>0
+    atom_featurevecs = (length(atom_featurevecs)>0 & featurize) ? atom_featurevecs : make_feature_vectors(featurization)[1]
+
+    if (length(atom_featurevecs)>0) & (length(featurization)==0)
+        @warn "You have supplied only feature vectors but no featurization scheme, so graphs will be built but not featurized."
+    end
+
+    # loop over CIFs
+    for cif in ciflist
+        id = split(split(cif, "/")[end], ".")[1]
+        ag = build_graph(cif; use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize)
+        if featurize
+            add_features!(ag, atom_featurevecs, featurization)
+        end
+        graph_path = joinpath(output_folder, string(id, ".jls"))
+        serialize(graph_path, ag)
+    end
+end
+
+# alternate call signature where featurization is generated
+function build_graphs_from_cifs(cif_folder::String, output_folder::String, feature_names::Vector{Symbol}=Symbol[]; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+    atom_featurevecs, featurization = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
+    build_graphs_from_cifs(cif_folder, output_folder; featurization=featurization, atom_featurevecs = atom_featurevecs)
+end
+

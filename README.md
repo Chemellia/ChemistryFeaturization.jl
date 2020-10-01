@@ -20,6 +20,13 @@ Sean to add...
 * packages listed in `Project.toml`
 * In addition, you will need your `PyCall` to have access to the `pymatgen` package, which can be added using `Conda.jl` as: `Conda.add("pymatgen"; channel="conda-forge")`, as well as the `rdkit` package (`Conda.add("rdkit"; channel="conda-forge")`)
 
+## Terminological notes
+There are a lot of seemingly similar terms used for quantities in this package that refer to disparate things. Here is my best attempt to clarify them _as I use them here_:
+* **Feature**: A quality or quantity associated with an atom that we wish to encode, such as atomic mass, row in the periodic table, etc.
+* **Feature vector**: The (typically one-hot-style) encoding of the values of a set of features associated with a particular atom. For example, if we were encoding the atomic mass (across five possible bins) and periodic table block (_s_, _p_, _d_, or _f_) of hydrogen, the associated feature vector would be `[1 0 0 0 0 1 0 0 0]` (the first five slots corresponding to atomic mass and the last four to block)
+* **Featurization**: either the process of assigning feature vectors to chemical elements, or a description of a scheme for doing so, encoded as a `Vector` of `AtomFeat` objects
+* **Feature matrix**: A collection of feature vectors associated with the atoms in a structure. Its shape should be (# features, # nodes).
+
 ## Future Plans:
 ### v0.1
 * graph-building and featurizing for CrystalGraphConvNets.jl

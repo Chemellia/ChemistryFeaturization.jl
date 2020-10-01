@@ -32,16 +32,21 @@ end
 
 # Type to store featurization metadata. An array of these specifies a featurization scheme for atoms.
 # TODO for Sean, eventually: add PairFeat and BondFeat types (maybe in another file for tidiness)
-# TODO, maybe: we could define AbstractFeat{T} that all of these would inherit from, but TBD if that would be useful or not
-struct AtomFeat{T}
+# TODO, maybe: we could define AbstractFeat that all of these would inherit from, but TBD if that would be useful or not
+struct AtomFeat
     name::Symbol # name of feature
     categorical::Bool # whether it's categorical (vs. numerical)
     num_bins::Integer # length of associated subvector
     logspaced::Bool # whether it's logspaced (most relevant for numerical)
-    vals::Vector{T} # list of values (length equal to num_bins for categorical, num_bins+1 (specifying bin edges) for numerical)
+    vals::Vector # list of values (length equal to num_bins for categorical, num_bins+1 (specifying bin edges) for numerical)
     # basic standard constructor will check some things...
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
         T = eltype(vals)
+        if T==Float64
+            T = Float32
+        elseif T==Int64
+            T = Int32
+        end
         if categorical
             if num_bins != length(vals)
                 DimensionMismatch("Categorical features should have a number of values equal to the number of bins.")
@@ -54,12 +59,12 @@ struct AtomFeat{T}
             if num_bins + 1 != length(vals)
                 DimensionMismatch("Numerical features should have values specifying bin edges. This vector is the wrong length!")
             end
-            if !(eltype(vals)<:Real)
+            if !(T<:Real)
                 error("Numerical features must have (real) numerical values...") # should figure out how to throw a TypeError propertly
             end
             val_list = sort(vals)
         end
-        new{T}(name, categorical, num_bins, logspaced, val_list)
+        new(name, categorical, num_bins, logspaced, val_list)
     end
 end
 
@@ -77,11 +82,12 @@ end
 # constructor that will assume categorical features
 AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
 
+
 # pretty printing, short form
-Base.show(io::IO, f::AtomFeat{T}) where {T} = print(io, "$(f.name): AtomFeat{$T} with $(f.num_bins) bins")
+Base.show(io::IO, f::AtomFeat) = print(io, "$(f.name): AtomFeat with $(f.num_bins) bins")
 
 # pretty printing, long form
-Base.show(io::IO, ::MIME"text/plain", f::AtomFeat{T}) where{T} = print(io, "AtomFeat{$T}\n   name: $(f.name)\n   categorical: $(f.categorical)\n   length: $(f.num_bins)\n   logspaced: $(f.logspaced)\n   bins: $(f.vals)")
+Base.show(io::IO, ::MIME"text/plain", f::AtomFeat) = print(io, "AtomFeat\n   name: $(f.name)\n   categorical: $(f.categorical)\n   length: $(f.num_bins)\n   logspaced: $(f.logspaced)\n   bins: $(f.vals)")
 
 """
 Create onehot style vector.
@@ -174,6 +180,8 @@ function build_atom_feats(feature_names::Vector{Symbol}; nbins::Vector{<:Integer
             feature = AtomFeat(feature_name, vals)
         elseif feature_name in continuous_feature_names
             feature = AtomFeat(feature_name, false, nbins, fea_minmax[feature_name]..., logspaced)
+        else
+            @warn "$feature_name not found in atom_data_df..."
         end
         push!(feature_specs, feature)
     end
@@ -181,27 +189,24 @@ function build_atom_feats(feature_names::Vector{Symbol}; nbins::Vector{<:Integer
 end
 
 """
-    make_feature_vectors(features)
+    make_feature_vectors(featurization)
     make_feature_vectors(feature_names)
     make_feature_vectors(feature_names, nbins)
     make_feature_vectors(feature_names, nbins, logspaced)
-
 
 Make custom feature vectors, using specified features and numbers of bins. Can be called with an array of AtomFeat objects or by specifying names and other metadata and the objects will be built.
 
 Note that in the latter case, bin numbers will be ignored for categorical features (block, group, and row), but features and nbins vectors should still be the same length. Optionally, feed in vector of booleans with trues at the index of any (continous valued) feature whose bins should be log spaced.
 
 # Arguments
-- `feature_names::Vector{String}`: list of features to be encoded
-- `nbins::Vector{Integer}`: number of bins for each feature (in same order)
-- `logspaced=false`: (single Bool or vector of them) whether or not to logarithmically space each feature
+- `featurization::Vector{AtomFeat}`: Featurization scheme in the form of a list of AtomFeat objects. (See below for alternate call signature that generates this list from more primitive inputs)
 
 # Returns 
 - a dictionary from element symbol => one-hot style feature vector, concatenated in order of feature list.
 - A Vector of AtomFeat objects
 """
-function make_feature_vectors(features::Vector{AtomFeat})
-    feature_names = [f.name for f in features]
+function make_feature_vectors(featurization::Vector{AtomFeat})
+    feature_names = [f.name for f in featurization]
     usable_atom_data =  dropmissing(atom_data_df[:, cat(Symbol.(feature_names), not_features, dims=1)])
     num_dropped = size(atom_data_df)[1] - size(usable_atom_data)[1]
     if num_dropped != 0
@@ -218,18 +223,25 @@ function make_feature_vectors(features::Vector{AtomFeat})
         el = usable_atom_data.Symbol[i]
         featurevec = []
         # make onehot vector for each feature
-        for f in features
+        for f in featurization
             val = usable_atom_data[i, Symbol(f.name)]
             subvec = onehot_bins(f, val)
             append!(featurevec, subvec)
         end
         sym_featurevec[el] = featurevec
     end
-    return sym_featurevec, features
+    return sym_featurevec, featurization
 end
 
-# alternate call signature
-make_feature_vectors(feature_names::Vector{Symbol}, nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
+"""
+alternate call signature...
+
+# Arguments
+- `feature_names::Vector{String}`: list of features to be encoded
+- `nbins::Vector{Integer}`: number of bins for each feature (in same order)
+- `logspaced=false`: (single Bool or vector of them) whether or not to logarithmically space each feature
+"""
+make_feature_vectors(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
 
 """
     chunk_vec(vec, nbins)

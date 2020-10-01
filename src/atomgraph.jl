@@ -3,11 +3,14 @@ using SimpleWeightedGraphs
 using LinearAlgebra
 using GraphPlot
 using Colors
+using JSON
+include("pmg_graphs.jl")
 
 # Type to store atomic graphs
-# TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter?
-mutable struct AtomGraph{T <: AbstractSimpleWeightedGraph{Int32, Float32}} <: lg.AbstractGraph{Float32}
-    graph::T # actual graph, for now only SimpleWeightedGraph types work
+# TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
+# TO CONSIDER: store an ID of some kind? (e.g. mp-123 or whatever)
+mutable struct AtomGraph <: lg.AbstractGraph{Float32}
+    graph::SimpleWeightedGraph{Int32,Float32}
     elements::Vector{String} # list of elemental symbols corresponding to each node
     lapl::Matrix{Float32} # graph laplacian (normalized)
     features::Matrix{Float32} # feature matrix (size (# features, # nodes))
@@ -15,7 +18,7 @@ mutable struct AtomGraph{T <: AbstractSimpleWeightedGraph{Int32, Float32}} <: lg
 end
 
 # basic constructor
-function AtomGraph(gr::G, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat}) where G <: AbstractSimpleWeightedGraph{Int32,Float32}
+function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat})
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
@@ -30,7 +33,8 @@ function AtomGraph(gr::G, el_list::Vector{String}, features::Matrix{Float32}, fe
 end
 
 # one without features or featurization initialized yet
-function AtomGraph(gr::G, el_list::Vector{String}) where G <: AbstractSimpleWeightedGraph{Int32,Float32}    # check that el_list is the right length
+function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String})
+    # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
 
@@ -91,7 +95,7 @@ end
 normalized_laplacian(g::AtomGraph) = g.lapl
 
 # function to add node features if only the "bare" graph has been initialized, note that featurization scheme must be specified!
-function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat{T}}) where T
+function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat})
     num_atoms = nv(g)
 
     # check that features is the right dimensions (# features x # nodes)
@@ -101,6 +105,30 @@ function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::V
     # okay now we can set the features
     g.features = features
     g.featurization = featurization
+end
+
+# alternate version where it builds the features too, you have to pass in the results of the make_feature_vectors function
+function add_features!(g::AtomGraph, atom_feature_vecs::Dict{String, Vector{Float32}}, featurization::Vector{AtomFeat})
+    @assert Set(String.(g.elements)) <= Set(keys(atom_feature_vecs)) "Some atoms in your graph do not have corresponding feature vectors! This could be because some features you requested had missing values for these atoms."
+    feature_mat = Float32.(hcat([atom_feature_vecs[e] for e in g.elements]...))
+    add_features!(g, feature_mat, featurization)
+end
+
+# and finally the ones where it makes the feature vectors too...(defined for both signatures of the make_feature_vectors function just for completeness)
+function add_features!(g::AtomGraph, featurization::Vector{AtomFeat})
+    feature_vecs, featurization = make_feature_vectors(featurization)
+    add_features!(g, feature_vecs, featurization)
+end
+
+# is there a clever way to roll this into the previous one since the syntax is identical?
+function add_features!(g::AtomGraph, feature_names::Vector{Symbol})
+    feature_vecs, featurization = make_feature_vectors(feature_names)
+    add_features!(g, feature_vecs, featurization)
+end
+
+function add_features!(g::AtomGraph, feature_names::Vector{Symbol}, nbins::Vector{<:Integer}, logspaced=false)
+    feature_vecs, featurization = make_feature_vectors(feature_names, nbins=nbins, logspaced=logspaced)
+    add_features!(g, feature_vecs, featurization)
 end
 
 # now visualization stuff...
@@ -115,19 +143,19 @@ function graph_colors(atno_list, seed_color=colorant"cyan4")
 end
 
 "Compute edge widths (proportional to weights on graph) for graph visualization."
-function graph_edgewidths(g, weight_mat)
+function graph_edgewidths(ag::AtomGraph)
     edgewidths = []
     # should be able to do this as
-    for e in edges(g)
-        append!(edgewidths, weight_mat[e.src, e.dst])
+    for e in edges(ag)
+        append!(edgewidths, ag.weights[e.src, e.dst])
     end
     return edgewidths
 end
 
 "Visualize a given graph."
-function visualize_graph(g, element_list)
+function visualize_graph(ag::AtomGraph)
     # gplot doesn't work on weighted graphs
-    sg = SimpleGraph(adjacency_matrix(g))
-    plt = gplot(sg, nodefillc=graph_colors(element_list), nodelabel=element_list, edgelinewidth=graph_edgewidths(sg, g.weights))
+    sg = SimpleGraph(adjacency_matrix(ag))
+    plt = gplot(sg, nodefillc=graph_colors(ag.elements), nodelabel=ag.elements, edgelinewidth=graph_edgewidths(sg, weights(ag)))
     display(plt)
 end
