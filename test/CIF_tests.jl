@@ -64,7 +64,7 @@ wm, atoms = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"))
     wm_true = [0.0 1.0 1.0 1.0; 1.0 0.0 1.0 1.0; 1.0 1.0 0.0 1.0; 1.0 1.0 1.0 0.0]
     @test wm == wm_true
     @test atoms == ["Ho", "Pt", "Pt", "Pt"]
-    wm, atoms = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"; use_voronoi=false)
+    wm, atoms = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"); use_voronoi=false)
     @test wm == wm_true
     @test atoms == ["Ho", "Pt", "Pt", "Pt"]
 end
