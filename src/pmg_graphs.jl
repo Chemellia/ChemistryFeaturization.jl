@@ -46,7 +46,7 @@ Function to build graph from a CIF file of a crystal structure. Returns a tuple 
 - `dist_decay_func`: function (e.g. inverse_square or exp_decay) to determine falloff of graph edge weights with neighbor distance
 """
 function build_graph(cif_path; use_voronoi=true, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
-    s = pyimport_conda("pymatgen.core.structure")
+    s = pyimport_conda("pymatgen.core.structure", "pymatgen", "conda-forge")
     c = s.Structure.from_file(cif_path)
     num_atoms = size(c)[1]
 
@@ -72,7 +72,7 @@ Build graph using neighbors from faces of Voronoi polyedra and weights from area
 """
 function build_graph_voronoi(struc)
     num_atoms = size(struc)[1]
-    sa = pyimport_conda("pymatgen.analysis.structure_analyzer")
+    sa = pyimport_conda("pymatgen.analysis.structure_analyzer", "pymatgen", "conda-forge")
     vc = sa.VoronoiConnectivity(struc)
     conn = vc.connectivity_array
     weight_mat = zeros(Float32, num_atoms, num_atoms)
