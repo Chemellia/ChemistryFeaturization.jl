@@ -52,6 +52,7 @@ Function to build graph from a file storing a crystal structure (currently suppo
 - `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
 - `dist_decay_func`: function (e.g. inverse_square or exp_decay) to determine falloff of graph edge weights with neighbor distance
 """
+
 # TODO: featurize here
 function build_graph(file_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     s = pyimport("pymatgen.core.structure")
@@ -92,7 +93,7 @@ Build graph using neighbors from faces of Voronoi polyedra and weights from area
 """
 function weights_voronoi(struc)
     num_atoms = size(struc)[1]
-    sa = pyimport("pymatgen.analysis.structure_analyzer")
+    sa = pyimport_conda("pymatgen.analysis.structure_analyzer", "pymatgen", "conda-forge")
     vc = sa.VoronoiConnectivity(struc)
     conn = vc.connectivity_array
     weight_mat = zeros(Float32, num_atoms, num_atoms)
