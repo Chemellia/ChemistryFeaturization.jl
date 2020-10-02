@@ -60,7 +60,7 @@ end
     # tests for some other file formats
     graphs = AtomGraph[]
     for fp in ["mp-195.poscar", "mp-195.traj", "mp-195.xyz"]
-        push!(graphs, build_graph(joinpath(@__DIR__, "test_data/", fp)))
+        push!(graphs, build_graph(joinpath(@__DIR__, "test_data", fp)))
     end
     for g in graphs
         @test ag.elements == g.elements
@@ -74,8 +74,8 @@ end
     fmat = Float32.([1 2 3; 4 5 6; 0 1 0; 9 8 7])
     featurization = [AtomFeat(:feat, true, 2, false, ['a','b']), AtomFeat(:feat2, false, 2, false, [-1,0,1])]
     ag = AtomGraph(g, ["C", "C", "C"], fmat, featurization)
-    serialize("./test_data/testgraph.jls", ag)
-    ag2 = deserialize("./test_data/testgraph.jls")
+    serialize(joinpath("test_data", "testgraph.jls"), ag)
+    ag2 = deserialize(joinpath("test_data", "testgraph.jls"))
     @test ag2.elements==ag.elements
     @test ag.lapl==ag2.lapl
     @test ag.features==ag2.features
@@ -88,7 +88,7 @@ end
 
 @testset "batch processing" begin
     featurization = build_atom_feats([Symbol("Atomic mass"), :Block])
-    build_graphs_from_cifs("test_data/", joinpath("test_data","graphs/"), featurization)
+    build_graphs_from_cifs("test_data", joinpath("test_data","graphs"), featurization)
     g1 = deserialize(joinpath("test_data","graphs","mp-195.jls"))
     @test size(g1)==(4,4)
     @test size(g1.features)==(14,4)
