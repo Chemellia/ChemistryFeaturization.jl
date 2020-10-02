@@ -88,11 +88,11 @@ end
 
 @testset "batch processing" begin
     featurization = build_atom_feats([Symbol("Atomic mass"), :Block])
-    build_graphs_from_cifs("./test_data/", "./test_data/graphs/", featurization)
-    g1 = deserialize("./test_data/graphs/mp-195.jls")
+    build_graphs_from_cifs("test_data/", joinpath("test_data","graphs/"), featurization)
+    g1 = deserialize(joinpath("test_data","graphs","mp-195.jls"))
     @test size(g1)==(4,4)
     @test size(g1.features)==(14,4)
-    g2 = deserialize("./test_data/graphs/mp-224.jls")
+    g2 = deserialize(joinpath("test_data","graphs","mp-224.jls"))
     @test size(g2)==(6,6)
     @test size(g2.features)==(14,6)
     w = weights(g2)
