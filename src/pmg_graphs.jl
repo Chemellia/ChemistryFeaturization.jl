@@ -4,7 +4,6 @@ Building graphs from CIF files using PyCall to the pymatgen package.
 
 using PyCall
 using ChemistryFeaturization
-using Glob
 using Serialization
 
 # options for decay of bond weights with distance...
@@ -38,12 +37,29 @@ function are_equidistant(site1, site2, atol=1e-4)
     isapprox(site_distance(site1), site_distance(site2), atol=atol)
 end
 
+# helper function to return a pymatgen Structure object from a given file path
+# TODO: this is not very Julian but I'm not sure what the right way to do this is...
+function get_structure(file_path)
+    s = pyimport("pymatgen.core.structure")
+    aseio = pyimport("ase.io")
+    pmgase = pyimport("pymatgen.io.ase")
+    try
+        atoms_object = aseio.read(file_path)
+        aa = pmgase.AseAtomsAdaptor()
+        c = aa.get_structure(atoms_object)
+        return true, c
+    catch
+        @warn "$file_path was not readable as an Atoms object by ASE"
+        return false, 0
+    end
+end
+
 # TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
 """
 Function to build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
 
 # Arguments
-- `file_path::String`: path to structure file
+- `struc`: pymatgen Structure object
 - `use_voronoi::bool`: if true, use Voronoi method for neighbor lists, if false use cutoff method
 
     (The rest of these parameters are only used if use_voronoi is false)
@@ -54,29 +70,16 @@ Function to build graph from a file storing a crystal structure (currently suppo
 """
 
 # TODO: featurize here
-function build_graph(file_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
-    s = pyimport("pymatgen.core.structure")
-
-    # TODO: this bit coulds probably be abstracted out to another fcn...
-    if file_path[end-3:end]==".cif"
-        c = s.Structure.from_file(file_path)
-    else # hopefully it's one of the ones ASE can read...
-        aseio = pyimport("ase.io")
-        pmgase = pyimport("pymatgen.io.ase")
-        atoms_object = aseio.read(file_path)
-        aa = pmgase.AseAtomsAdaptor()
-        c = aa.get_structure(atoms_object)
-    end
-
-    num_atoms = size(c)[1]
+function build_graph(struc; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+    num_atoms = size(struc)[1]
 
     # list of atom symbols
-    atom_ids = [site_element(s) for s in c]
+    atom_ids = [site_element(s) for s in struc]
 
     if use_voronoi
-        weight_mat = weights_voronoi(c)
+        weight_mat = weights_voronoi(struc)
     else
-        weight_mat = weights_cutoff(c; radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
+        weight_mat = weights_cutoff(struc; radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
     end
 
     # normalize weights
@@ -86,6 +89,12 @@ function build_graph(file_path; use_voronoi=false, radius=8.0, max_num_nbr=12, d
 
     g = SimpleWeightedGraph{Int32}(Float32.(weight_mat))
     return AtomGraph(g, atom_ids)
+end
+
+# alternate signature, this is also janky because sometimes returns and sometimes not...
+function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+    readable, c = get_structure(file_path)
+    readable ? build_graph(c, use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize) : nothing
 end
 
 """
@@ -184,12 +193,11 @@ Other optional arguments are the optional arguments to `build_graph`: `use_voron
 This function does not return anything.
     TODO: decide if there should be an option to return the graphs
 """
-#TODO: make smarter batch processing over file types, handling if files can't be read
-function build_graphs_from_cifs(cif_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graphs_from_cifs(input_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # check if input folder exists and contains CIFs, if not throw error
-    ciflist = glob(joinpath(cif_folder, "*.cif"))
-    if length(ciflist)==0
-        error("No CIF's in provided CIF directory!")
+    file_list = readdir(input_folder, join=true)
+    if length(file_list)==0
+        error("No files in input directory!")
     end
 
     # check if output folder exists, if not create it
@@ -207,9 +215,13 @@ function build_graphs_from_cifs(cif_folder::String, output_folder::String, featu
     end
 
     # loop over CIFs
-    for cif in ciflist
-        id = split(splitpath(cif)[end], ".")[1]
-        ag = build_graph(cif; use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize)
+    for file in file_list
+        readable, struc = get_structure(file)
+        if !readable
+            continue
+        end
+        id = split(splitpath(file)[end], ".")[1]
+        ag = build_graph(file; use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize)
         if featurize
             add_features!(ag, atom_featurevecs, featurization)
         end
