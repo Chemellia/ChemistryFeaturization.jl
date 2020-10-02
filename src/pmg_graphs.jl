@@ -57,7 +57,7 @@ Function to build graph from a file storing a crystal structure (currently suppo
 function build_graph(file_path; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     s = pyimport("pymatgen.core.structure")
 
-    # this bit coulds probably be abstracted out to another fcn...
+    # TODO: this bit coulds probably be abstracted out to another fcn...
     if file_path[end-3:end]==".cif"
         c = s.Structure.from_file(file_path)
     else # hopefully it's one of the ones ASE can read...
@@ -184,6 +184,7 @@ Other optional arguments are the optional arguments to `build_graph`: `use_voron
 This function does not return anything.
     TODO: decide if there should be an option to return the graphs
 """
+#TODO: make smarter batch processing over file types, handling if files can't be read
 function build_graphs_from_cifs(cif_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # check if input folder exists and contains CIFs, if not throw error
     ciflist = glob(joinpath(cif_folder, "*.cif"))
