@@ -94,7 +94,7 @@ end
 
 normalized_laplacian(g::AtomGraph) = g.lapl
 
-# function to add node features if only the "bare" graph has been initialized, note that featurization scheme must be specified!
+# function to add/change node features, note that featurization scheme must be specified!
 function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat})
     num_atoms = nv(g)
 
