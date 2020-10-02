@@ -23,8 +23,9 @@ jobs:
           version: ${{ matrix.julia-version }}
       - uses: julia-actions/julia-buildpkg@latest
       - uses: julia-actions/julia-runtest@latest
-
-  codecov:
-    steps:
-    - uses: actions/checkout@master
-    - uses: codecov/codecov-action@v1
+      - uses: actions/checkout@master
+      - uses: codecov/codecov-action@v1
+      	with:
+	  file: ./coverage.xml
+	  flags: unittests
+	  name: codecov-umbrella
