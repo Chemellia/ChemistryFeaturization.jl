@@ -37,22 +37,6 @@ function are_equidistant(site1, site2, atol=1e-4)
     isapprox(site_distance(site1), site_distance(site2), atol=atol)
 end
 
-# helper function to return a pymatgen Structure object from a given file path
-# TODO: this is not very Julian but I'm not sure what the right way to do this is...
-function get_structure(file_path)
-    s = pyimport("pymatgen.core.structure")
-    aseio = pyimport("ase.io")
-    pmgase = pyimport("pymatgen.io.ase")
-    try
-        atoms_object = aseio.read(file_path)
-        aa = pmgase.AseAtomsAdaptor()
-        c = aa.get_structure(atoms_object)
-        return true, c
-    catch
-        @warn "$file_path was not readable as an Atoms object by ASE"
-        return false, 0
-    end
-end
 
 # TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
 """
@@ -70,7 +54,14 @@ Function to build graph from a file storing a crystal structure (currently suppo
 """
 
 # TODO: featurize here
-function build_graph(struc; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+    s = pyimport("pymatgen.core.structure")
+    aseio = pyimport("ase.io")
+    pmgase = pyimport("pymatgen.io.ase")
+    atoms_object = aseio.read(file_path)
+    aa = pmgase.AseAtomsAdaptor()
+    struc = aa.get_structure(atoms_object)
+
     num_atoms = size(struc)[1]
 
     # list of atom symbols
@@ -89,12 +80,6 @@ function build_graph(struc; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_
 
     g = SimpleWeightedGraph{Int32}(Float32.(weight_mat))
     return AtomGraph(g, atom_ids)
-end
-
-# alternate signature, this is also janky because sometimes returns and sometimes not...
-function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
-    readable, c = get_structure(file_path)
-    readable ? build_graph(c, use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize) : nothing
 end
 
 """
@@ -194,7 +179,7 @@ This function does not return anything.
     TODO: decide if there should be an option to return the graphs
 """
 function build_graphs_from_cifs(input_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
-    # check if input folder exists and contains CIFs, if not throw error
+    # check if input folder exists and contains things, if not throw error
     file_list = readdir(input_folder, join=true)
     if length(file_list)==0
         error("No files in input directory!")
@@ -214,14 +199,15 @@ function build_graphs_from_cifs(input_folder::String, output_folder::String, fea
         @warn "You have supplied only feature vectors but no featurization scheme, so graphs will be built but not featurized."
     end
 
-    # loop over CIFs
+    # loop over CIFs and build graphs from all files that we can...
     for file in file_list
-        readable, struc = get_structure(file)
-        if !readable
+        id = split(splitpath(file)[end], ".")[1]
+        local ag
+        try 
+            ag = build_graph(file; use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize)
+        catch
             continue
         end
-        id = split(splitpath(file)[end], ".")[1]
-        ag = build_graph(file; use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize)
         if featurize
             add_features!(ag, atom_featurevecs, featurization)
         end
