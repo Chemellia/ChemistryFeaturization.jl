@@ -1,4 +1,6 @@
 # ChemistryFeaturization.jl
+![Run tests](https://github.com/aced-differentiate/ChemistryFeaturization.jl/workflows/Run%20tests/badge.svg)
+
 Unified graph building and featurizing for Weave.jl, AtomicGraphNets.jl, and (maybe soon) more!
 
 ## Features
