@@ -49,18 +49,18 @@ include("../src/atomgraph.jl")
 end
 
 @testset "graph-building" begin
-    ag = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"), use_voronoi=true)
+    ag = build_graph(joinpath(@__DIR__, "test_data", "mp-195.cif"), use_voronoi=true)
     wm_true = [0.0 1.0 1.0 1.0; 1.0 0.0 1.0 1.0; 1.0 1.0 0.0 1.0; 1.0 1.0 1.0 0.0]
     @test weights(ag) == wm_true
     @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
-    ag = build_graph(joinpath(@__DIR__, "./test_data/mp-195.cif"); use_voronoi=false)
+    ag = build_graph(joinpath(@__DIR__, "test_data", "mp-195.cif"); use_voronoi=false)
     @test weights(ag) == wm_true
     @test ag.elements == ["Ho", "Pt", "Pt", "Pt"]
 
     # tests for some other file formats
     graphs = AtomGraph[]
     for fp in ["mp-195.poscar", "mp-195.traj", "mp-195.xyz"]
-        push!(graphs, build_graph(joinpath(@__DIR__, "./test_data/", fp)))
+        push!(graphs, build_graph(joinpath(@__DIR__, "test_data/", fp)))
     end
     for g in graphs
         @test ag.elements == g.elements
