@@ -1,5 +1,6 @@
 # ChemistryFeaturization.jl
 ![Run tests](https://github.com/aced-differentiate/ChemistryFeaturization.jl/workflows/Run%20tests/badge.svg)[![codecov](https://codecov.io/gh/aced-differentiate/ChemistryFeaturization.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/aced-differentiate/ChemistryFeaturization.jl)
+
 Unified graph building and featurizing for Weave.jl, AtomicGraphNets.jl, and (maybe soon) more!
 
 ## Features
