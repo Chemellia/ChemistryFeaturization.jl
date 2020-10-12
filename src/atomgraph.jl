@@ -44,6 +44,7 @@ end
 
 # TODO, maybe: constructor where you give adjacency matrix and it builds the graph for you also
 
+# TODO: fix so that it will print feature length even if featurization isn't initialized
 # pretty printing, short version
 function Base.show(io::IO, g::AtomGraph)
     st = "AtomGraph with $(nv(g)) nodes, $(ne(g)) edges"

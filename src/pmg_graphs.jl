@@ -178,7 +178,7 @@ Other optional arguments are the optional arguments to `build_graph`: `use_voron
 This function does not return anything.
     TODO: decide if there should be an option to return the graphs
 """
-function build_graphs_from_cifs(input_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graphs_batch(input_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # check if input folder exists and contains things, if not throw error
     file_list = readdir(input_folder, join=true)
     if length(file_list)==0
@@ -217,8 +217,8 @@ function build_graphs_from_cifs(input_folder::String, output_folder::String, fea
 end
 
 # alternate call signature where featurization is generated
-function build_graphs_from_cifs(cif_folder::String, output_folder::String, feature_names::Vector{Symbol}=Symbol[]; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+function build_graphs_batch(cif_folder::String, output_folder::String, feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
     atom_featurevecs, featurization = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
-    build_graphs_from_cifs(cif_folder, output_folder; featurization=featurization, atom_featurevecs = atom_featurevecs)
+    build_graphs_batch(cif_folder, output_folder; featurization=featurization, atom_featurevecs = atom_featurevecs)
 end
 
