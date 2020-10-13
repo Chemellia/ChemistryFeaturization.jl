@@ -88,7 +88,7 @@ end
 
 @testset "batch processing" begin
     featurization = build_atom_feats([Symbol("Atomic mass"), :Block])
-    build_graphs_from_cifs(joinpath(@__DIR__, "test_data"), joinpath(@__DIR__, "test_data", "graphs"), featurization)
+    build_graphs_batch(joinpath(@__DIR__, "test_data"), joinpath(@__DIR__, "test_data", "graphs"), featurization)
     g1 = deserialize(joinpath(@__DIR__, "test_data","graphs","mp-195.jls"))
     @test size(g1)==(4,4)
     @test size(g1.features)==(14,4)
