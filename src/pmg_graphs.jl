@@ -63,12 +63,13 @@ function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_n
 
     # check if any nonperiodic BC's
     nonpbc = any(.!atoms_object.pbc)
+    local cant_voronoi = false
     if nonpbc & use_voronoi
-        @warn "Voronoi edge weights are not supported if any direction in the structure is nonperiodic."
-        use_voronoi = false
+        @warn "Voronoi edge weights are not supported if any direction in the structure is nonperiodic. Using cutoff weights method..."
+        cant_voronoi = true
     end
 
-    if use_voronoi
+    if use_voronoi && !cant_voronoi
         s = pyimport("pymatgen.core.structure")
         pmgase = pyimport("pymatgen.io.ase")
         aa = pmgase.AseAtomsAdaptor()

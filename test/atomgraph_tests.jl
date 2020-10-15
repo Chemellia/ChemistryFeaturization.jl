@@ -66,6 +66,12 @@ end
         @test ag.elements == g.elements
         @test weights(ag) == weights(g)
     end
+
+    # test for nonperiodic system
+    @test_logs (:warn, "Voronoi edge weights are not supported if any direction in the structure is nonperiodic. Using cutoff weights method...") build_graph(joinpath(@__DIR__,"test_data", "methane.xyz"), use_voronoi=true)
+    methane = build_graph(joinpath(@__DIR__,"test_data", "methane.xyz"))
+    @test all(isapprox.(weights(methane)[2:5,1], 1.0, atol=1e-4))
+    @test all(isapprox.(weights(methane)[3:2,2], 0.375, atol=1e-5))
 end
 
 @testset "save/load" begin
