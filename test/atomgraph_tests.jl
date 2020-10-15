@@ -105,4 +105,8 @@ end
     @test w[1,2]==w[1,3]==w[1,5]==w[2,4]==w[2,6]==w[3,4]==w[5,6]==0.0
     @test w[3,3]==w[4,4]==w[5,5]==w[6,6]==1.0
     @test g2.elements==["W","W","S","S","S","S"]
+
+    # test read_graphs_batch
+    gs = read_graphs_batch(joinpath(@__DIR__, "test_data", "graphs"))
+    @test length(gs)>=2
 end

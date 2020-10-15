@@ -6,7 +6,7 @@ include("atomfeat.jl")
 export AtomGraph, normalized_laplacian, add_features!, visualize_graph
 include("atomgraph.jl")
 
-export inverse_square, exp_decay, build_graph, build_graphs_batch
+export inverse_square, exp_decay, build_graph, build_graphs_batch, read_graphs_batch
 include("pmg_graphs.jl")
 
 # Sean: add which functions/variables to be exported from your files; I've just added the ones to make the tests pass
