@@ -189,6 +189,7 @@ function build_graphs_batch(input_folder::String, output_folder::String, featuri
         try 
             ag = build_graph(file; use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize)
         catch
+            @warn "Unable to build graph for $file"
             continue
         end
         if featurize
