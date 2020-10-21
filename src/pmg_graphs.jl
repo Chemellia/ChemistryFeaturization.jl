@@ -55,22 +55,30 @@ Function to build graph from a file storing a crystal structure (currently suppo
 
 # TODO: featurize here
 function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
-    s = pyimport("pymatgen.core.structure")
     aseio = pyimport("ase.io")
-    pmgase = pyimport("pymatgen.io.ase")
     atoms_object = aseio.read(file_path)
-    aa = pmgase.AseAtomsAdaptor()
-    struc = aa.get_structure(atoms_object)
-
-    num_atoms = size(struc)[1]
 
     # list of atom symbols
-    atom_ids = [site_element(s) for s in struc]
+    atom_ids = [get(atoms_object, i-1).symbol for i=1:length(atoms_object)]
 
-    if use_voronoi
+    # check if any nonperiodic BC's
+    nonpbc = any(.!atoms_object.pbc)
+    local cant_voronoi = false
+    if nonpbc & use_voronoi
+        @warn "Voronoi edge weights are not supported if any direction in the structure is nonperiodic. Using cutoff weights method..."
+        cant_voronoi = true
+    end
+
+    if use_voronoi && !cant_voronoi
+        s = pyimport("pymatgen.core.structure")
+        pmgase = pyimport("pymatgen.io.ase")
+        aa = pmgase.AseAtomsAdaptor()
+        struc = aa.get_structure(atoms_object)
         weight_mat = weights_voronoi(struc)
     else
-        weight_mat = weights_cutoff(struc; radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
+        nl = pyimport("ase.neighborlist")
+        is, js, dists = nl.neighbor_list("ijd", atoms_object, radius)
+        weight_mat = weights_cutoff(is.+1, js.+1, dists; max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
     end
 
     # normalize weights
@@ -115,54 +123,30 @@ Build graph using neighbor number cutoff method adapted from original CGCNN. Not
 # TODO
 - option to cut off by nearest, next-nearest, etc. by DISTANCE rather than NUMBER of neighbors
 """
-function weights_cutoff(struc; radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square)
-    #= find neighbors, requires a cutoff radius
-    returns a NxM Array of PyObject PeriodicSite
-    ...except when it returns a list of N of lists of length M...
-    each PeriodicSite is (site, distance, index, image)
-    N is num sites in crystal, M is num neighbors
-    =#
-    num_atoms = size(struc)[1]
-    all_nbrs = struc.get_all_neighbors(radius, include_index=true)
-
+function weights_cutoff(is, js, dists; max_num_nbr=12, dist_decay_func=inverse_square)
     # sort by distance
-    # returns list of length N of lists of length M
-    if length(size(all_nbrs)) == 2
-        all_nbrs = [sort(all_nbrs[i,:], lt=(x,y)->isless(site_distance(x), site_distance(y))) for i in 1:num_atoms]
-    elseif length(size(all_nbrs)) == 1
-        all_nbrs = [sort(all_nbrs[i][:], lt=(x,y)->isless(site_distance(x), site_distance(y))) for i in 1:num_atoms]
-    end
+    ijd = sort([t for t in zip(is, js, dists)], by = t->t[3])
 
-    # iterate through each list of neighbors (corresponding to neighbors of a given atom) to find bonds (eventually, graph edges)
+    # initialize neighbor counts
+    num_atoms = maximum(is)
+    local nb_counts = Dict(i=>0 for i=1:num_atoms)
+    local longest_dists = Dict(i=>0.0 for i in 1:num_atoms)
+
+    # iterate over list of tuples to build edge weights...
+    # note that neighbor list double counts so we only have to increment one counter per pair
     weight_mat = zeros(Float32, num_atoms, num_atoms)
-    for atom_ind in 1:num_atoms
-        this_atom = get(struc, atom_ind-1)
-        atom_nbs = all_nbrs[atom_ind]
-        # iterate over each neighbor...
-        for nb_num in 1:size(all_nbrs[atom_ind])[1]
-            nb = atom_nbs[nb_num]
-            global nb_ind = site_index(nb)
-            # if we're under the max, add it for sure
-            if nb_num < max_num_nbr
-                weight_mat[atom_ind, nb_ind] = weight_mat[atom_ind, nb_ind] + dist_decay_func(site_distance(nb))
-            # if we're at/above the max, add if distance is the same
-            else
-                # check we're not on the last one
-                if nb_ind < size(atom_nbs)[1] - 1
-                    next_nb = atom_nbs[nb_ind + 1]
-                    # add another bond if it's the exact same distance to the next neighbor in the list
-                    if are_equidistant(nb, next_nb)
-                        weight_mat[atom_ind, nb_ind] = weight_mat[atom_ind, nb_ind] + dist_decay_func(site_distance(nb))
-                    end
-                end
-            end
+    for (i,j,d) in ijd
+        # if we're under the max OR if it's at the same distance as the previous one
+        if nb_counts[i] < max_num_nbr || isapprox(longest_dists[i], d)
+            weight_mat[i, j] += dist_decay_func(d)
+            longest_dists[i] = d
+            nb_counts[i] += 1
         end
     end
 
-    # average across diagonal (because neighborness isn't strictly symmetric in the way we're defining it here)
-    weight_mat = 0.5.* (weight_mat .+ weight_mat')
+    # average across diagonal, just in case
+    weight_mat = 0.5 .* (weight_mat .+ weight_mat')
 end
-
 
 """
 Function to build and serialize to file a batch of CIFs, optionally featurizing them as well. Saved .jls files will have the same names as the .cif ones but with the extensions modified.
@@ -176,7 +160,6 @@ If you want to featurize the graphs, at least the vector of `AtomFeat` objects d
 Other optional arguments are the optional arguments to `build_graph`: `use_voronoi`, `radius`, `max_num_nbr`, `dist_decay_func`, `normalize`
 
 This function does not return anything.
-    TODO: decide if there should be an option to return the graphs
 """
 function build_graphs_batch(input_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # check if input folder exists and contains things, if not throw error
@@ -206,6 +189,7 @@ function build_graphs_batch(input_folder::String, output_folder::String, featuri
         try 
             ag = build_graph(file; use_voronoi=use_voronoi, radius=radius, max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func, normalize=normalize)
         catch
+            @warn "Unable to build graph for $file"
             continue
         end
         if featurize
@@ -222,3 +206,12 @@ function build_graphs_batch(cif_folder::String, output_folder::String, feature_n
     build_graphs_batch(cif_folder, output_folder; featurization=featurization, atom_featurevecs = atom_featurevecs)
 end
 
+# function to read in graphs generated by `build_graphs_batch` to an Array of AtomGraph objects
+function read_graphs_batch(graph_folder::String)
+    files = [fp for fp in readdir(graph_folder, join=true) if fp[end-3:end]==".jls"]
+    local graphs = AtomGraph[]
+    for fpath in files
+        push!(graphs, deserialize(fpath))
+    end
+    return graphs
+end

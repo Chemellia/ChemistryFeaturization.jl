@@ -161,6 +161,7 @@ Function to build a featurization given vectors of metadata.
 
 Note that nbins will be ignored for categorical features.
 """
+# TODO: rename this or make_feature_vectors because they sound like they do the same thing...
 function build_atom_feats(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
     num_features = length(feature_names)
 
@@ -302,8 +303,8 @@ Function to invert the binning process. Useful to check that it's working proper
 
 Need to feed in a feature vector as well as the lists of features and bin numbers that were used to encode it.
 """
-function decode_feature_vector(vec::Vector, features::Vector{AtomFeat})
-    nbins = [f.num_bins for f in features]
+function decode_feature_vector(vec::Vector, featurization::Vector{AtomFeat})
+    nbins = [f.num_bins for f in featurization]
     # First, check that the featurization is valid
     if !(vec_valid(vec, nbins))
         error("Vector is invalid!")
@@ -311,9 +312,9 @@ function decode_feature_vector(vec::Vector, features::Vector{AtomFeat})
         chunks = chunk_vec(vec, nbins)
 
         # make dict from feature names to corresponding chunks in vector
-        fea_chunks = Dict(zip(features, chunks))
+        fea_chunks = Dict(zip(featurization, chunks))
 
-        return Dict(f.name=>onecold_bins(f, fea_chunks[f]) for f in features)
+        return Dict(f.name=>onecold_bins(f, fea_chunks[f]) for f in featurization)
     end
 end
 
