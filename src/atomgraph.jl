@@ -143,12 +143,23 @@ function graph_colors(atno_list, seed_color=colorant"cyan4")
     return colors[color_inds]
 end
 
+# helper fcn for sorting because edge ordering isn't preserved when converting to SimpleGraph
+function lt_edge(e1::SimpleWeightedGraphs.SimpleWeightedEdge{Int32,Float32}, e2::SimpleWeightedGraphs.SimpleWeightedEdge{Int32,Float32})
+    if e1.src < e2.src
+        return true
+    elseif e1.dst < e2.dst
+        return true
+    else
+        return false
+    end
+end
+
 "Compute edge widths (proportional to weights on graph) for graph visualization."
 function graph_edgewidths(ag::AtomGraph)
     edgewidths = []
-    # should be able to do this as
-    for e in edges(ag)
-        append!(edgewidths, ag.weights[e.src, e.dst])
+    edges_sorted = sort([e for e in edges(ag)], lt=lt_edge)
+    for e in edges_sorted
+        append!(edgewidths, e.weight)
     end
     return edgewidths
 end
@@ -157,6 +168,6 @@ end
 function visualize_graph(ag::AtomGraph)
     # gplot doesn't work on weighted graphs
     sg = SimpleGraph(adjacency_matrix(ag))
-    plt = gplot(sg, nodefillc=graph_colors(ag.elements), nodelabel=ag.elements, edgelinewidth=graph_edgewidths(sg, weights(ag)))
+    plt = gplot(sg, nodefillc=graph_colors(ag.elements), nodelabel=ag.elements, edgelinewidth=graph_edgewidths(ag))
     display(plt)
 end
