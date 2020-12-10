@@ -15,7 +15,28 @@ Documentation is starting to be built in the [wiki](https://github.com/aced-diff
 (NB: this animation's syntax is slightly out of date, new one to come!)
 
 * Flexible featurization (currently onehot-style) and decoding: choose features to include, level of discretization, etc., and directly decode feature vectors to check values:
-![](img/featurize_demo.gif)
+```
+julia> features = Symbol.(["Group", "Row", "Block", "Atomic mass", "Atomic radius", "X"])
+6-element Array{Symbol,1}:
+ :Group
+ :Row
+ :Block
+ Symbol("Atomic mass")
+ Symbol("Atomic radius")
+ :X
+
+julia> atom_feature_vecs, featurization = make_feature_vectors(features)
+[ Info: 16 elements were dropped so that all features are defined.
+
+julia> decode_feature_vector(atom_feature_vecs["Si"], featurization)
+Dict{Symbol,Any} with 6 entries:
+  Symbol("Atomic mass")   => (27.1071, 53.2064)
+  Symbol("Atomic radius") => (0.955, 1.19)
+  :Group                  => 14
+  :Row                    => 3
+  :Block                  => "p"
+  :X                      => (1.684, 2.012)
+```
 
 ### SMILES input
 Sean to add...
@@ -26,12 +47,5 @@ Sean to add...
 * In addition, you will need your `PyCall` to have access to the `pymatgen` package, which can be added using `Conda.jl` as: `Conda.add("pymatgen"; channel="conda-forge")`, as well as the `rdkit` package (`Conda.add("rdkit"; channel="conda-forge")`)
 
 ## Future Plans:
-### v0.1
-* graph-building and featurizing for CrystalGraphConvNets.jl
-* featurizing for Weave.jl
-* featurization and inversion
-* some basic documentation/examples
-
-### later...
 * "hybrid" featurizations using features from multiple paradigms if available
 * more input file formats? e.g. [SELFIES](https://github.com/aspuru-guzik-group/selfies)
