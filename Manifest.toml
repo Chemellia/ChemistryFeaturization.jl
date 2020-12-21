@@ -290,11 +290,9 @@ version = "0.8.3"
 
 [[GraphPlot]]
 deps = ["ArnoldiMethod", "ColorTypes", "Colors", "Compose", "DelimitedFiles", "LightGraphs", "LinearAlgebra", "Random", "SparseArrays"]
-git-tree-sha1 = "f23d5fdecfd680d8e9bc6a59d0b45bbc9e482079"
-repo-rev = "master"
-repo-url = "https://github.com/JuliaGraphs/GraphPlot.jl"
+git-tree-sha1 = "dd8f15128a91b0079dfe3f4a4a1e190e54ac7164"
 uuid = "a2cc645c-3eea-5389-862e-a155d0052231"
-version = "0.4.3"
+version = "0.4.4"
 
 [[IRTools]]
 deps = ["InteractiveUtils", "MacroTools", "Test"]
