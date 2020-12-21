@@ -55,7 +55,7 @@ Function to build graph from a file storing a crystal structure (currently suppo
 
 # TODO: featurize here
 function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
-    aseio = pyimport("ase.io")
+    aseio = pyimport_conda("ase.io", "ase", "conda-forge")
     atoms_object = aseio.read(file_path)
 
     # list of atom symbols
@@ -70,13 +70,13 @@ function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_n
     end
 
     if use_voronoi && !cant_voronoi
-        s = pyimport("pymatgen.core.structure")
-        pmgase = pyimport("pymatgen.io.ase")
+        s = pyimport_conda("pymatgen.core.structure", "pymatgen", "conda-forge")
+        pmgase = pyimport_conda("pymatgen.io.ase", "pymatgen", "conda-forge")
         aa = pmgase.AseAtomsAdaptor()
         struc = aa.get_structure(atoms_object)
         weight_mat = weights_voronoi(struc)
     else
-        nl = pyimport("ase.neighborlist")
+        nl = pyimport_conda("ase.neighborlist", "ase", "conda-forge")
         is, js, dists = nl.neighbor_list("ijd", atoms_object, radius)
         weight_mat = weights_cutoff(is.+1, js.+1, dists; max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
     end
