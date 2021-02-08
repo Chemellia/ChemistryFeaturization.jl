@@ -2,6 +2,10 @@
 using DataStructures
 using Flux: onehot
 using PyCall
+# see if this fixes the GLIBCXX CI errors...
+using Conda
+Conda.add("libcxx"; channel="conda-forge")
+
 #chem = pyimport_conda("rdkit.Chem", "rdkit==2020.09.2", "conda-forge")
 chem = pyimport_conda("rdkit.Chem", "rdkit", "conda-forge")
 
