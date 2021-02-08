@@ -99,6 +99,10 @@ end
 @testset "batch processing" begin
     featurization = build_atom_feats([Symbol("Atomic mass"), :Block])
     build_graphs_batch(joinpath(@__DIR__, "test_data"), joinpath(@__DIR__, "test_data", "graphs"), featurization)
+
+    # try to figure out what Windows test is doing that it can't find the file
+    println(readdir(joinpath(@__DIR__, "test_data", "graphs")
+
     g1 = deserialize(joinpath(@__DIR__, "test_data","graphs","mp-195.jls"))
     @test size(g1)==(4,4)
     @test size(g1.features)==(14,4)
