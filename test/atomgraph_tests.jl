@@ -72,6 +72,10 @@ end
     methane = build_graph(joinpath(@__DIR__,"test_data", "methane.xyz"))
     @test all(isapprox.(weights(methane)[2:5,1], 1.0, atol=1e-4))
     @test all(isapprox.(weights(methane)[3:2,2], 0.375, atol=1e-5))
+
+    # test that warning is thrown for NaNs in laplacian
+    @test_throws AssertionError build_graph(joinpath(@__DIR__, "test_data", "nanlaplstruc.cif"))
+
 end
 
 @testset "save/load" begin
