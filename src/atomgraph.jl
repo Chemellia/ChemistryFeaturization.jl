@@ -89,8 +89,8 @@ lg.zero(AtomGraph) = AtomGraph(zero(SimpleWeightedGraph{Int32,Float32}), String[
 function normalized_laplacian(g::G) where G<:lg.AbstractGraph
     a = adjacency_matrix(g)
     d = vec(sum(a, dims=1))
-    inv_sqrt_d = diagm(0=>d.^(-0.5))
-    Float32.(I - inv_sqrt_d * a * inv_sqrt_d)
+    inv_sqrt_d = diagm(0=>d.^(-0.5f0))
+    I - inv_sqrt_d * a * inv_sqrt_d
 end
 
 normalized_laplacian(g::AtomGraph) = g.lapl
