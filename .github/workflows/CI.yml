@@ -38,7 +38,7 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - name: "Setting PATH on Windows"
         if: runner.os == 'Windows'
-        run: $env:PATH += ";C:\Users\${{ github.actor }}\Anaconda3\Library\bin"
+        run: $env:Path += ";C:\Users\${{ github.actor }}\Anaconda3\Library\bin"
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
