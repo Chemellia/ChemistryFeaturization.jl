@@ -2,7 +2,12 @@
 using DataStructures
 using Flux: onehot
 using PyCall
+# see if this fixes the GLIBCXX CI errors...
+#using Conda
+#Conda.add("libcxx"; channel="conda-forge")
+
 chem = pyimport_conda("rdkit.Chem", "rdkit==2020.09.2", "conda-forge")
+#chem = pyimport_conda("rdkit.Chem", "rdkit", "conda-forge")
 
 # currently supported atomic features and bond features
 const atom_feat_list = ["symbol","degree","implicit_valence","formal_charge","radical_electrons","hybridization","aromaticity","total_H_num" ]
