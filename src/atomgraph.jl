@@ -89,7 +89,7 @@ lg.zero(AtomGraph) = AtomGraph(zero(SimpleWeightedGraph{Int32,Float32}), String[
 function normalized_laplacian(g::G) where G<:lg.AbstractGraph
     a = adjacency_matrix(g)
     d = vec(sum(a, dims=1))
-    inv_sqrt_d = diagm(0=>d.^(-0.5))
+    inv_sqrt_d = diagm(0=>d.^(-0.5f0))
     lapl = Float32.(I - inv_sqrt_d * a * inv_sqrt_d)
     !any(isnan, lapl) || throw(ArgumentError("NaN values in graph Laplacian! This is most likely due to atomic separations larger than the specified cutoff distance leading to block zeros in the adjacency matrix...try increasing the cutoff distance or inspecting your structure to ensure the file is correct."))
     return lapl
