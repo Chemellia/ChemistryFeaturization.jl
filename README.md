@@ -5,6 +5,9 @@ Unified graph building and featurizing for Weave.jl, AtomicGraphNets.jl, and (ma
 
 Documentation is starting to be built in the [wiki](https://github.com/aced-differentiate/ChemistryFeaturization.jl/wiki)!
 
+This package is currently focused on bulk systems. For organic molecules, [MolecularGraph](https://github.com/mojaie/MolecularGraph.jl) is recommended.
+PubChem stores many molecular features for the compounds they catalog, and their data can be accessed via [PubChemCrawler](https://github.com/JuliaHealth/PubChemCrawler.jl).
+
 ## Features
 
 ### Graph-building and featurization from CIF files
