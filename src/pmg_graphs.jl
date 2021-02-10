@@ -56,7 +56,6 @@ Function to build graph from a file storing a crystal structure (currently suppo
 # TODO: featurize here
 function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # see if this fixes issues on Windows
-    np = pyimport_conda("numpy", "numpy=1.19")
     aseio = pyimport_conda("ase.io", "ase", "conda-forge")
     atoms_object = aseio.read(file_path)
 

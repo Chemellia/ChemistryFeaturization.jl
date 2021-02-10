@@ -2,8 +2,6 @@ using Test
 using LightGraphs
 using Serialization
 using SimpleWeightedGraphs
-#include("../src/pmg_graphs.jl")
-#include("../src/atomgraph.jl")
 using ChemistryFeaturization
 
 @testset "AtomGraph" begin
