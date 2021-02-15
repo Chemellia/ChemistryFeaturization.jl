@@ -135,9 +135,7 @@ Other optional arguments are the optional arguments to `build_graph`: `use_voron
 """
 function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true, output_folder="")
     # check if input folder exists and contains things, if not throw error
-    println(input_folder)
     file_list = readdir(input_folder, join=true)
-    println(file_list)
     length(file_list)!=0 || throw(ArgumentError("No files in input directory!"))
 
     # check if output folder exists, if not create it
