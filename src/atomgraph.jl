@@ -132,6 +132,29 @@ function add_features!(g::AtomGraph, feature_names::Vector{Symbol}, nbins::Vecto
     add_features!(g, feature_vecs, featurization)
 end
 
+# and the batch versions
+function add_features_batch!(gs::Array{AtomGraph}, features, featurization)
+    for g in gs
+        add_features!(g, features, featurization)
+    end
+end
+
+function add_features_batch!(gs::Array{AtomGraph}, atom_feature_vecs::Dict{String, Vector{Float32}}, featurization::Vector{AtomFeat})
+    for g in gs
+        add_features!(g, atom_feature_vecs, featurization)
+    end
+end
+
+function add_features_batch!(gs::Array{AtomGraph}, featurization::Vector{AtomFeat})
+    feature_vecs, featurization = make_feature_vectors(feature_names)
+    add_features_batch!(gs, feature_vecs, featurization)
+end
+
+function add_features_batch!(gs::Array{AtomGraph}, feature_names::Vector{Symbol}, nbins::Vector{<:Integer}, logspaced=false)
+    feature_vecs, featurization = make_feature_vectors(feature_names, nbins=nbins, logspaced=logspaced)
+    add_features_batch!(gs, feature_vecs, featurization)
+end
+
 # now visualization stuff...
 
 "Get a list of colors to use for graph visualization."

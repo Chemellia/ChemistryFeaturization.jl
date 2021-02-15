@@ -34,6 +34,14 @@ using ChemistryFeaturization
     add_features!(ag, good_fmat, featurization)
     @test ag.features==good_fmat
 
+    # test that we can add features to multiple graphs
+    ag = AtomGraph(g, ["C", "C", "C"])
+    ag2 = deepcopy(ag)
+    ags = [ag ag2]
+    add_features_batch!(ags, good_fmat, featurization)
+    @test ag.features==good_fmat
+    @test ag2.features==good_fmat
+    
     # tests for other signatures of add_features! where feature vectors are built automatically
     ag = AtomGraph(g, ["C", "C", "C"])
     ag2 = deepcopy(ag)
