@@ -83,8 +83,6 @@ lg.has_edge(g::AtomGraph, i, j) = lg.has_edge(g.graph, i, j)
 
 lg.zero(AtomGraph) = AtomGraph(zero(SimpleWeightedGraph{Int32,Float32}), String[])
 
-# TODO: maybe some subgraph stuff for cutting up graphs later, will need to make sure to account for feature matrix and element list properly as well as recompute laplacian, would be cool to be able to e.g. filter on particular features and only pull matching nodes
-
 # this cribbed from GeometricFlux
 function normalized_laplacian(g::G) where G<:lg.AbstractGraph
     a = adjacency_matrix(g)

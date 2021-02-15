@@ -171,7 +171,7 @@ function build_graphs_batch(input_folder::String, output_folder::String, featuri
 
     # check if output folder exists, if not create it
     if !isdir(output_folder)
-        mkdir(output_folder)
+        mkpath(output_folder)
         @info "Output path provided did not exist, creating folder there."
     end
 
