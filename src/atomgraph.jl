@@ -8,17 +8,17 @@ include("pmg_graphs.jl")
 
 # Type to store atomic graphs
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
-# TO CONSIDER: store an ID of some kind? (e.g. mp-123 or whatever)
 mutable struct AtomGraph <: lg.AbstractGraph{Float32}
     graph::SimpleWeightedGraph{Int32,Float32}
     elements::Vector{String} # list of elemental symbols corresponding to each node
     lapl::Matrix{Float32} # graph laplacian (normalized)
     features::Matrix{Float32} # feature matrix (size (# features, # nodes))
     featurization::Vector{AtomFeat} # featurization scheme in the form of a list of AtomFeat objects
+    id::String # optional, id for cross-checking with databases, etc.
 end
 
 # basic constructor
-function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat})
+function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat}, id="")
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
@@ -29,22 +29,23 @@ function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{Strin
 
     # if all these are good, calculate laplacian and build the thing
     lapl = normalized_laplacian(gr)
-    AtomGraph(gr, el_list, lapl, features, featurization)
+    AtomGraph(gr, el_list, lapl, features, featurization, id)
 end
 
 # one without features or featurization initialized yet
-function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String})
+function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String}, id="")
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
 
     lapl = Float32.(normalized_laplacian(gr))
-    AtomGraph(gr, el_list, lapl, zeros(Float32, 1, num_atoms), AtomFeat[])
+    AtomGraph(gr, el_list, lapl, zeros(Float32, 1, num_atoms), AtomFeat[], id)
 end
 
-# TODO, maybe: constructor where you give adjacency matrix and it builds the graph for you also
+# initialize directly from adjacency matrix
+AtomGraph(adj::Array{Float32}, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat}, id="") = AtomGraph(SimpleWeightedGraph{Int32}(adj), el_list, features, featurization, id)
+AtomGraph(adj::Array{Float32}, el_list::Vector{String}, id="") = AtomGraph(SimpleWeightedGraph{Int32}(adj), el_list, id)
 
-# TODO: fix so that it will print feature length even if featurization isn't initialized
 # pretty printing, short version
 function Base.show(io::IO, g::AtomGraph)
     st = "AtomGraph with $(nv(g)) nodes, $(ne(g)) edges"
@@ -133,12 +134,6 @@ function add_features!(g::AtomGraph, feature_names::Vector{Symbol}, nbins::Vecto
 end
 
 # and the batch versions
-function add_features_batch!(gs::Array{AtomGraph}, features, featurization)
-    for g in gs
-        add_features!(g, features, featurization)
-    end
-end
-
 function add_features_batch!(gs::Array{AtomGraph}, atom_feature_vecs::Dict{String, Vector{Float32}}, featurization::Vector{AtomFeat})
     for g in gs
         add_features!(g, atom_feature_vecs, featurization)
@@ -146,7 +141,7 @@ function add_features_batch!(gs::Array{AtomGraph}, atom_feature_vecs::Dict{Strin
 end
 
 function add_features_batch!(gs::Array{AtomGraph}, featurization::Vector{AtomFeat})
-    feature_vecs, featurization = make_feature_vectors(feature_names)
+    feature_vecs, featurization = make_feature_vectors(featurization)
     add_features_batch!(gs, feature_vecs, featurization)
 end
 

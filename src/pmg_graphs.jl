@@ -7,38 +7,12 @@ using ChemistryFeaturization
 using Serialization
 
 # options for decay of bond weights with distance...
+# user can of course write their own as well
 inverse_square(x) = x^-2.0
 exp_decay(x) = exp(-x)
 
-# a few helper fcns for readability...
-"Return the index of a given site in the structure."
-site_index(site) = convert(UInt16, get(site, 2)) + 1
-
-"Return the distance associated with a site in a neighbor list."
-site_distance(site) = convert(Float64, get(site, 1))
-
-# these next two functions return the information for the first species in a list – there should only be one because otherwise the structure would be disordered and we probably shouldn't be building a graph...(or maybe we add some fancy functionality later to do superpositions of species?)
-
-"Return atomic number associated with a site."
-site_atno(site) = [e.Z for e in site.species.elements][1]
-
-"Return atomic symbol associated with a site."
-site_element(site) = [e.symbol for e in site.species.elements][1]
-
-
-"""
-    are_equidistant(site1, site2)
-
-Check if site1 and site2 are equidistant to within tolerance atol, in angstroms (for cutting off neighbor lists consistently).
-
-Note that this only works if site1 and site2 are from a neighbor list from the same central atom.
-"""
-function are_equidistant(site1, site2, atol=1e-4)
-    isapprox(site_distance(site1), site_distance(site2), atol=atol)
-end
-
-
 # TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
+# TODO: option to featurize here?
 """
 Function to build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
 
@@ -52,8 +26,6 @@ Function to build graph from a file storing a crystal structure (currently suppo
 - `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
 - `dist_decay_func`: function (e.g. inverse_square or exp_decay) to determine falloff of graph edge weights with neighbor distance
 """
-
-# TODO: featurize here
 function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
     # see if this fixes issues on Windows
     aseio = pyimport_conda("ase.io", "ase", "conda-forge")
@@ -149,41 +121,45 @@ function weights_cutoff(is, js, dists; max_num_nbr=12, dist_decay_func=inverse_s
     weight_mat = 0.5 .* (weight_mat .+ weight_mat')
 end
 
+# TODO: might want a version that only serializes for cases where full array of AtomGraphs won't fit in memory?
 """
-Function to build and serialize to file a batch of CIFs, optionally featurizing them as well. Saved .jls files will have the same names as the .cif ones but with the extensions modified.
+Function to build and, optionally, serialize to file a batch of input files, optionally featurizing them as well. Saved .jls files will have the same names as the .cif (or .traj, or .xyz, or ...) ones but with the extensions modified.
 
 # Arguments
-- `cif_folder::String`: path to folder containing CIF files
-- `output_folder::String`: path to folder where .jls files containing AtomGraph objects should be saved (will be created if it doesn't exist already)
+- `input_folder::String`: path to folder containing CIF files
+- `output_folder::String` (optional): path to folder where .jls files containing AtomGraph objects should be saved (will be created if it doesn't exist already)
 
 If you want to featurize the graphs, at least the vector of `AtomFeat` objects describing the featurization procedure is required, and optionally the Dict mapping from elemental symbols to feature vectors (if it is not provided, it will be generated).
 
 Other optional arguments are the optional arguments to `build_graph`: `use_voronoi`, `radius`, `max_num_nbr`, `dist_decay_func`, `normalize`
-
-This function does not return anything.
 """
-function build_graphs_batch(input_folder::String, output_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true, output_folder="")
     # check if input folder exists and contains things, if not throw error
+    println(input_folder)
     file_list = readdir(input_folder, join=true)
-    if length(file_list)==0
-        error("No files in input directory!")
-    end
+    println(file_list)
+    length(file_list)!=0 || throw(ArgumentError("No files in input directory!"))
 
     # check if output folder exists, if not create it
-    if !isdir(output_folder)
-        mkpath(output_folder)
-        @info "Output path provided did not exist, creating folder there."
+    to_serialize = false
+    if output_folder != ""
+        to_serialize=true
+        if !isdir(output_folder)
+            mkpath(output_folder)
+            @info "Output path provided did not exist, creating folder there."
+        end
     end
 
     # check if there is enough information to actually featurize
-    featurize = length(featurization)>0
-    atom_featurevecs = (length(atom_featurevecs)>0 & featurize) ? atom_featurevecs : make_feature_vectors(featurization)[1]
+    to_featurize = length(featurization)>0
+    atom_featurevecs = (length(atom_featurevecs)>0 & to_featurize) ? atom_featurevecs : make_feature_vectors(featurization)[1]
 
     if (length(atom_featurevecs)>0) & (length(featurization)==0)
         @warn "You have supplied only feature vectors but no featurization scheme, so graphs will be built but not featurized."
     end
 
     # loop over CIFs and build graphs from all files that we can...
+    graphs = AtomGraph[]
     for file in file_list
         id = split(splitpath(file)[end], ".")[1]
         local ag
@@ -193,16 +169,20 @@ function build_graphs_batch(input_folder::String, output_folder::String, featuri
             @warn "Unable to build graph for $file"
             continue
         end
-        if featurize
+        if to_featurize
             add_features!(ag, atom_featurevecs, featurization)
         end
-        graph_path = joinpath(output_folder, string(id, ".jls"))
-        serialize(graph_path, ag)
+        if to_serialize
+            graph_path = joinpath(output_folder, string(id, ".jls"))
+            serialize(graph_path, ag)
+        end
+        push!(graphs, ag)
     end
+    return graphs
 end
 
 # alternate call signature where featurization is generated
-function build_graphs_batch(cif_folder::String, output_folder::String, feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+function build_graphs_batch(cif_folder::String, feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false, output_folder="")
     atom_featurevecs, featurization = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
     build_graphs_batch(cif_folder, output_folder; featurization=featurization, atom_featurevecs = atom_featurevecs)
 end

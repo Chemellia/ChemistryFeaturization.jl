@@ -6,13 +6,16 @@ using ChemistryFeaturization
 
 @testset "AtomGraph" begin
     # build a silly little triangle graph
-    g = SimpleWeightedGraph{Int32}(Float32.([0 1 1; 1 0 1; 1 1 0]))
+    adj = Float32.([0 1 1; 1 0 1; 1 1 0])
+    g = SimpleWeightedGraph{Int32}(adj)
 
     # add an element list that doesn't make sense
     @test_throws AssertionError AtomGraph(g, ["C"])
 
-    # okay, now do it right, start with no features
+    # okay, now do it right, start with no features, checking both constructors
     ag = AtomGraph(g, ["C", "C", "C"])
+    ag2 = AtomGraph(adj, ["C", "C", "C"])
+    @test adjacency_matrix(ag)==adjacency_matrix(ag2)
 
     # check LightGraphs fcns
     @test eltype(ag)==Int32
@@ -33,14 +36,6 @@ using ChemistryFeaturization
     @test_throws AssertionError add_features!(ag, bad_fmat, featurization)
     add_features!(ag, good_fmat, featurization)
     @test ag.features==good_fmat
-
-    # test that we can add features to multiple graphs
-    ag = AtomGraph(g, ["C", "C", "C"])
-    ag2 = deepcopy(ag)
-    ags = [ag ag2]
-    add_features_batch!(ags, good_fmat, featurization)
-    @test ag.features==good_fmat
-    @test ag2.features==good_fmat
     
     # tests for other signatures of add_features! where feature vectors are built automatically
     ag = AtomGraph(g, ["C", "C", "C"])
@@ -54,6 +49,19 @@ using ChemistryFeaturization
     add_features!(ag3, feature_names, Int32.([4,3]))
 
     @test ag.features==ag2.features==ag3.features==Float32.(hcat([vecs["C"] for i in 1:3]...))
+
+    # test that we can add features to multiple graphs
+    ag = AtomGraph(g, ["C", "C", "C"])
+    ag2 = deepcopy(ag)
+    ags = [ag ag2]
+    add_features_batch!(ags, featurization)
+    
+    # and test this one for the other signatures too
+    add_features_batch!(ags, vecs, featurization)
+    @test ags[1].features[:,1]==Float32.([0;1;0;0;0;1;0])==ags[2].features[:,1]    
+    # sneakily test that block will always be length 4, i.e. second entry ignored
+    add_features_batch!(ags, Symbol.(["X", "Block"]), [3,3])
+    @test ags[1].features[:,2]==Float32.([0;1;0;0;1;0;0])==ags[2].features[:,2]
 end
 
 @testset "graph-building" begin
@@ -83,7 +91,6 @@ end
 
     # test that warning is thrown for NaNs in laplacian
     @test_throws ArgumentError build_graph(joinpath(@__DIR__, "test_data", "nanlaplstruc.cif"))
-
 end
 
 @testset "save/load" begin
@@ -106,7 +113,7 @@ end
 
 @testset "batch processing" begin
     featurization = build_atom_feats([Symbol("Atomic mass"), :Block])
-    build_graphs_batch(joinpath(@__DIR__, "test_data"), joinpath(@__DIR__, "test_data", "graphs"), featurization)
+    gs = build_graphs_batch(joinpath(@__DIR__, "test_data"), featurization, output_folder=joinpath(@__DIR__, "test_data", "graphs"))
     
     g1 = deserialize(joinpath(@__DIR__, "test_data","graphs","mp-195.jls"))
     @test size(g1)==(4,4)
