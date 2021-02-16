@@ -1,7 +1,10 @@
+using DataStructures
 using Test
 using ChemistryFeaturization
-
-include("../src/smiles_rdkit_features.jl")
+include("../src/weave_fcns.jl")
+using .weave_fcns: smiles_atom_features, smiles_bond_features, chem, atom_feat_list, bond_feat_bins, atom_feat_bins
+include("../src/featurize.jl")
+using .featurize: weave_featurize
 
 mol = chem.MolFromSmiles("C1=CC=CC=C1")  # benzene
 carbon = get(mol.GetAtoms(),0)
@@ -41,9 +44,6 @@ end
     ]
     @test [v for v in values(smiles_bond_features(bond))] == correct_values
 end
-
-
-include("../src/featurize.jl")
 
 @testset "weave featurization" begin
     weave_mol = weave_featurize(["C1=CC=CC=C1"])[1]

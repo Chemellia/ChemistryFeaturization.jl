@@ -1,8 +1,8 @@
 using ChemistryFeaturization
 using Test
 
-@testset "SMILES_functions" begin
-    include("SMILES_tests.jl")
+@testset "weave_functions" begin
+    include("weave_tests.jl")
 end
 
 @testset "Featurization" begin

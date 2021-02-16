@@ -8,7 +8,7 @@ const default_nbins = 10
 
 # read in features...
 atom_data_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "pymatgen_atom_data.csv")
-const atom_data_df = DataFrame!(CSV.File(atom_data_path))
+const atom_data_df = DataFrame(CSV.File(atom_data_path))
 feature_info_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "feature_info.json")
 const feature_info = JSON.parsefile(feature_info_path)
 

@@ -1,10 +1,9 @@
+module weave_fcns
+
 ## Basic functions
 using DataStructures
 using Flux: onehot
 using PyCall
-# see if this fixes the GLIBCXX CI errors...
-#using Conda
-#Conda.add("libcxx"; channel="conda-forge")
 
 chem = pyimport_conda("rdkit.Chem", "rdkit==2020.09.2", "conda-forge")
 #chem = pyimport_conda("rdkit.Chem", "rdkit", "conda-forge")
@@ -183,4 +182,6 @@ function _get_distance!(distance_matrix,a1, adj_list, max_distance = 7)
         cur_list = next_list
         cur_distance += 1
     end
+end
+
 end
