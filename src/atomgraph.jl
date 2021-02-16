@@ -4,7 +4,6 @@ using LinearAlgebra
 using GraphPlot
 using Colors
 using JSON
-include("pmg_graphs.jl")
 
 # Type to store atomic graphs
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?

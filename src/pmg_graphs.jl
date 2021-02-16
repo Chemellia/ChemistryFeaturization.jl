@@ -1,7 +1,10 @@
 #=
 Building graphs from CIF files using PyCall to the pymatgen package.
 =#
+module graph_building
+export weights_voronoi, weights_cutoff
 
+using SimpleWeightedGraphs
 using PyCall
 using ChemistryFeaturization
 using Serialization
@@ -193,4 +196,6 @@ function read_graphs_batch(graph_folder::String)
         push!(graphs, deserialize(fpath))
     end
     return graphs
+end
+
 end

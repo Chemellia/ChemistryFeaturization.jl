@@ -8,6 +8,7 @@ include("atomgraph.jl")
 
 export inverse_square, exp_decay, build_graph, build_graphs_batch, read_graphs_batch
 include("pmg_graphs.jl")
+using .graph_building: inverse_square, exp_decay, build_graph, build_graphs_batch, read_graphs_batch
 
 # TODO: possibly move all the Weave stuff to another package altogether, if not need to tidy up modules/exports
 export smiles_atom_features, smiles_bond_features
