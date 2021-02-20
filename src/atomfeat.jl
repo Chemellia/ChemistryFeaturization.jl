@@ -30,16 +30,37 @@ for feature in avail_feature_names
     end
 end
 
-# Type to store featurization metadata. An array of these specifies a featurization scheme for atoms.
 # TODO for Sean, eventually: add PairFeat and BondFeat types (maybe in another file for tidiness)
 # TODO, maybe: we could define AbstractFeat that all of these would inherit from, but TBD if that would be useful or not
+"""
+    AtomFeat
+
+A type representing the encoding of an atomic feature. A vector of these specifies a
+featurization scheme. A feature vector for a specific atom can be encoded and decoded
+by concatenating together associated subvectors generated using this scheme.
+
+Currently, it is assumed that the subvectors are generated via a one-hot encoding. In the
+future, there may be flexibility on this point...
+
+# Fields
+- `name::Symbol`: the name of the feature
+- `categorical::Bool`: whether it's a categorical feature (vs. continuous-valued)
+- `num_bins::Integer`: length of associated subvector
+- `logspaced::Bool`: whether the feature values are logarithmically spaced
+- `vals::Vector`: list of values; length equal to `num_bins` for categorical, `num_bins`+1
+  (specifying bin edges) for numerical
+"""
 struct AtomFeat
-    name::Symbol # name of feature
-    categorical::Bool # whether it's categorical (vs. numerical)
-    num_bins::Integer # length of associated subvector
-    logspaced::Bool # whether it's logspaced (most relevant for numerical)
-    vals::Vector # list of values (length equal to num_bins for categorical, num_bins+1 (specifying bin edges) for numerical)
-    # basic standard constructor will check some things...
+    name::Symbol
+    categorical::Bool
+    num_bins::Integer
+    logspaced::Bool
+    vals::Vector
+    """
+        AtomFeat(name, categorical, num_bins, logspaced, vals)
+
+    Construct an AtomFeat by directly specifying each field value.
+    """
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
         T = eltype(vals)
         if T==Float64
@@ -68,20 +89,29 @@ struct AtomFeat
     end
 end
 
-# constructor for features where vals gets calculated rather than passed in, works for categorical too if their values are numbers
-function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false; T=Float32)
+"""
+    AtomFeat(name, categorical, num_bins, min_val, max_val, logspaced=false)
+
+Construct an AtomFeat object by specifying minimum and maximum numerical values. The correct set of bins will be generated according to whether it is a categorical feature or
+not.
+"""
+function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false)
     categorical ? len = num_bins : len = num_bins + 1
     if logspaced
         vals = 10 .^ range(log10(min_val), log10(max_val), length=len)
     else
         vals = range(min_val, max_val, length=len)
     end
-    AtomFeat(name, categorical, num_bins, logspaced, T.([v for v in vals]))
+    AtomFeat(name, categorical, num_bins, logspaced, Float32.([v for v in vals]))
 end
 
-# constructor that will assume categorical features
-AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
+"""
+    AtomFeat(name, vals)
 
+Construct a categorical AtomFeat object by directly specifying the values `vals` for each 
+bin, which need not be numerical.
+"""
+AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
 
 # pretty printing, short form
 Base.show(io::IO, f::AtomFeat) = print(io, "$(f.name): AtomFeat with $(f.num_bins) bins")
@@ -161,8 +191,7 @@ Function to build a featurization given vectors of metadata.
 
 Note that nbins will be ignored for categorical features.
 """
-# TODO: rename this or make_feature_vectors because they sound like they do the same thing...
-function build_atom_feats(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+function build_featurization(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
     num_features = length(feature_names)
 
     # figure out spacing for each feature
@@ -191,9 +220,7 @@ end
 
 """
     make_feature_vectors(featurization)
-    make_feature_vectors(feature_names)
-    make_feature_vectors(feature_names, nbins)
-    make_feature_vectors(feature_names, nbins, logspaced)
+    make_feature_vectors(feature_names; nbins, logspaced)
 
 Make custom feature vectors, using specified features and numbers of bins. Can be called with an array of AtomFeat objects or by specifying names and other metadata and the objects will be built.
 
@@ -234,15 +261,7 @@ function make_feature_vectors(featurization::Vector{AtomFeat})
     return sym_featurevec, featurization
 end
 
-"""
-alternate call signature...
-
-# Arguments
-- `feature_names::Vector{String}`: list of features to be encoded
-- `nbins::Vector{Integer}`: number of bins for each feature (in same order)
-- `logspaced=false`: (single Bool or vector of them) whether or not to logarithmically space each feature
-"""
-make_feature_vectors(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_atom_feats(feature_names; nbins=nbins, logspaced=logspaced))
+make_feature_vectors(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_featurization(feature_names; nbins=nbins, logspaced=logspaced))
 
 """
     chunk_vec(vec, nbins)
