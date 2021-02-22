@@ -112,12 +112,17 @@ end
 end
 
 @testset "batch processing" begin
-    featurization = build_featurization([Symbol("Atomic mass"), :Block])
+    feature_names = [Symbol("Atomic mass"), :Block]
+    featurization = build_featurization(feature_names)
     gs = build_graphs_batch(joinpath(@__DIR__, "test_data"), featurization, output_folder=joinpath(@__DIR__, "test_data", "graphs"))
-    
+    gs2 = build_graphs_batch(joinpath(@__DIR__, "test_data"), feature_names)
+    @test repr.(gs)==repr.(gs2) # sneakily testing pretty printing also...
+
+    # test reading from individual files
     g1 = deserialize(joinpath(@__DIR__, "test_data","graphs","mp-195.jls"))
     @test size(g1)==(4,4)
     @test size(g1.features)==(14,4)
+    @test g1.id=="mp-195"
     g2 = deserialize(joinpath(@__DIR__, "test_data","graphs","mp-224.jls"))
     @test size(g2)==(6,6)
     @test size(g2.features)==(14,6)
@@ -126,7 +131,8 @@ end
     @test w[3,3]==w[4,4]==w[5,5]==w[6,6]==1.0
     @test g2.elements==["W","W","S","S","S","S"]
 
-    # test read_graphs_batch
-    gs = read_graphs_batch(joinpath(@__DIR__, "test_data", "graphs"))
-    @test length(gs)>=2
+    # test read_graphs_batch and alternate syntax of build_graphs_batch
+    gs3 = read_graphs_batch(joinpath(@__DIR__, "test_data", "graphs"))
+    @test repr(gs2[1])==repr(gs3[1])
+    @test repr(gs3[2])==repr(gs[2])
 end

@@ -77,7 +77,7 @@ AtomGraph(adj::Array{Float32}, el_list::Vector{String}, id="") = AtomGraph(Simpl
 
 # pretty printing, short version
 function Base.show(io::IO, g::AtomGraph)
-    st = "AtomGraph with $(nv(g)) nodes, $(ne(g)) edges"
+    st = "AtomGraph $(g.id) with $(nv(g)) nodes, $(ne(g)) edges"
     if length(g.featurization)!=0
         st = string(st, ", feature vector length $(size(g.features)[1])")
     end
@@ -86,7 +86,7 @@ end
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", g::AtomGraph)
-    st = "AtomGraph with $(nv(g)) nodes, $(ne(g)) edges\n   atoms: $(g.elements)\n   feature vector length: "
+    st = "AtomGraph $(g.id) with $(nv(g)) nodes, $(ne(g)) edges\n   atoms: $(g.elements)\n   feature vector length: "
     if length(g.featurization)==0
         st = string(st, "uninitialized\n   encoded features: uninitialized")
     else
