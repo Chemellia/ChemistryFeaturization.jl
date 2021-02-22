@@ -46,7 +46,7 @@ using ChemistryFeaturization
 
     add_features!(ag, vecs, featurization)
     add_features!(ag2, featurization)
-    add_features!(ag3, feature_names, Int32.([4,3]))
+    add_features!(ag3, feature_names, nbins=Int32.([4,3]))
 
     @test ag.features==ag2.features==ag3.features==Float32.(hcat([vecs["C"] for i in 1:3]...))
 
@@ -60,7 +60,7 @@ using ChemistryFeaturization
     add_features_batch!(ags, vecs, featurization)
     @test ags[1].features[:,1]==Float32.([0;1;0;0;0;1;0])==ags[2].features[:,1]    
     # sneakily test that block will always be length 4, i.e. second entry ignored
-    add_features_batch!(ags, Symbol.(["X", "Block"]), [3,3])
+    add_features_batch!(ags, Symbol.(["X", "Block"]); nbins=[3,3])
     @test ags[1].features[:,2]==Float32.([0;1;0;0;1;0;0])==ags[2].features[:,2]
 end
 
@@ -112,7 +112,7 @@ end
 end
 
 @testset "batch processing" begin
-    featurization = build_atom_feats([Symbol("Atomic mass"), :Block])
+    featurization = build_featurization([Symbol("Atomic mass"), :Block])
     gs = build_graphs_batch(joinpath(@__DIR__, "test_data"), featurization, output_folder=joinpath(@__DIR__, "test_data", "graphs"))
     
     g1 = deserialize(joinpath(@__DIR__, "test_data","graphs","mp-195.jls"))

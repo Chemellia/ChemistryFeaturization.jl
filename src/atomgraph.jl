@@ -5,18 +5,48 @@ using GraphPlot
 using Colors
 using JSON
 
-# Type to store atomic graphs
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
+"""
+    AtomGraph
+
+A type representing an atomic structure as a graph (`gr`).
+
+# Fields
+- `graph::SimpleWeightedGraph{Int32,Float32}`: the graph representing the structure. See
+  [`build_graph`](@ref) for more on generating the weights.
+- `elements::Vector{String}`: list of elemental symbols corresponding to each node of the
+  graph
+- `lapl::Matrix{Float32}`: Normalized graph Laplacian matrix, stored to speed up
+  convolution operations by avoiding recomputing it every pass.
+- `features::Matrix{Float32}`: Feature matrix of size (# features, # nodes). AtomGraph can
+  be initialized without defining this field, but if it is defined, the subsequent field must be also.
+- `featurization::Vector{AtomFeat}`: Featurization scheme specification to maintain 
+  "decodability" of features.
+- `id::String`: Optional, an identifier, e.g. to correspond with tags/labels of an imported
+  dataset.
+"""
 mutable struct AtomGraph <: lg.AbstractGraph{Float32}
     graph::SimpleWeightedGraph{Int32,Float32}
-    elements::Vector{String} # list of elemental symbols corresponding to each node
-    lapl::Matrix{Float32} # graph laplacian (normalized)
-    features::Matrix{Float32} # feature matrix (size (# features, # nodes))
-    featurization::Vector{AtomFeat} # featurization scheme in the form of a list of AtomFeat objects
-    id::String # optional, id for cross-checking with databases, etc.
+    elements::Vector{String}
+    lapl::Matrix{Float32}
+    features::Matrix{Float32}
+    featurization::Vector{AtomFeat}
+    id::String
 end
 
-# basic constructor
+# first, the basic constructor
+"""
+    AtomGraph(gr, el_list, features, featurization, id="")
+    AtomGraph(gr, el_list, id="")
+    AtomGraph(adj, el_list, features, featurization, id="")
+    AtomGraph(adj, el_list, id="")
+
+Construct an AtomGraph object, either directly from a SimpleWeightedGraph `gr` or from an
+adjacency matrix `adj`, along with, at minimum, the list of elemental symbols `el_list`
+representing each node. Note that the object can be initialized without features, but if
+features are provided, so too must be the featurization scheme, in order to maintain
+"decodability" of features.
+"""
 function AtomGraph(gr::SimpleWeightedGraph{Int32,Float32}, el_list::Vector{String}, features::Matrix{Float32}, featurization::Vector{AtomFeat}, id="")
     # check that el_list is the right length
     num_atoms = size(gr)[1]
@@ -83,7 +113,15 @@ lg.has_edge(g::AtomGraph, i, j) = lg.has_edge(g.graph, i, j)
 
 lg.zero(AtomGraph) = AtomGraph(zero(SimpleWeightedGraph{Int32,Float32}), String[])
 
-# this cribbed from GeometricFlux
+"""
+    normalized_laplacian(graph)
+
+Compute the normalized graph Laplacian matrix of the input graph, defined as
+
+``I - D^{-1/2} A D^{-1/2}``
+
+where ``A`` is the adjacency matrix and ``D`` is the degree matrix.
+"""
 function normalized_laplacian(g::G) where G<:lg.AbstractGraph
     a = adjacency_matrix(g)
     d = vec(sum(a, dims=1))
@@ -95,7 +133,29 @@ end
 
 normalized_laplacian(g::AtomGraph) = g.lapl
 
-# function to add/change node features, note that featurization scheme must be specified!
+"""
+    add_features!(ag, features, featurization)
+    add_features!(ag, atom_feature_vecs, featurization)
+    add_features!(ag, featurization)
+    add_features!(ag, feature_names; nbins, logspaced=false)
+
+Add atomic features to an existing AtomGraph object. Can be done by (in decreasing order of
+speed since more things have to be calculated; these bullet points correspond to the four
+call signature options above):
+- providing feature matrix `features` (size # features x # nodes) directly
+- providing a dictionary of feature vectors (keys should be elemental symbols) and matrix
+  will be built
+- providing only a featurization scheme (list of AtomFeat objects), and vectors for each 
+  element will be built and combined into a feature matrix
+- Providing a list of feature names (and optionally specify binning and spacing for 
+  continuous numerical features) and built-in data will be used to build featurization
+  scheme, vectors, and matrix.
+
+In every case, a featurization scheme (or ingredients to build it) must be provided to 
+ensure decodability of features.
+
+See also: [`add_features_batch!`](@ref)
+"""
 function add_features!(g::AtomGraph, features::Matrix{Float32}, featurization::Vector{AtomFeat})
     num_atoms = nv(g)
 
@@ -121,18 +181,23 @@ function add_features!(g::AtomGraph, featurization::Vector{AtomFeat})
     add_features!(g, feature_vecs, featurization)
 end
 
-# is there a clever way to roll this into the previous one since the syntax is identical?
-function add_features!(g::AtomGraph, feature_names::Vector{Symbol})
-    feature_vecs, featurization = make_feature_vectors(feature_names)
-    add_features!(g, feature_vecs, featurization)
-end
+#function add_features!(g::AtomGraph, feature_names::Vector{Symbol})
+#    feature_vecs, featurization = make_feature_vectors(feature_names)
+#    add_features!(g, feature_vecs, featurization)
+#end
 
-function add_features!(g::AtomGraph, feature_names::Vector{Symbol}, nbins::Vector{<:Integer}, logspaced=false)
+function add_features!(g::AtomGraph, feature_names::Vector{Symbol}; nbins::Vector{<:Integer}, logspaced=false)
     feature_vecs, featurization = make_feature_vectors(feature_names, nbins=nbins, logspaced=logspaced)
     add_features!(g, feature_vecs, featurization)
 end
 
-# and the batch versions
+"""
+    add_features_batch!(ags, atom_feature_vecs, featurization)
+    add_features_batch!(ags, featurization)
+    add_features_batch!(ags, feature_names; nbins, logspaced=false)
+
+Add features to a list of AtomGraph objects. See [`add_features!`](@ref).
+"""
 function add_features_batch!(gs::Array{AtomGraph}, atom_feature_vecs::Dict{String, Vector{Float32}}, featurization::Vector{AtomFeat})
     for g in gs
         add_features!(g, atom_feature_vecs, featurization)
@@ -144,7 +209,7 @@ function add_features_batch!(gs::Array{AtomGraph}, featurization::Vector{AtomFea
     add_features_batch!(gs, feature_vecs, featurization)
 end
 
-function add_features_batch!(gs::Array{AtomGraph}, feature_names::Vector{Symbol}, nbins::Vector{<:Integer}, logspaced=false)
+function add_features_batch!(gs::Array{AtomGraph}, feature_names::Vector{Symbol}; nbins::Vector{<:Integer}, logspaced=false)
     feature_vecs, featurization = make_feature_vectors(feature_names, nbins=nbins, logspaced=logspaced)
     add_features_batch!(gs, feature_vecs, featurization)
 end

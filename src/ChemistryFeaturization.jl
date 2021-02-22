@@ -1,6 +1,6 @@
 module ChemistryFeaturization
 
-export AtomFeat, atom_data_df, build_atom_feats, make_feature_vectors, decode_feature_vector, default_nbins
+export AtomFeat, atom_data_df, build_featurization, make_feature_vectors, decode_feature_vector, default_nbins
 include("atomfeat.jl")
 
 export AtomGraph, normalized_laplacian, add_features!, add_features_batch!, visualize_graph
