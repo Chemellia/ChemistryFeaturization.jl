@@ -5,6 +5,7 @@ makedocs(
 	modules = [ChemistryFeaturization],
 	pages = Any[
 		"Home" => "index.md",
+		"Terminology" => "terminology.md",
 	]
 )
 
