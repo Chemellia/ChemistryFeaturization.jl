@@ -6,7 +6,12 @@ makedocs(
 	pages = Any[
 		"Home" => "index.md",
 		"Terminology" => "terminology.md",
+		"Autodocs" => "autodocs.md"
 	]
+)
+deploydocs(
+    repo = "github.com/thazhemadam/ChemistryFeaturization.jl.git",
+     target = "build"
 )
 
 # deploydocs(
