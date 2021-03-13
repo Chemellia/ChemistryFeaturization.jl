@@ -56,11 +56,11 @@ struct AtomFeat
     num_bins::Integer
     logspaced::Bool
     vals::Vector
-    """
-        AtomFeat(name, categorical, num_bins, logspaced, vals)
+"""
+    AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
 
-    Construct an AtomFeat by directly specifying each field value.
-    """
+Construct an AtomFeat by directly specifying each field value.
+"""
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
         T = eltype(vals)
         if T==Float64
@@ -90,10 +90,10 @@ struct AtomFeat
 end
 
 """
-    AtomFeat(name, categorical, num_bins, min_val, max_val, logspaced=false)
+    AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false)
 
-Construct an AtomFeat object by specifying minimum and maximum numerical values. The correct set of bins will be generated according to whether it is a categorical feature or
-not.
+Construct an AtomFeat object by specifying minimum and maximum numerical values.
+The correct set of bins will be generated according to whether it is a categorical feature or not.
 """
 function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false)
     categorical ? len = num_bins : len = num_bins + 1
@@ -106,7 +106,7 @@ function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, min_val::R
 end
 
 """
-    AtomFeat(name, vals)
+    AtomFeat(name::Symbol, vals::Vector)
 
 Construct a categorical AtomFeat object by directly specifying the values `vals` for each 
 bin, which need not be numerical.
@@ -187,9 +187,11 @@ function get_logspaced_vec(vec, num_features::Integer)
 end
 
 """
-Function to build a featurization given vectors of metadata.
+    build_featurization(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
 
-Note that nbins will be ignored for categorical features.
+Build a featurization given vectors of metadata.
+
+Note: `nbins` will be ignored for categorical features.
 """
 function build_featurization(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
     num_features = length(feature_names)
@@ -219,8 +221,8 @@ function build_featurization(feature_names::Vector{Symbol}; nbins::Vector{<:Inte
 end
 
 """
-    make_feature_vectors(featurization)
-    make_feature_vectors(feature_names; nbins, logspaced)
+    make_feature_vectors(featurization::Vector{AtomFeat})
+    make_feature_vectors(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}, logspaced::Bool)
 
 Make custom feature vectors, using specified features and numbers of bins. Can be called with an array of AtomFeat objects or by specifying names and other metadata and the objects will be built.
 
@@ -261,7 +263,7 @@ function make_feature_vectors(featurization::Vector{AtomFeat})
     return sym_featurevec, featurization
 end
 
-make_feature_vectors(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_featurization(feature_names; nbins=nbins, logspaced=logspaced))
+make_feature_vectors(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced::Bool=false) = make_feature_vectors(build_featurization(feature_names; nbins=nbins, logspaced=logspaced))
 
 """
     chunk_vec(vec, nbins)
@@ -318,7 +320,11 @@ function vec_valid(vec::Vector, nbins::Vector{<:Integer})
 end
 
 """
-Function to invert the binning process. Useful to check that it's working properly, or just to inspect properties once they've been encoded.
+    decode_feature_vector(vec::Vector, featurization::Vector{AtomFeat})
+    decode_feature_vector(vec::Vector{<:Real}, feature_names::Vector{String}, nbins::Vector{<:Integer}, logspaced::Bool)
+
+Invert the binning process.
+Useful to check that it's working properly, or just to inspect properties once they've been encoded.
 
 Need to feed in a feature vector as well as the lists of features and bin numbers that were used to encode it.
 """
@@ -338,4 +344,4 @@ function decode_feature_vector(vec::Vector, featurization::Vector{AtomFeat})
 end
 
 # alternate call signature
-decode_feature_vector(vec::Vector{<:Real}, feature_names::Vector{String}, nbins::Vector{<:Integer}, logspaced=false) = decode_feature_vector(vec, build_featurization(feature_names, nbins, logspaced))
+decode_feature_vector(vec::Vector{<:Real}, feature_names::Vector{String}, nbins::Vector{<:Integer}, logspaced::Bool=false) = decode_feature_vector(vec, build_featurization(feature_names, nbins, logspaced))
