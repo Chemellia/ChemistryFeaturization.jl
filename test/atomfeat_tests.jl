@@ -58,7 +58,7 @@ end
     arb = AtomFeat(:feat, false, 3, false, [1,2,4,5])
     @test arb.vals==Float32.([1,2,4,5])
 
-    # test build_atom_feats function
+    # test build_featurization function
     X, MP, block = build_featurization([:X, Symbol("Melting point"), :Block]; logspaced=[false, true])
     @test X.name==:X
     @test X.categorical==false
