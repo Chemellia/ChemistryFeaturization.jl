@@ -6,6 +6,7 @@ makedocs(
 	pages = Any[
 		"Home" => "index.md",
 		"Terminology" => "terminology.md",
+		"AtomFeat" => "types/atomfeat.md",
 	]
 )
 deploydocs(
