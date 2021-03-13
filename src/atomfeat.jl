@@ -338,4 +338,4 @@ function decode_feature_vector(vec::Vector, featurization::Vector{AtomFeat})
 end
 
 # alternate call signature
-decode_feature_vector(vec::Vector{<:Real}, feature_names::Vector{String}, nbins::Vector{<:Integer}, logspaced=false) = decode_feature_vector(vec, build_atom_feats(feature_names, nbins, logspaced))
+decode_feature_vector(vec::Vector{<:Real}, feature_names::Vector{String}, nbins::Vector{<:Integer}, logspaced=false) = decode_feature_vector(vec, build_featurization(feature_names, nbins, logspaced))
