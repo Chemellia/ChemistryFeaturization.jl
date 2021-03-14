@@ -141,8 +141,10 @@ Other optional keyword arguments are the optional arguments to `build_graph`: `u
 See also: [`build_graph`](@ref)
 """
 function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true, output_folder="")
+
+    file_list = filter((file) -> isfile(file), readdir(input_folder, join = true))
+
     # check if input folder exists and contains things, if not throw error
-    file_list = readdir(input_folder, join=true)
     length(file_list)!=0 || throw(ArgumentError("No files in input directory!"))
 
     # check if output folder exists, if not create it
