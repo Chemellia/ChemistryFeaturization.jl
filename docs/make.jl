@@ -7,6 +7,7 @@ makedocs(
 		"Home" => "index.md",
 		"Terminology" => "terminology.md",
 		"AtomFeat" => "types/atomfeat.md",
+		"AtomGraph" => "types/atomgraph.md",
 	]
 )
 deploydocs(
