@@ -114,8 +114,11 @@ end
 @testset "batch processing" begin
     feature_names = [Symbol("Atomic mass"), :Block]
     featurization = build_featurization(feature_names)
-    gs = build_graphs_batch(joinpath(@__DIR__, "test_data"), featurization, output_folder=joinpath(@__DIR__, "test_data", "graphs"))
-    gs2 = build_graphs_batch(joinpath(@__DIR__, "test_data"), feature_names)
+    input_folder = joinpath(@__DIR__, "test_data")
+    output_folder=joinpath(@__DIR__, "test_data", "graphs")
+
+    gs = build_graphs_batch(input_folder, featurization, output_folder=output_folder)
+    gs2 = build_graphs_batch(input_folder, feature_names)
     @test repr.(gs)==repr.(gs2) # sneakily testing pretty printing also...
 
     # test reading from individual files
@@ -132,7 +135,20 @@ end
     @test g2.elements==["W","W","S","S","S","S"]
 
     # test read_graphs_batch and alternate syntax of build_graphs_batch
-    gs3 = read_graphs_batch(joinpath(@__DIR__, "test_data", "graphs"))
+    gs3 = read_graphs_batch(output_folder)
     @test repr(gs2[1])==repr(gs3[1])
     @test repr(gs3[2])==repr(gs[2])
+
+    # test overwrite=true and overwrite=false options
+    mtime_initial = map(file -> stat(file).mtime, filter((file) -> isfile(file), readdir(output_folder, join = true)))
+    gs4 = build_graphs_batch(input_folder, featurization, output_folder=output_folder, overwrite=true)
+    mtime_final = map(file -> stat(file).mtime, filter((file) -> isfile(file), readdir(output_folder, join = true)))
+    @test mtime_initial!=mtime_final
+
+    mtime_initial = map(file -> stat(file).mtime, filter((file) -> isfile(file), readdir(output_folder, join = true)))
+    gs4 = build_graphs_batch(input_folder, dist_decay_func=exp_decay, output_folder=output_folder, overwrite=false)
+    mtime_final = map(file -> stat(file).mtime, filter((file) -> isfile(file), readdir(output_folder, join = true)))
+    @test mtime_initial==mtime_final
+
+    rm(output_folder; recursive=true)
 end
