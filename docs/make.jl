@@ -1,6 +1,7 @@
 using Documenter, ChemistryFeaturization
 
 makedocs(
+
     sitename = "ChemistryFeaturization.jl",
     modules = [ChemistryFeaturization],
     pages = Any[
