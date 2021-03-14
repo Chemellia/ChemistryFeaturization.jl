@@ -8,6 +8,7 @@ makedocs(
 		"Terminology" => "terminology.md",
 		"AtomFeat" => "types/atomfeat.md",
 		"AtomGraph" => "types/atomgraph.md",
+		"Building Atomic Graphs" => "build_ag.md",
 	]
 )
 deploydocs(
