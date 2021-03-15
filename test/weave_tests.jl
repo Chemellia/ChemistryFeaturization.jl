@@ -58,4 +58,7 @@ end
     @test count == 12
     @test weave_mol.num_atoms == 6
     @test weave_mol.atom_feat_num == 75
+
+    @test_logs (:warn,"No bonds found in C! Pair feature matrix filled with zeros!") weave_featurize(["C"])[1]
+
 end
