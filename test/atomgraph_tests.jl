@@ -58,7 +58,7 @@ using ChemistryFeaturization
     
     # and test this one for the other signatures too
     add_features_batch!(ags, vecs, featurization)
-    @test ags[1].features[:,1]==Float32.([0;1;0;0;0;1;0])==ags[2].features[:,1]    
+    @test ags[1].features[:,1]==Float32.([0;1;0;0;0;1;0])==ags[2].features[:,1]
     # sneakily test that block will always be length 4, i.e. second entry ignored
     add_features_batch!(ags, Symbol.(["X", "Block"]); nbins=[3,3])
     @test ags[1].features[:,2]==Float32.([0;1;0;0;1;0;0])==ags[2].features[:,2]
@@ -117,8 +117,9 @@ end
     input_folder = joinpath(@__DIR__, "test_data")
     output_folder=joinpath(@__DIR__, "test_data", "graphs")
 
-    gs = build_graphs_batch(input_folder, featurization, output_folder=output_folder)
-    gs2 = build_graphs_batch(input_folder, feature_names)
+    # sneakily run the case wherein output_folder doesn't exist, and overwrite is set to false
+    gs = build_graphs_batch(input_folder, featurization, output_folder = output_folder)
+    gs2 = build_graphs_batch(input_folder, feature_names, overwrite = true)
     @test repr.(gs)==repr.(gs2) # sneakily testing pretty printing also...
 
     # test reading from individual files

@@ -147,6 +147,7 @@ function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom
     # check if input folder exists and contains things, if not throw error
     length(file_list)!=0 || throw(ArgumentError("No files in input directory!"))
 
+    local existing_files = []
     if(!overwrite && isdir(output_folder))
         existing_files = filter((file) -> isfile(file), readdir(output_folder, join = true))
         existing_files = map(file -> string(split(splitpath(file)[end], ".")[1]), existing_files)
@@ -176,7 +177,7 @@ function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom
 
         id = split(splitpath(file)[end], ".")[1]
 
-        if (!overwrite) && isdir(output_folder) && (id in existing_files)
+        if (!overwrite) && (length(existing_files) != 0) && (id in existing_files)
             @info "Graph for $id already exists. Skipping, not overwriting."
             continue
         end
