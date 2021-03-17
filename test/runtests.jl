@@ -12,3 +12,7 @@ end
 @testset "Atomic Graphs" begin
     include("atomgraph_tests.jl")
 end
+
+@testset "Graph Visualization" begin
+    include("graph_visualization.jl")
+end
