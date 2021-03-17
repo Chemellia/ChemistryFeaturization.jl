@@ -140,7 +140,7 @@ Other optional keyword arguments are the optional arguments to `build_graph`: `u
 
 See also: [`build_graph`](@ref)
 """
-function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true, output_folder="", overwrite=true)
+function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom_featurevecs=Dict{String, Vector{Float32}}(), use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true, output_folder="", overwrite=false)
 
     file_list = filter((file) -> isfile(file), readdir(input_folder, join = true))
 
