@@ -246,7 +246,11 @@ function graph_edgewidths(ag::AtomGraph)
     return edgewidths
 end
 
-"Visualize a given graph."
+"""
+    visualize_graph(ag::AtomGraph)
+
+Visualize a given graph.
+"""
 function visualize_graph(ag::AtomGraph)
     # gplot doesn't work on weighted graphs
     sg = SimpleGraph(adjacency_matrix(ag))

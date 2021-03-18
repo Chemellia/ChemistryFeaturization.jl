@@ -17,19 +17,25 @@ exp_decay(x) = exp(-x)
 # TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
 # TODO: option to featurize here?
 """
-Function to build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
+    build_graph(file_path::String; use_voronoi::Bool, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize::Bool = true)
+
+Build graph from a file storing a crystal structure (currently supports anything `ase.io.read` can read in).
+
+Returns an [AtomGraph](@ref) object.
 
 # Arguments
-- `struc`: pymatgen Structure object
+- `file_path`: path to the structure file
 - `use_voronoi::bool`: if true, use Voronoi method for neighbor lists, if false use cutoff method
-
-    (The rest of these parameters are only used if use_voronoi is false)
-
 - `radius::Float=8.0`: cutoff radius for atoms to be considered neighbors (in angstroms)
 - `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
 - `dist_decay_func`: function (e.g. inverse_square or exp_decay) to determine falloff of graph edge weights with neighbor distance
+- `normalize`: normalize all edge weights such that the maximum value is 1.0
+
+Note: The parameters `radius`, `max_num_nbr`, `dist_decay_func` are of any relevance only when `use_voronoi = false` (which by default, it is)
+
+See also: [`build_graphs_batch`](@ref)
 """
-function build_graph(file_path::String; use_voronoi=false, radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize=true)
+function build_graph(file_path::String; use_voronoi::Bool=false, radius=8.0, max_num_nbr::Integer=12, dist_decay_func=inverse_square, normalize::Bool=true)
     # see if this fixes issues on Windows
     aseio = pyimport_conda("ase.io", "ase", "conda-forge")
     atoms_object = aseio.read(file_path)
