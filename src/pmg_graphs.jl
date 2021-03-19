@@ -178,6 +178,7 @@ function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom
         id = split(splitpath(file)[end], ".")[1]
 
         if (!overwrite) && (length(existing_files) != 0) && (id in existing_files)
+            push!(graphs, deserialize(joinpath(output_folder, string(id, ".jls"))))
             @info "Graph for $id already exists. Skipping, not overwriting."
             continue
         end
@@ -189,14 +190,17 @@ function build_graphs_batch(input_folder::String, featurization=AtomFeat[]; atom
             @warn "Unable to build graph for $file"
             continue
         end
+
         ag.id = id
         if to_featurize
             add_features!(ag, atom_featurevecs, featurization)
         end
+
         if to_serialize
             graph_path = joinpath(output_folder, string(id, ".jls"))
             serialize(graph_path, ag)
         end
+
         push!(graphs, ag)
     end
     return graphs

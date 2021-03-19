@@ -122,6 +122,12 @@ end
     gs2 = build_graphs_batch(input_folder, feature_names, overwrite = true)
     @test repr.(gs)==repr.(gs2) # sneakily testing pretty printing also...
 
+    rm(output_folder; recursive=true)
+
+    gs = build_graphs_batch(input_folder, featurization, output_folder = output_folder)
+    gs2 = build_graphs_batch(input_folder, feature_names, output_folder = output_folder, overwrite = false)
+    @test repr.(gs)==repr.(gs2) # sneakily testing pretty printing also...
+
     # test reading from individual files
     g1 = deserialize(joinpath(@__DIR__, "test_data","graphs","mp-195.jls"))
     @test size(g1)==(4,4)
