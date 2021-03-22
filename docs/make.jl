@@ -22,6 +22,7 @@ makedocs(
 )
 deploydocs(
 	repo = "github.com/thazhemadam/ChemistryFeaturization.jl.git",
-	target = "build",
+        target = "build",
+        devbranch = "main",
 	branch = "gh-pages"
 )
