@@ -63,27 +63,26 @@ struct AtomFeat
     """
 end
 
-    function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::AbstractVector{T}) where T
-        if categorical
-            if num_bins != length(vals)
-                DimensionMismatch("Categorical features should have a number of values equal to the number of bins.")
-            end
-            if logspaced
-                warn("A logarithmically spaced categorical feature doesn't make much sense...are you sure that's what you meant?")
-            end
-            val_list = vals
-        else # numerical feature
-            if num_bins + 1 != length(vals)
-                DimensionMismatch("Numerical features should have values specifying bin edges. This vector is the wrong length!")
-            end
-            if !(T<:Real)
-                error("Numerical features must have (real) numerical values...") # should figure out how to throw a TypeError propertly
-            end
-            val_list = sort(vals)
+function AtomFeat(name, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::AbstractVector{T}) where T
+    if categorical
+        if num_bins != length(vals)
+            DimensionMismatch("Categorical features should have a number of values equal to the number of bins.")
         end
-        AtomFeat(name, categorical, num_bins, logspaced, val_list)
+        if logspaced
+            warn("A logarithmically spaced categorical feature doesn't make much sense...are you sure that's what you meant?")
+        end
+        val_list = vals
+    else # numerical feature
+        if num_bins + 1 != length(vals)
+            DimensionMismatch("Numerical features should have values specifying bin edges. This vector is the wrong length!")
+        end
+        if !(T<:Real)
+            error("Numerical features must have (real) numerical values...") # should figure out how to throw a TypeError propertly
+        end
+        val_list = sort(vals)
     end
-# end
+    AtomFeat(name, categorical, num_bins, logspaced, val_list)
+end
 
 """
     AtomFeat(name, categorical, num_bins, min_val, max_val, logspaced=false)
@@ -92,13 +91,13 @@ Construct an AtomFeat object by specifying minimum and maximum numerical values.
 not.
 """
 function AtomFeat(name, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false)
-    categorical ? len = num_bins : len = num_bins + 1
+    len = categorical ? num_bins : num_bins + 1
     if logspaced
         vals = 10 .^ range(log10(min_val), log10(max_val), length=len)
     else
         vals = range(min_val, max_val, length=len)
     end
-    AtomFeat(name, categorical, num_bins, logspaced, Float32.([v for v in vals]))
+    AtomFeat(name, categorical, num_bins, logspaced, Float32.(vec(vals)))
 end
 
 """
@@ -113,7 +112,9 @@ AtomFeat(name, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
 Base.show(io::IO, f::AtomFeat) = print(io, "$(f.name): AtomFeat with $(f.num_bins) bins")
 
 # pretty printing, long form
-Base.show(io::IO, ::MIME"text/plain", f::AtomFeat) = print(io, "AtomFeat\n   name: $(f.name)\n   categorical: $(f.categorical)\n   length: $(f.num_bins)\n   logspaced: $(f.logspaced)\n   bins: $(f.vals)")
+function Base.show(io::IO, ::MIME"text/plain", f::AtomFeat)
+  print(io, "AtomFeat\n   name: $(f.name)\n   categorical: $(f.categorical)\n   length: $(f.num_bins)\n   logspaced: $(f.logspaced)\n   bins: $(f.vals)")
+end
 
 """
 Create onehot style vector.
@@ -231,7 +232,7 @@ Note that in the latter case, bin numbers will be ignored for categorical featur
 """
 function make_feature_vectors(featurization::Vector{AtomFeat})
     feature_names = [f.name for f in featurization]
-    usable_atom_data =  dropmissing(atom_data_df[:, cat(Symbol.(feature_names), not_features, dims=1)])
+    usable_atom_data = dropmissing(atom_data_df[:, cat(Symbol.(feature_names), not_features, dims=1)])
     num_dropped = size(atom_data_df)[1] - size(usable_atom_data)[1]
     if num_dropped != 0
         @info "$(num_dropped) elements were dropped so that all features are defined."
