@@ -93,7 +93,7 @@ struct AtomFeat{Tn,Te}<:Feature{Tn,Te}
     decode_f
     categorical::Bool
     contextual::Bool # can get from elemental lookup table (false) or not (true)?
-    length::Int # length of encoded vector
+    length::Int # length of encoded vector, useful for computing eventual sizes of things probably?
 end
 
 #=
@@ -118,7 +118,7 @@ struct PairFeat{Tn,Te}<:Feature{Tn,Te}
     name
     encode_f
     decode_f
-    length::Int
+    length::Int # maybe, maybe not (does constrain/assume vector Te)
     # probably needs some other stuff...
 end
 # same idea here...copy from weave stuff...
@@ -146,12 +146,12 @@ object.
 
 abstract type AbstractFeaturization end
 
-struct GraphNodeFeaturization
+struct GraphNodeFeaturization <: AbstractFeaturization
     atom_feats::Vector{AtomFeat}
     combine
 end
 
-struct WeaveFeaturization
+struct WeaveFeaturization <: AbstractFeaturization
     atom_feats::Vector{AtomFeat}
     pair_feats::Vector{PairFeat}
     combine
@@ -170,28 +170,28 @@ Example: AtomGraph can take ElementFeat and ComputedAtomFeat but not PairFeat or
 
 abstract type Atoms end
 
-# I'm open to creating an abstract Atoms type if that proves useful, but
 # it is kind of cool to subtype this from LightGraphs so all that machinery "just works"
 # that being said, all of it would "just work" by just pulling out ag.graph so may be
-# more cool than actually practical
+# more cool than actually practical, hence I've done the abstract type here
 mutable struct AtomGraph <: Atoms
     graph::SimpleWeightedGraph{Int32,Float32}
     elements::Vector{String}
     lapl::Matrix{Float32}
     features::Matrix{Float32} # if we add edge features this type will have to relax
     featurization::GraphNodeFeaturization
-    id::String
+    id::String # or maybe we let it be a number too?
 end
 
 mutable struct WeaveMol <: Atoms
     smiles::String
     elements::Vector{String}
-    features::Tuple{SomethingOrOther}
+    features::Tuple{SomethingOrOther} # I need to look more carefully to figure this out heh
     featurization::WeaveFeaturization
+    id # probably makes sense to have this in addition to smiles? Maybe?
 end
 
 # constructors etc. as before
-# maybe some cutesy stuff like dispatching things like length
+# maybe some cutesy stuff like dispatching things like length as length(elements)
 # pretty printing stuff
 
 # generic featurize...there's probably a better way to write this...
