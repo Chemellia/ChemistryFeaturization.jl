@@ -61,12 +61,9 @@ struct AtomFeat
 
     Construct an AtomFeat by directly specifying each field value.
     """
+end
+
     function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::AbstractVector{T}) where T
-        if T == Float64
-            T = Float32
-        elseif T == Int64
-            T = Int32
-        end
         if categorical
             if num_bins != length(vals)
                 DimensionMismatch("Categorical features should have a number of values equal to the number of bins.")
@@ -84,9 +81,9 @@ struct AtomFeat
             end
             val_list = sort(vals)
         end
-        new(name, categorical, num_bins, logspaced, val_list)
+        AtomFeat(name, categorical, num_bins, logspaced, val_list)
     end
-end
+# end
 
 """
     AtomFeat(name, categorical, num_bins, min_val, max_val, logspaced=false)
@@ -139,8 +136,9 @@ function onehot_bins(f::AtomFeat, val)
             bin_index = 1
         end
     end
-    onehot_vec = zeros(Float64, f.num_bins)
-    onehot_vec[bin_index] = 1.0
+    onehot_vec = Flux.onehot(bin_index, 1:f.num_bins)
+    # onehot_vec = zeros(Float64, f.num_bins)
+    # onehot_vec[bin_index] = 1.0
     return onehot_vec
 end
 
@@ -162,7 +160,7 @@ function onecold_bins(f::AtomFeat, vec::Vector)
     if f.categorical
         decoded = onecold(vec, f.vals)
     else
-        decoded = decoded = (onecold(vec, f.vals[1:end-1]), onecold(vec, f.vals[2:end]))
+        decoded = (onecold(vec, f.vals[1:end-1]), onecold(vec, f.vals[2:end]))
     end
     return decoded
 end
@@ -190,7 +188,9 @@ Function to build a featurization given vectors of metadata.
 
 Note that nbins will be ignored for categorical features.
 """
-function build_featurization(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false)
+function build_featurization(feature_names::Vector;
+                             nbins::Vector{<:Integer} = default_nbins*ones(Int64, size(feature_names,1)),
+                             logspaced = false)
     num_features = length(feature_names)
 
     # figure out spacing for each feature
@@ -200,15 +200,12 @@ function build_featurization(feature_names::Vector{Symbol}; nbins::Vector{<:Inte
     # TODO: could make this a preallocation since we know the length, probably not critical though
     feature_specs = AtomFeat[]
     #for i in 1:num_features
-    for t in zip(feature_names, nbins, logspaced_vec)
-        feature_name = t[1]
-        nbins = t[2]
-        logspaced = t[3]
-        if feature_name in categorical_feature_names
-            vals = categorical_feature_vals[Symbol(feature_name)]
-            feature = AtomFeat(feature_name, vals)
-        elseif feature_name in continuous_feature_names
-            feature = AtomFeat(feature_name, false, nbins, fea_minmax[feature_name]..., logspaced)
+    for (name, nbin, logspaced) in zip(feature_names, nbins, logspaced_vec)
+        if name in categorical_feature_names
+            vals = categorical_feature_vals[Symbol(name)]
+            feature = AtomFeat(name, vals)
+        elseif name in continuous_feature_names
+            feature = AtomFeat(name, false, nbin, fea_minmax[name]..., logspaced)
         else
             @warn "$feature_name not found in atom_data_df..."
         end
@@ -260,7 +257,10 @@ function make_feature_vectors(featurization::Vector{AtomFeat})
     return sym_featurevec, featurization
 end
 
-make_feature_vectors(feature_names::Vector{Symbol}; nbins::Vector{<:Integer}=default_nbins*ones(Int64, size(feature_names,1)), logspaced=false) = make_feature_vectors(build_featurization(feature_names; nbins=nbins, logspaced=logspaced))
+make_feature_vectors(feature_names::Vector;
+                     nbins::Vector{<:Integer} = default_nbins * ones(Int64, size(feature_names,1)),
+                     logspaced = false) =
+  make_feature_vectors(build_featurization(feature_names; nbins = nbins, logspaced = logspaced))
 
 """
     chunk_vec(vec, nbins)
