@@ -51,7 +51,7 @@ future, there may be flexibility on this point...
   (specifying bin edges) for numerical
 """
 struct AtomFeat
-    name::Symbol
+    name::Union{Symbol, Function}
     categorical::Bool
     num_bins::Integer
     logspaced::Bool
@@ -61,11 +61,10 @@ struct AtomFeat
 
     Construct an AtomFeat by directly specifying each field value.
     """
-    function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::Vector)
-        T = eltype(vals)
-        if T==Float64
+    function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, logspaced::Bool, vals::AbstractVector{T}) where T
+        if T == Float64
             T = Float32
-        elseif T==Int64
+        elseif T == Int64
             T = Int32
         end
         if categorical
@@ -95,7 +94,7 @@ end
 Construct an AtomFeat object by specifying minimum and maximum numerical values. The correct set of bins will be generated according to whether it is a categorical feature or
 not.
 """
-function AtomFeat(name::Symbol, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false)
+function AtomFeat(name, categorical::Bool, num_bins::Integer, min_val::Real, max_val::Real, logspaced::Bool=false)
     categorical ? len = num_bins : len = num_bins + 1
     if logspaced
         vals = 10 .^ range(log10(min_val), log10(max_val), length=len)
@@ -111,7 +110,7 @@ end
 Construct a categorical AtomFeat object by directly specifying the values `vals` for each 
 bin, which need not be numerical.
 """
-AtomFeat(name::Symbol, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
+AtomFeat(name, vals::Vector) = AtomFeat(name, true, length(vals), false, vals)
 
 # pretty printing, short form
 Base.show(io::IO, f::AtomFeat) = print(io, "$(f.name): AtomFeat with $(f.num_bins) bins")
@@ -140,7 +139,7 @@ function onehot_bins(f::AtomFeat, val)
             bin_index = 1
         end
     end
-    onehot_vec = [0.0 for i in 1:f.num_bins]
+    onehot_vec = zeros(Float64, f.num_bins)
     onehot_vec[bin_index] = 1.0
     return onehot_vec
 end
@@ -170,15 +169,15 @@ end
 
 "Little helper function to check that the logspace vector/boolean is appropriate and convert it to a vector as needed."
 function get_logspaced_vec(vec, num_features::Integer)
-    if vec==false # default behavior
-        logspaced_vec = [false for i in 1:num_features]
+    if vec == false # default behavior
+        logspaced_vec = falses(num_features)
     elseif vec==true
-        logspaced_vec = [true for i in 1:num_features]
+        logspaced_vec = trues(num_features)
     elseif length(vec) == num_features # specified properly
         logspaced_vec = vec
     elseif length(vec) < num_features
         println("logspaced vector too short. Padding end with falses.")
-        logspaced_vec = vcat(vec, [false for i in 1:num_features-size(vec,1)])
+        logspaced_vec = vcat(vec, falses(num_features - size(vec,1)))
     elseif size(vec, 1) > num_features
         println("logspaced vector too long. Cutting off at appropriate length.")
         logspaced_vec = vec[1:num_features]
