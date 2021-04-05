@@ -148,6 +148,7 @@ abstract type AbstractFeaturization end
 
 struct GraphNodeFeaturization <: AbstractFeaturization
     atom_feats::Vector{AtomFeat}
+    feature_vectors::Dict{String,Vector{Float32}} # map from element symbol to vector
     combine
 end
 
