@@ -63,7 +63,7 @@ All subtypes should define `encode_f` and `decode_f`
 `encode_f` should take in an atoms object and return Te
 `decode_f` should take in something of type Te and return something of type Tn
 =#
-abstract type Feature{Tn,Te} end
+abstract type AbstractFeature{Tn,Te} end
 
 # I think we should be able to do this too...there might be a more idiomatic way
 # to do what I'm showing below, perhaps via an "actual" holy trait type thing
@@ -73,13 +73,13 @@ isatoms(::Type{WeaveMol}) = true
 isatoms(::Type{Any}) = false
 
 # magical encoding
-function (f<:Feature{Tn,Te})(atomsobj::T) where T
+function (f<:AbstractFeature{Tn,Te})(atomsobj::T) where T
     @assert isatoms(T) "Features can only be computed on atomic structures!"
     f.encode_f(atomsobj)
 end
 
 # magical decoding
-(f<:Feature{Tn,Te})(encoded::Te) = f.decode_f(encoded)
+(f<:AbstractFeature{Tn,Te})(encoded::Te) = f.decode_f(encoded)
 
 #=
 Feature of a single atom.
@@ -87,7 +87,7 @@ Feature of a single atom.
 (logspaced field not necessary because it can be embedded in encode_f and decode_f through 
 keywords to constructor (see below))
 =#
-struct AtomFeat{Tn,Te}<:Feature{Tn,Te}
+struct AtomFeat{Tn,Te}<:AbstractFeature{Tn,Te}
     name # symbol (for easy DataFrame indexing) or String (for easy other things)?
     encode_f
     decode_f
@@ -114,7 +114,7 @@ should also have convenience functions for building encode_f and decode_f via ke
 Feature of a pair of atoms. Currently only used in WeaveModel, but may eventually
 have a version of AtomGraph that allows edge features...
 =#
-struct PairFeat{Tn,Te}<:Feature{Tn,Te}
+struct PairFeat{Tn,Te}<:AbstractFeature{Tn,Te}
     name
     encode_f
     decode_f
@@ -131,7 +131,7 @@ end
 This is just an example of another sort of feature one might add, but it's not needed/used
 currently.
 =#
-struct StructureFeat{Tn,Te}<:Feature{Tn,Te}
+struct StructureFeat{Tn,Te}<:AbstractFeature{Tn,Te}
     name
     encode_f
     decode_f
@@ -139,7 +139,7 @@ struct StructureFeat{Tn,Te}<:Feature{Tn,Te}
 end
 
 #= FEATURIZATION OBJECTS
-All such objects should define at least one list of <:Feature objects and a `combine`
+All such objects should define at least one list of <:AbstractFeature objects and a `combine`
 function that specifies how to put them together for eventual attachment to an atoms 
 object. 
 =#
@@ -169,21 +169,21 @@ to them, maybe this is a place for the holy trait design pattern?
 Example: AtomGraph can take ElementFeat and ComputedAtomFeat but not PairFeat or StructureFeat, WeaveMol can take ElementFeat, ComputedAtomFeat, and PairFeat but also not StructureFeat
 =#
 
-abstract type Atoms end
+abstract type AbstractAtoms end
 
 # it is kind of cool to subtype this from LightGraphs so all that machinery "just works"
 # that being said, all of it would "just work" by just pulling out ag.graph so may be
 # more cool than actually practical, hence I've done the abstract type here
-mutable struct AtomGraph <: Atoms
+mutable struct AtomGraph <: AbstractAtoms
     graph::SimpleWeightedGraph{Int32,Float32}
     elements::Vector{String}
-    lapl::Matrix{Float32}
+    lapl::LightGraphs.LinAlg.NormalizedLaplacian
     features::Matrix{Float32} # if we add edge features this type will have to relax
     featurization::GraphNodeFeaturization
     id::String # or maybe we let it be a number too?
 end
 
-mutable struct WeaveMol <: Atoms
+mutable struct WeaveMol <: AbstractAtoms
     smiles::String
     elements::Vector{String}
     features::Tuple{SomethingOrOther} # I need to look more carefully to figure this out heh
@@ -196,7 +196,7 @@ end
 # pretty printing stuff
 
 # generic featurize...there's probably a better way to write this...
-function featurize!(a<:Atoms, f<:AbstractFeaturization)
+function featurize!(a<:AbstractAtoms, f<:AbstractFeaturization)
     feats_lists = [field for field in fieldnames(typeof(f)) if field!==:combine]
     encoded_features = Dict(feats_list => [] for feats_list in feats_lists)
     for feats_list in feats_lists
