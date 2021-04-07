@@ -148,7 +148,7 @@ abstract type AbstractFeaturization end
 
 struct GraphNodeFeaturization <: AbstractFeaturization
     atom_feats::Vector{AtomFeat}
-    feature_vectors::Dict{String,Vector{Float32}} # map from element symbol to vector
+    feature_vectors::Dict{String,Vector{Real}} # map from element symbol to vector
     combine
 end
 
@@ -175,10 +175,10 @@ abstract type AbstractAtoms end
 # that being said, all of it would "just work" by just pulling out ag.graph so may be
 # more cool than actually practical, hence I've done the abstract type here
 mutable struct AtomGraph <: AbstractAtoms
-    graph::SimpleWeightedGraph{Int32,Float32}
+    graph::SimpleWeightedGraph{Integer,Real}
     elements::Vector{String}
     lapl::LightGraphs.LinAlg.NormalizedLaplacian
-    features::Matrix{Float32} # if we add edge features this type will have to relax
+    features::Matrix{Real} # if we add edge features this type will have to relax
     featurization::GraphNodeFeaturization
     id::String # or maybe we let it be a number too?
 end
