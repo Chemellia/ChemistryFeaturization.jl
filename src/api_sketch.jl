@@ -65,21 +65,10 @@ All subtypes should define `encode_f` and `decode_f`
 =#
 abstract type AbstractFeature{Tn,Te} end
 
-# I think we should be able to do this too...there might be a more idiomatic way
-# to do what I'm showing below, perhaps via an "actual" holy trait type thing
-isatoms(::Type{AtomGraph}) = true
-isatoms(::Type{WeaveMol}) = true
-# add more for other types later on...
-isatoms(::Type{Any}) = false
-
 # magical encoding
-function (f<:AbstractFeature{Tn,Te})(atomsobj::T) where T
-    @assert isatoms(T) "Features can only be computed on atomic structures!"
-    f.encode_f(atomsobj)
+function (f<:AbstractFeature{Tn,Te})(a<:AbstractAtoms)
+    f.encode_f(a)
 end
-
-# magical decoding
-(f<:AbstractFeature{Tn,Te})(encoded::Te) where {Tn,Te} = f.decode_f(encoded)
 
 #=
 Feature of a single atom.
