@@ -79,7 +79,7 @@ function (f<:AbstractFeature{Tn,Te})(atomsobj::T) where T
 end
 
 # magical decoding
-(f<:AbstractFeature{Tn,Te})(encoded::Te) = f.decode_f(encoded)
+(f<:AbstractFeature{Tn,Te})(encoded::Te) where {Tn,Te} = f.decode_f(encoded)
 
 #=
 Feature of a single atom.
