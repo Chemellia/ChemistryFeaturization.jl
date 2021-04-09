@@ -4,7 +4,8 @@
 mutable struct WeaveMol <: AbstractAtoms
     smiles::String
     elements::Vector{String}
-    features::Tuple{SomethingOrOther} # I need to look more carefully to figure this out heh
+    atom_feats::Vector{SomethingOrOther} # I need to look more carefully to figure this out, heh
+    pair_feats::Vector{SomethingOrOther}
     featurization::WeaveFeaturization
     id # probably makes sense to have this in addition to smiles? Maybe?
 end
