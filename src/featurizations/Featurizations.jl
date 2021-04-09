@@ -4,15 +4,12 @@ All such objects should define at least one list of <:AbstractFeature objects an
 
 module Featurizations
 
-using Functors
-
 # include...
 include("graphnodefeaturization.jl")
 include("weavefeaturization.jl")
 
 # export...
-
-
+export AbstractFeaturization, GraphNodeFeaturization, WeaveFeaturization, featurize!
 
 abstract type AbstractFeaturization end
 
