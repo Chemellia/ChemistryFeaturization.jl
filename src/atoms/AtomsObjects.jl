@@ -17,9 +17,10 @@ include("atomgraph.jl")
 include("weavemol.jl")
 
 # export...
-export AbstractAtoms, AtomGraph, WeaveMol
+export AbstractAtoms
+export AtomGraph, visualize
+export WeaveMol#, ...
 
-# maybe also define abstract type here
 abstract type AbstractAtoms end
 
 end

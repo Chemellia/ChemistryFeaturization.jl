@@ -9,3 +9,5 @@ mutable struct WeaveMol <: AbstractAtoms
     featurization::WeaveFeaturization
     id # probably makes sense to have this in addition to smiles? Maybe?
 end
+
+# TODO: add visualize function, either via OpenSMILES or MolecularGraph
