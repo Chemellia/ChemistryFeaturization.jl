@@ -32,13 +32,21 @@ include("atomfeat.jl")
 include("pairfeat.jl")
 
 # export...
-
+export AbstractFeature, AtomFeat, PairFeat
 
 abstract type AbstractFeature{Tn,Te} end
 
-# "magical" encoding
+# generic encode
+# docstring
 function (f<:AbstractFeature{Tn,Te})(a<:AbstractAtoms)
     f.encode_f(a)
+end
+
+# generic decode
+# docstring
+# TODO: probably need some kind of where Tn,Te or somethin ghere
+function decode(encoded_f::Te, f<:AbstractFeature{Tn,Te})
+    f.decode_f(encoded_f)
 end
 
 end

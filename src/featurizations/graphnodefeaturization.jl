@@ -7,5 +7,5 @@ end
 
 # docstring
 function featurize!(a::AtomGraph, f::GraphNodeFeaturization)
-
+    # if adding the exclude option to generic fcn, may not need to dispatch here
 end
