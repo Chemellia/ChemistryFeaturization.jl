@@ -44,8 +44,7 @@ end
 
 # generic decode
 # docstring
-# TODO: probably need some kind of where Tn,Te or somethin ghere
-function decode(encoded_f::Te, f<:AbstractFeature{Tn,Te})
+function decode(f<:AbstractFeature{Tn,Te}, encoded_f::Te) where {Te,Tn}
     f.decode_f(encoded_f)
 end
 
