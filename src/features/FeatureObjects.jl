@@ -23,14 +23,14 @@ All subtypes should define `encode_f` and `decode_f`
 `decode_f` should take in something of type Te and return something of type Tn
 =#
 
-module FeatureObjects
+#module FeatureObjects
 
 # link to guidance in docs about how to implement new feature types
 
-# export...
-export AbstractFeature, AtomFeat, PairFeat
+#using .ChemistryFeaturization:
 
-abstract type AbstractFeature{Tn,Te} end
+# export...
+export AtomFeat, PairFeat
 
 # include...
 include("atomfeat.jl")
@@ -44,8 +44,8 @@ end
 
 # generic decode
 # docstring
-function decode(f<:AbstractFeature{Tn,Te}, encoded_f::Te) where {Te,Tn}
+function decode(f::AbstractFeature{Tn,Te}, encoded_f::Te) where {Te,Tn}
     f.decode_f(encoded_f)
 end
 
-end
+#end

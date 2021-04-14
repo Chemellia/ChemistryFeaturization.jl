@@ -2,14 +2,13 @@
 All such objects should define at least one list of <:AbstractFeature objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed.
 =#
 
-module Featurizations
+#module Featurizations
 
 #using ..ChemistryFeaturization:
 
 # export...
-export AbstractFeaturization, GraphNodeFeaturization, WeaveFeaturization, featurize!
+export GraphNodeFeaturization, WeaveFeaturization, featurize!
 
-abstract type AbstractFeaturization end
 
 # include...
 include("graphnodefeaturization.jl")
@@ -30,4 +29,4 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
     a.featurization = fzn
 end
 
-end
+#end

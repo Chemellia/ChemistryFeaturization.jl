@@ -3,7 +3,7 @@ using SimpleWeightedGraphs
 using LinearAlgebra
 using GraphPlot
 using Colors
-using ..ChemistryFeaturization: GraphNodeFeaturization
+#using ..ChemistryFeaturization: GraphNodeFeaturization
 
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 """
@@ -25,12 +25,12 @@ A type representing an atomic structure as a graph (`gr`).
 - `id::String`: Optional, an identifier, e.g. to correspond with tags/labels of an imported
   dataset.
 """
-mutable struct AtomGraph{T<:Real} <: AbstractAtoms
+mutable struct AtomGraph{T<:Real, F<:AbstractFeaturization} <: AbstractAtoms
     graph::SimpleWeightedGraph{<:Unsigned,T}
     elements::Vector{String}
     lapl::Matrix{T} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
     atom_feats::Matrix{<:Real} # if we add edge features this type will have to relax
-    featurization::GraphNodeFeaturization
+    featurization::AbstractFeaturization
     id::String # or maybe we let it be a number too?
 end
 
@@ -47,7 +47,7 @@ representing each node. Note that the object can be initialized without features
 features are provided, so too must be the featurization scheme, in order to maintain
 "decodability" of features.
 """
-function AtomGraph(gr::SimpleWeightedGraph{<:Unsigned,<:Real}, el_list::Vector{String}, features::Matrix{<:Real}, featurization::GraphNodeFeaturization, id="")
+function AtomGraph(gr::SimpleWeightedGraph{<:Unsigned,<:Real}, el_list::Vector{String}, features::Matrix{<:Real}, featurization::AbstractFeaturization, id="")
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
@@ -62,7 +62,7 @@ function AtomGraph(gr::SimpleWeightedGraph{<:Unsigned,<:Real}, el_list::Vector{S
 end
 
 # one without features or featurization initialized yet
-function AtomGraph(gr::SimpleWeightedGraph{A<:Unsigned,B<:Real}, el_list::Vector{String}, id="")
+function AtomGraph(gr::SimpleWeightedGraph{A,B}, el_list::Vector{String}, id="") where {B<:Real,A<:Unsigned}
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
@@ -72,8 +72,8 @@ function AtomGraph(gr::SimpleWeightedGraph{A<:Unsigned,B<:Real}, el_list::Vector
 end
 
 # initialize directly from adjacency matrix, defaults to 32-bit integers because unlikely to need more nodes than that...
-AtomGraph(adj::Array{<:Real}, el_list::Vector{String}, features::Matrix{<:Real}, featurization::GraphNodeFeaturization, id=""; U=UInt32) = AtomGraph(SimpleWeightedGraph{T}(adj), el_list, features, featurization, id)
-AtomGraph(adj::Array{<:Real}, el_list::Vector{String}, id=""; U=UInt32) = AtomGraph(SimpleWeightedGraph{T}(adj), el_list, id)
+AtomGraph(adj::Array{R}, el_list::Vector{String}, features::Matrix{R}, featurization::AbstractFeaturization, id=""; U=UInt32) where {R<:Real} = AtomGraph(SimpleWeightedGraph{R}(adj), el_list, features, featurization, id)
+AtomGraph(adj::Array{R}, el_list::Vector{String}, id=""; U=UInt32) where {R<:Real} = AtomGraph(SimpleWeightedGraph{R}(adj), el_list, id)
 
 # pretty printing, short version
 function Base.show(io::IO, ag::AtomGraph)
@@ -104,7 +104,7 @@ Compute the normalized graph Laplacian matrix of the input graph, defined as
 
 where ``A`` is the adjacency matrix and ``D`` is the degree matrix.
 """
-function normalized_laplacian(g::G) where G<:lg.AbstractGraph
+function normalized_laplacian(g::G) where G<:LightGraphs.AbstractGraph
     a = adjacency_matrix(g)
     d = vec(sum(a, dims=1))
     inv_sqrt_d = diagm(0=>d.^(-0.5f0))
