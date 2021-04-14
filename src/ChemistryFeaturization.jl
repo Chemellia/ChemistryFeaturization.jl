@@ -1,17 +1,28 @@
 module ChemistryFeaturization
 
-using Reexport
+using SimpleWeightedGraphs
+
+abstract type AbstractAtoms end
+
+abstract type AbstractFeature{Tn,Te} end
+
+abstract type AbstractFeaturization end
+
+#using Reexport
 
 include("atoms/AtomsObjects.jl")
-@reexport using .AtomsObjects
+#@reexport using .AtomsObjects
 
 include("features/FeatureObjects.jl")
-@reexport using .FeatureObjects
+#@reexport using .FeatureObjects
 
 include("featurizations/Featurizations.jl")
-@reexport using .Featurizations
+#@reexport using .Featurizations
 
-# NEXT: start testing new things, starting probably with AtomGraph constructors, probably some missing export statements to find
+
+# NEXT: clean up imports/includes/comments
+
+# THEN: start testing new things, starting probably with AtomGraph constructors, probably some missing export statements to find
 
 
 
