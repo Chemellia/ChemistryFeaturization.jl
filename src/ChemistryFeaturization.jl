@@ -2,14 +2,14 @@ module ChemistryFeaturization
 
 using Reexport
 
-include("featurizations/Featurizations.jl")
-@reexport using .Featurizations
+include("atoms/AtomsObjects.jl")
+@reexport using .AtomsObjects
 
 include("features/FeatureObjects.jl")
 @reexport using .FeatureObjects
 
-include("atoms/AtomsObjects.jl")
-@reexport using .AtomsObjects
+include("featurizations/Featurizations.jl")
+@reexport using .Featurizations
 
 # NEXT: start testing new things, starting probably with AtomGraph constructors, probably some missing export statements to find
 
