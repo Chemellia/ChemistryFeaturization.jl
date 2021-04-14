@@ -12,15 +12,15 @@ module AtomsObjects
 
 # link to guidance in docs about how to implement new feature types
 
-# include...
-include("atomgraph.jl")
-include("weavemol.jl")
-
 # export...
 export AbstractAtoms
 export AtomGraph, visualize
 export WeaveMol#, ...
 
 abstract type AbstractAtoms end
+
+# include...
+include("atomgraph.jl")
+include("weavemol.jl")
 
 end

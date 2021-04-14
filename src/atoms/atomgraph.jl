@@ -3,6 +3,7 @@ using SimpleWeightedGraphs
 using LinearAlgebra
 using GraphPlot
 using Colors
+using ..ChemistryFeaturization: GraphNodeFeaturization
 
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 """

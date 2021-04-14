@@ -27,18 +27,18 @@ module FeatureObjects
 
 # link to guidance in docs about how to implement new feature types
 
-# include...
-include("atomfeat.jl")
-include("pairfeat.jl")
-
 # export...
 export AbstractFeature, AtomFeat, PairFeat
 
 abstract type AbstractFeature{Tn,Te} end
 
+# include...
+include("atomfeat.jl")
+include("pairfeat.jl")
+
 # generic encode
 # docstring
-function (f<:AbstractFeature{Tn,Te})(a<:AbstractAtoms)
+function (f::AbstractFeature{Tn,Te})(a::AbstractAtoms) where {Te,Tn}
     f.encode_f(a)
 end
 

@@ -4,20 +4,22 @@ All such objects should define at least one list of <:AbstractFeature objects an
 
 module Featurizations
 
-# include...
-include("graphnodefeaturization.jl")
-include("weavefeaturization.jl")
+#using ..ChemistryFeaturization:
 
 # export...
 export AbstractFeaturization, GraphNodeFeaturization, WeaveFeaturization, featurize!
 
 abstract type AbstractFeaturization end
 
+# include...
+include("graphnodefeaturization.jl")
+include("weavefeaturization.jl")
+
 # generic featurize!
 # this assumes that `a` has fields with names corresponding to each field in `fzn`, if not you need to dispatch this function to your specific case
 # TODO: maybe add option to exclude field names from iteration over fzn?
 # docstring
-function featurize!(a<:AbstractAtoms, fzn<:AbstractFeaturization)
+function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
     # loop over fields in featurization, each one is a list of features
     # encode each feature in that list and assign the results to the
     # field of the same name in `a`
