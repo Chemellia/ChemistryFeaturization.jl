@@ -3,7 +3,6 @@ using SimpleWeightedGraphs
 using LinearAlgebra
 using GraphPlot
 using Colors
-#using ..ChemistryFeaturization: GraphNodeFeaturization
 
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 """
@@ -25,12 +24,12 @@ A type representing an atomic structure as a graph (`gr`).
 - `id::String`: Optional, an identifier, e.g. to correspond with tags/labels of an imported
   dataset.
 """
-mutable struct AtomGraph{T<:Real, F<:AbstractFeaturization} <: AbstractAtoms
-    graph::SimpleWeightedGraph{<:Unsigned,T}
+mutable struct AtomGraph <: AbstractAtoms
+    graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
-    lapl::Matrix{T} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
-    atom_feats::Matrix{<:Real} # if we add edge features this type will have to relax
-    featurization::AbstractFeaturization
+    lapl::Matrix{<:Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
+    atom_feats::Union{Matrix{<:Real},Nothing} # if we add edge features this type will have to relax
+    featurization::Union{AbstractFeaturization,Nothing}
     id::String # or maybe we let it be a number too?
 end
 
@@ -47,7 +46,7 @@ representing each node. Note that the object can be initialized without features
 features are provided, so too must be the featurization scheme, in order to maintain
 "decodability" of features.
 """
-function AtomGraph(gr::SimpleWeightedGraph{<:Unsigned,<:Real}, el_list::Vector{String}, features::Matrix{<:Real}, featurization::AbstractFeaturization, id="")
+function AtomGraph(gr::SimpleWeightedGraph{A,B}, el_list::Vector{String}, features::Matrix{<:Real}, featurization::AbstractFeaturization, id="") where {B<:Real,A<:Integer}
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
@@ -62,13 +61,13 @@ function AtomGraph(gr::SimpleWeightedGraph{<:Unsigned,<:Real}, el_list::Vector{S
 end
 
 # one without features or featurization initialized yet
-function AtomGraph(gr::SimpleWeightedGraph{A,B}, el_list::Vector{String}, id="") where {B<:Real,A<:Unsigned}
+function AtomGraph(gr::SimpleWeightedGraph{A,B}, el_list::Vector{String}, id="") where {B<:Real,A<:Integer}
     # check that el_list is the right length
     num_atoms = size(gr)[1]
     @assert length(el_list)==num_atoms "Element list length doesn't match graph size!"
 
     lapl = B.(normalized_laplacian(gr))
-    AtomGraph(gr, el_list, lapl, zeros(B, 1, num_atoms), AtomFeat[], id)
+    AtomGraph(gr, el_list, lapl, nothing, nothing, id)
 end
 
 # initialize directly from adjacency matrix, defaults to 32-bit integers because unlikely to need more nodes than that...
@@ -78,7 +77,7 @@ AtomGraph(adj::Array{R}, el_list::Vector{String}, id=""; U=UInt32) where {R<:Rea
 # pretty printing, short version
 function Base.show(io::IO, ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges"
-    if length(g.featurization)!=0
+    if !isnothing(ag.featurization)
         st = string(st, ", feature vector length $(size(ag.atom_feats)[1])")
     end
     print(io, st)
@@ -87,7 +86,7 @@ end
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n   feature vector length: "
-    if length(g.featurization)==0
+    if isnothing(ag.featurization)
         st = string(st, "uninitialized\n   encoded features: uninitialized")
     else
         st = string(st, "$(size(ag.features)[1])\n   encoded features: ",  [string(f.name, ", ") for f in g.featurization]...)[1:end-2]
@@ -129,7 +128,7 @@ function graph_colors(atno_list, seed_color=colorant"cyan4")
 end
 
 # helper fcn for sorting because edge ordering isn't preserved when converting to SimpleGraph
-function lt_edge(e1::SimpleWeightedGraphs.SimpleWeightedEdge{<:Unsigned,<:Real}, e2::SimpleWeightedGraphs.SimpleWeightedEdge{<:Unsigned,<:Real})
+function lt_edge(e1::SimpleWeightedGraphs.SimpleWeightedEdge{<:Integer,<:Real}, e2::SimpleWeightedGraphs.SimpleWeightedEdge{<:Integer,<:Real})
     if e1.src < e2.src
         return true
     elseif e1.dst < e2.dst

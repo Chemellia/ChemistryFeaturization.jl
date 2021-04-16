@@ -19,13 +19,14 @@ Example: AtomGraph can take ElementFeat and ComputedAtomFeat but not PairFeat or
 
 # link to guidance in docs about how to implement new feature types
 
-# include...
-include("atomgraph.jl")
-#include("weavemol.jl")
-
 # export...
 export AtomGraph, visualize
 #export WeaveMol#, ...
+
+# include...
+include("atoms/atomgraph.jl")
+#include("weavemol.jl")
+
 
 #= FEATURE OBJECTS
 
@@ -58,8 +59,8 @@ All subtypes should define `encode_f` and `decode_f`
 export AtomFeat, PairFeat
 
 # include...
-include("atomfeat.jl")
-include("pairfeat.jl")
+include("features/atomfeat.jl")
+include("features/pairfeat.jl")
 
 # generic encode
 # docstring
@@ -81,8 +82,8 @@ All such objects should define at least one list of <:AbstractFeature objects an
 export GraphNodeFeaturization, WeaveFeaturization, featurize!
 
 # include...
-include("graphnodefeaturization.jl")
-include("weavefeaturization.jl")
+include("featurizations/graphnodefeaturization.jl")
+include("featurizations/weavefeaturization.jl")
 
 # generic featurize!
 # this assumes that `a` has fields with names corresponding to each field in `fzn`, if not you need to dispatch this function to your specific case
@@ -100,9 +101,7 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
 end
 
 
-# NEXT: clean up imports/includes/comments, probably remove module files entirely and just directly import here
-
-# THEN: start testing new things, starting probably with AtomGraph constructors, probably some missing export statements to find
+# NEXT: start testing new things, starting probably with AtomGraph constructors, probably some missing export statements to find
 
 
 
