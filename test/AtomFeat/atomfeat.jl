@@ -22,6 +22,7 @@ const cf = ChemistryFeaturization
     @test cf.get_logspaced_vec([true,false,true], 2)==[true,false]
 end
 
+
 @testset "AtomFeat" begin
     # test that both constructors for categorical variables give the same result
     cat1 = AtomFeat(:feat, true, 3, false, ['a','b','c'])
@@ -73,6 +74,7 @@ end
     @test block.logspaced==false
     @test block.vals==["s", "p", "d", "f"]
 end
+
 
 @testset "encode/decode" begin
     # make_feature_vectors...pick some representative properties
