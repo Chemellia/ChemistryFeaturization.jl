@@ -5,13 +5,15 @@ May be contextual (depends on neighborhood) or elemental (defined just by the at
 =#
 # proper docstring
 struct AtomFeat{Tn,Te}<:AbstractFeature{Tn,Te}
-    name # symbol (for easy DataFrame indexing) or String (for easy other things)?
+    name::String
     encode_f
     decode_f
     categorical::Bool
     contextual::Bool # can get from elemental lookup table (false) or not (true)?
-    length::Int # length of encoded vector, useful for computing eventual sizes of things probably?
+    length::Int # length of encoded vector
 end
+
+# TODO: add pretty printing
 
 #=
 we'll define a bunch of automatic stuff for building AtomFeats with built-in data

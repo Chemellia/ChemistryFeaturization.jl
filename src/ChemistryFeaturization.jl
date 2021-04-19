@@ -1,6 +1,7 @@
 module ChemistryFeaturization
 
 using SimpleWeightedGraphs
+using Reexport
 
 # define all the abstract types 
 abstract type AbstractAtoms end
@@ -100,9 +101,12 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
     a.featurization = fzn
 end
 
+include("utils/Utils.jl")
+@reexport using .Utils.AtomFeatUtils
 
 # NEXT: 
-# build featurizations
+# building features
+# building featurizations
 # featurize atomgraphs
 # update tests
 

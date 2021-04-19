@@ -1,11 +1,15 @@
-# some commentary
-
+#=
+Featurization for `AtomGraph` objects that featurizes graph nodes with `AtomFeat` objects that depend only on elemental identity (i.e. `contextual==false`), and hence can be pre-tabulated.
+=#
 struct GraphNodeFeaturization <: AbstractFeaturization
     atom_feats::Vector{AtomFeat}
     feature_vectors::Dict{String,Vector{Real}} # map from element symbol to vector
+    # add default constructor that checks that contextual==true, `feature_vectors` are of correct length, keys are elements, etc.
 end
+
+# TODO: in utils, add fcns to construct from feature names, etc.
 
 # docstring
 function featurize!(a::AtomGraph, f::GraphNodeFeaturization)
-    # if adding the exclude option to generic fcn, may not need to dispatch here
+    # loop over nodes and just pull from `feature_vectors`
 end

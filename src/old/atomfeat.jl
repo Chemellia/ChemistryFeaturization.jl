@@ -3,32 +3,32 @@ using JSON
 using CSV
 using DataFrames
 
-# default number of bins for continuous features, if unspecified
-const default_nbins = 10
+# # default number of bins for continuous features, if unspecified
+# const default_nbins = 10
 
-# read in features...
-atom_data_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "pymatgen_atom_data.csv")
-const atom_data_df = DataFrame(CSV.File(atom_data_path))
-feature_info_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "feature_info.json")
-const feature_info = JSON.parsefile(feature_info_path)
+# # read in features...
+# atom_data_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "pymatgen_atom_data.csv")
+# const atom_data_df = DataFrame(CSV.File(atom_data_path))
+# feature_info_path = joinpath(dirname(pathof(ChemistryFeaturization)), "..", "data", "feature_info.json")
+# const feature_info = JSON.parsefile(feature_info_path)
 
-const categorical_feature_names = Symbol.(feature_info["categorical"])
-const categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for fea in categorical_feature_names)
-# but I want blocks to be in my order
-categorical_feature_vals[:Block] = ["s", "p", "d", "f"]
-const continuous_feature_names = Symbol.(feature_info["continuous"])
-const not_features = Symbol.(feature_info["not_features"]) # atomic name, symbol
-const avail_feature_names = cat(categorical_feature_names, continuous_feature_names; dims=1)
+# const categorical_feature_names = Symbol.(feature_info["categorical"])
+# const categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for fea in categorical_feature_names)
+# # but I want blocks to be in my order
+# categorical_feature_vals[:Block] = ["s", "p", "d", "f"]
+# const continuous_feature_names = Symbol.(feature_info["continuous"])
+# const not_features = Symbol.(feature_info["not_features"]) # atomic name, symbol
+# const avail_feature_names = cat(categorical_feature_names, continuous_feature_names; dims=1)
 
-# compile min and max values of each feature...
-const fea_minmax = Dict{Symbol, Tuple{Real, Real}}()
-for feature in avail_feature_names
-    if !(feature in categorical_feature_names)
-        minval = minimum(skipmissing(atom_data_df[:, feature]))
-        maxval = maximum(skipmissing(atom_data_df[:, feature]))
-        fea_minmax[feature] = (minval, maxval)
-    end
-end
+# # compile min and max values of each feature...
+# const fea_minmax = Dict{Symbol, Tuple{Real, Real}}()
+# for feature in avail_feature_names
+#     if !(feature in categorical_feature_names)
+#         minval = minimum(skipmissing(atom_data_df[:, feature]))
+#         maxval = maximum(skipmissing(atom_data_df[:, feature]))
+#         fea_minmax[feature] = (minval, maxval)
+#     end
+# end
 
 # TODO for Sean, eventually: add PairFeat and BondFeat types (maybe in another file for tidiness)
 # TODO, maybe: we could define AbstractFeat that all of these would inherit from, but TBD if that would be useful or not
