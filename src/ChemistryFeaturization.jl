@@ -101,7 +101,10 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
 end
 
 
-# NEXT: start testing new things, starting probably with AtomGraph constructors, probably some missing export statements to find
+# NEXT: 
+# build featurizations
+# featurize atomgraphs
+# update tests
 
 
 
