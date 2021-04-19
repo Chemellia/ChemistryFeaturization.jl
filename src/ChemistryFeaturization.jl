@@ -107,8 +107,6 @@ end
 # update tests
 
 
-
-
 # old stuff for archival purposes for now...
 
 # export AtomFeat, atom_data_df, build_featurization, make_feature_vectors, decode_feature_vector, default_nbins
