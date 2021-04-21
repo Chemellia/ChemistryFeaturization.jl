@@ -15,7 +15,6 @@ not currently a thing that can be directly fed into a model, so that will have t
 updated. Both will need some way to specify which types of features can be attached 
 to them, maybe this is a place for the holy trait design pattern?
 
-Example: AtomGraph can take ElementFeat and ComputedAtomFeat but not PairFeat or StructureFeat, WeaveMol can take ElementFeat, ComputedAtomFeat, and PairFeat but also not StructureFeat
 =#
 
 # link to guidance in docs about how to implement new feature types
@@ -39,10 +38,10 @@ STRUCTURE (not e.g. for a single atom).
 
 Representative examples – feature: feature object type, Tn, Te:
 
-block (s,p,d,f):            AtomFeat (contextual=false), String, Flux.OneHotMatrix 
-electronegativity (binned): AtomFeat (contextual=false), Float32, Flux.OneHotMatrix
-electronegativity (direct): AtomFeat (contextual=false), Float32, Vector{Float32}
-oxidation state:            AtomFeat (contextual=true) Int, Vector{Float32}
+block (s,p,d,f):            AtomFeature (contextual=false), String, Flux.OneHotMatrix 
+electronegativity (binned): AtomFeature (contextual=false), Float32, Flux.OneHotMatrix
+electronegativity (direct): AtomFeature (contextual=false), Float32, Vector{Float32}
+oxidation state:            AtomFeature (contextual=true) Int, Vector{Float32}
 distance between atoms:     PairFeat, Float32, Matrix{Float32}
 bond type:                  PairFeat, String, Array{Float32,3}
 
@@ -57,11 +56,11 @@ All subtypes should define `encode_f` and `decode_f`
 # link to guidance in docs about how to implement new feature types
 
 # export...
-export AtomFeat, PairFeat
+export AtomFeature, PairFeature
 
 # include...
-include("features/atomfeat.jl")
-include("features/pairfeat.jl")
+include("features/atomfeature.jl")
+include("features/pairfeature.jl")
 
 # generic encode
 # docstring
@@ -102,7 +101,7 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
 end
 
 include("utils/Utils.jl")
-@reexport using .Utils.AtomFeatUtils
+@reexport using .Utils.AtomFeatureUtils
 
 # NEXT: 
 # building features
@@ -113,7 +112,7 @@ include("utils/Utils.jl")
 
 # old stuff for archival purposes for now...
 
-# export AtomFeat, atom_data_df, build_featurization, make_feature_vectors, decode_feature_vector, default_nbins
+# export AtomFeature, atom_data_df, build_featurization, make_feature_vectors, decode_feature_vector, default_nbins
 # include("atomfeat.jl")
 
 # export AtomGraph, normalized_laplacian, add_features!, add_features_batch!, visualize_graph

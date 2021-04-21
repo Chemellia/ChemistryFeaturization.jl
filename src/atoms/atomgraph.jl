@@ -19,7 +19,7 @@ A type representing an atomic structure as a graph (`gr`).
   convolution operations by avoiding recomputing it every pass.
 - `features::Matrix{Float32}`: Feature matrix of size (# features, # nodes). AtomGraph can
   be initialized without defining this field, but if it is defined, the subsequent field must be also.
-- `featurization::Vector{AtomFeat}`: Featurization scheme specification to maintain 
+- `featurization::AbstractFeaturization`: Featurization scheme specification to maintain 
   "decodability" of features.
 - `id::String`: Optional, an identifier, e.g. to correspond with tags/labels of an imported
   dataset.

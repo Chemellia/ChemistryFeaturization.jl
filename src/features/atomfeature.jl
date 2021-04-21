@@ -4,7 +4,7 @@ Feature of a single atom.
 May be contextual (depends on neighborhood) or elemental (defined just by the atomic identity of the node).
 =#
 # proper docstring
-struct AtomFeat{Tn,Te}<:AbstractFeature{Tn,Te}
+struct AtomFeature{Tn,Te}<:AbstractFeature{Tn,Te}
     name::String
     encode_f
     decode_f
@@ -16,7 +16,7 @@ end
 # TODO: add pretty printing
 
 #=
-we'll define a bunch of automatic stuff for building AtomFeats with built-in data
+we'll define a bunch of automatic stuff for building AtomFeatures with built-in data
 that will essentially copy the current contents of atomfeat.jl, ideally with some
 additions enabling the user to augment the lookup table
 

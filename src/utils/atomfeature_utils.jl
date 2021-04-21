@@ -1,15 +1,15 @@
 #=
 This module exports the built-in feature values for a variety of non-contextual atom features and also some convenience functions for constructing them easily.
 =#
-module AtomFeatUtils
+module AtomFeatureUtils
 
 using DataFrames
 using CSV
 using JSON
-using ...ChemistryFeaturization: AtomFeat
+using ...ChemistryFeaturization: AtomFeature
 
 # export new constructors
-export AtomFeat
+export AtomFeature
 
 # default number of bins for continuous features, if unspecified
 const default_nbins = 10
@@ -23,13 +23,13 @@ const feature_info = JSON.parsefile(feature_info_path)
 const categorical_feature_names = feature_info["categorical"]
 const categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for fea in categorical_feature_names)
 # but I want blocks to be in my order
-categorical_feature_vals[:Block] = ["s", "p", "d", "f"]
+categorical_feature_vals["Block"] = ["s", "p", "d", "f"]
 const continuous_feature_names = feature_info["continuous"]
 const not_features = feature_info["not_features"] # atomic name, symbol
 const avail_feature_names = cat(categorical_feature_names, continuous_feature_names; dims=1)
 
 # compile min and max values of each feature...
-const fea_minmax = Dict{Symbol, Tuple{Real, Real}}()
+const fea_minmax = Dict{String, Tuple{Real, Real}}()
 for feature in avail_feature_names
     if !(feature in categorical_feature_names)
         minval = minimum(skipmissing(atom_data_df[:, feature]))
@@ -61,7 +61,7 @@ function onecold_lookup_decoder(feature_name; nbins=default_nbins, logspaced=fal
 end
 
 # TODO: add optional user-provided lookup table (will need to extend continuous/categorical feature name/val lists, make local versions and reference those instead)
-function AtomFeat(feature_name; nbins=default_nbins, logspaced=false)
+function AtomFeature(feature_name; nbins=default_nbins, logspaced=false)
     @assert feature_name in continuous_feature_names || feature_name in categorical_feature_names "Cannot automatically build AtomFeat for $feature_name; I can't find it in a lookup table!"
 
     categorical = feature_name in categorical_feature_names
