@@ -1,6 +1,6 @@
 # some commentary
 
 struct WeaveFeaturization <: AbstractFeaturization
-    atom_feats::Vector{AtomFeature}
-    pair_feats::Vector{PairFeature}
+    atom_features::Vector{AtomFeature}
+    pair_features::Vector{PairFeature}
 end

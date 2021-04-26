@@ -4,11 +4,17 @@ using SimpleWeightedGraphs
 using Reexport
 
 # define all the abstract types 
+export AbstractAtoms, AbstractFeature, AbstractFeaturization
 abstract type AbstractAtoms end
-abstract type AbstractFeature{Tn,Te} end
+abstract type AbstractFeature end
 abstract type AbstractFeaturization end
 
+include("utils/Utils.jl")
+@reexport using .Utils.AtomFeatureUtils
+
 #= ATOMS OBJECTS
+
+Should have a field called `elements` that is a list of strings of elemental symbols.
 
 AtomGraph shouldn't have to change too much from its current incarnation. WeaveMol is 
 not currently a thing that can be directly fed into a model, so that will have to get
@@ -33,10 +39,7 @@ include("atoms/atomgraph.jl")
 I decided on an abstract type to allow the dispatch shown below in the "magical encoding"
 and "magical decoding" bits.
 
-Tn is the "natural" type of feature values, Te is the type of encoded values for the WHOLE
-STRUCTURE (not e.g. for a single atom).
-
-Representative examples – feature: feature object type, Tn, Te:
+Representative examples – feature: feature object type, input to encoder, output of encoder:
 
 block (s,p,d,f):            AtomFeature (contextual=false), String, Flux.OneHotMatrix 
 electronegativity (binned): AtomFeature (contextual=false), Float32, Flux.OneHotMatrix
@@ -49,8 +52,6 @@ bond type:                  PairFeat, String, Array{Float32,3}
 should be atom indices and the third should be indexing into the one-hot vector, which should just contain all zeros if the two atoms are not bonded (or we add a bin to the one-hot encoding to indicate that)
 
 All subtypes should define `encode_f` and `decode_f`
-`encode_f` should take in an atoms object and return Te
-`decode_f` should take in something of type Te and return something of type Tn
 =#
 
 # link to guidance in docs about how to implement new feature types
@@ -64,14 +65,14 @@ include("features/pairfeature.jl")
 
 # generic encode
 # docstring
-function (f::AbstractFeature{Tn,Te})(a::AbstractAtoms) where {Te,Tn}
+function (f::AbstractFeature)(a::AbstractAtoms)
     f.encode_f(a)
 end
 
 # generic decode
 # docstring
-function decode(f::AbstractFeature{Tn,Te}, encoded_f::Te) where {Te,Tn}
-    f.decode_f(encoded_f)
+function decode(f::AbstractFeature, encoded_feature)
+    f.decode_f(encoded_feature)
 end
 
 #= FEATURIZATION OBJECTS
@@ -100,8 +101,6 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
     a.featurization = fzn
 end
 
-include("utils/Utils.jl")
-@reexport using .Utils.AtomFeatureUtils
 
 # NEXT: 
 # building features

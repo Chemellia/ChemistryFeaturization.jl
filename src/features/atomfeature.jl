@@ -4,7 +4,7 @@ Feature of a single atom.
 May be contextual (depends on neighborhood) or elemental (defined just by the atomic identity of the node).
 =#
 # proper docstring
-struct AtomFeature{Tn,Te}<:AbstractFeature{Tn,Te}
+struct AtomFeature<:AbstractFeature
     name::String
     encode_f
     decode_f
@@ -14,6 +14,22 @@ struct AtomFeature{Tn,Te}<:AbstractFeature{Tn,Te}
 end
 
 # TODO: add pretty printing
+
+using ..ChemistryFeaturization.Utils.AtomFeatureUtils
+function AtomFeature(feature_name; nbins=default_nbins, logspaced=false)
+    @assert feature_name in continuous_feature_names || feature_name in categorical_feature_names "Cannot automatically build AtomFeat for $feature_name; I can't find it in a lookup table!"
+
+    categorical = feature_name in categorical_feature_names
+    if categorical
+        length = length(categorical_feature_vals[feature_name])
+    else
+        length = nbins
+    end
+    encode_f = onehot_lookup_encoder(feature_name; nbins=nbins, logspaced=logspaced)
+    decode_f = onecold_lookup_decoder(feature_name; nbins=nbins, logspaced=logspaced)
+    # TODO: get type parameters, or decide we don't need them
+    AtomFeature(feature_name, encode_f, decode_f, categorical, false, length)
+end
 
 #=
 we'll define a bunch of automatic stuff for building AtomFeatures with built-in data

@@ -8,8 +8,9 @@ struct GraphNodeFeaturization <: AbstractFeaturization
 end
 
 # TODO: in utils, add fcns to construct from feature names, etc.
+# (needs to build feature vectors also)
 
 # docstring
 function featurize!(a::AtomGraph, f::GraphNodeFeaturization)
-    # loop over nodes and just pull from `feature_vectors`
+    # loop over nodes and just pull from `feature_vectors`, then vcat
 end

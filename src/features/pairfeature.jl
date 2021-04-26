@@ -2,7 +2,7 @@
 Feature of a pair of atoms. Currently only used in WeaveModel, but may eventually
 have a version of AtomGraph that allows edge features...
 =#
-struct PairFeature{Tn,Te}<:AbstractFeature{Tn,Te}
+struct PairFeature<:AbstractFeature
     name
     encode_f
     decode_f
