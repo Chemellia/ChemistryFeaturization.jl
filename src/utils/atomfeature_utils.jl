@@ -12,6 +12,7 @@ using Flux: onecold
 export default_nbins, atom_data_df, avail_feature_names, not_features
 export categorical_feature_names, categorical_feature_vals 
 export continuous_feature_names, fea_minmax
+export get_bins, build_onehot_vec
 export onehot_lookup_encoder, onecold_lookup_decoder
 
 # default number of bins for continuous features, if unspecified
@@ -77,52 +78,33 @@ function build_onehot_vec(val, bins, categorical)
     return onehot_vec
 end
 
-# TODO: define encoder functions here and try returning inline functions?
-
 # docstring
-# not sure I love having to define two signatures but I can't think of another way right now without making overall API less uniform
-function onehot_lookup_encoder(feature_name; nbins=default_nbins, logspaced=false)#, input_type=AbstractAtoms)
+function onehot_lookup_encoder(el::String, feature_name; nbins=default_nbins, logspaced=false)
     @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own encoder function. Available built-in features are: $avail_feature_names"
+    @assert el in atom_data_df.Symbol "Element $el is not in the database! :("
 
     feature_vals = atom_data_df[:, Symbol(feature_name)]
     categorical = feature_name in categorical_feature_names
     bins = get_bins(feature_name; nbins=nbins, logspaced=logspaced)
 
-    # TODO: figure out how to pass in input_type
-    @eval begin
-        
-        # to encode for every atom in a structure
-        # returns a matrix of size L x N where L is length of a single feature vector and N is number of atoms
-        #encode_f(a::input_type) = hcat((a.featurization.feature_vectors[el] for el in a.elements)...)
-        encode_f(a::AbstractAtoms) = hcat((a.featurization.feature_vectors[el] for el in a.elements)...)
-
-        # and to encode for a single element (useful for constructing feature vectors, etc.)
-        function encode_f(el::String)
-            @assert el in atom_data_df.Symbol "Element $el is not in the database! :("
-            # pull value of feature for this element
-            val = getproperty(feature_vals[feature_vals.symbol.==el,:], Symbol(feature_name))
-            build_onehot_vec(val, bins, categorical)
-        end
-        return encode_f
-    end
+    # pull value of feature for this element
+    val = getproperty(feature_vals[feature_vals.symbol.==el,:], Symbol(feature_name))
+    build_onehot_vec(val, bins, categorical)
 end
 
 # docstring
-function onecold_lookup_decoder(feature_name; nbins=default_nbins, logspaced=false)
+function onecold_lookup_decoder(encoded, feature_name; nbins=default_nbins, logspaced=false)
     @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own decoder function. Available built-in features are: $avail_feature_names"
 
     bins = get_bins(feature_name; nbins=nbins, logspaced=logspaced)
     categorical = feature_name in categorical_feature_names
 
-    function decode_f(encoded_feature)
-        if categorical # return value
-            decoded = onecold(vec, bins)
-        else # return bounds
-            decoded = (onecold(vec, bins[1:end-1]), onecold(vec, bins[2:end]))
-        end
-        return decoded
+    if categorical # return value
+        decoded = onecold(vec, bins)
+    else # return bounds
+        decoded = (onecold(vec, bins[1:end-1]), onecold(vec, bins[2:end]))
     end
-    return decode_f
+    return decoded
 end
 
 # TODO: add optional user-provided lookup table (will need to extend continuous/categorical feature name/val lists, make local versions and reference those instead)

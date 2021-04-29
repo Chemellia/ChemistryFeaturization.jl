@@ -15,6 +15,8 @@ end
 
 # TODO: add pretty printing
 
+# NEXT: test this constructor
+# docstring
 using ..ChemistryFeaturization.Utils.AtomFeatureUtils
 function AtomFeature(feature_name; nbins=default_nbins, logspaced=false)
     @assert feature_name in continuous_feature_names || feature_name in categorical_feature_names "Cannot automatically build AtomFeat for $feature_name; I can't find it in a lookup table!"
@@ -25,9 +27,8 @@ function AtomFeature(feature_name; nbins=default_nbins, logspaced=false)
     else
         length = nbins
     end
-    encode_f = onehot_lookup_encoder(feature_name; nbins=nbins, logspaced=logspaced)
-    decode_f = onecold_lookup_decoder(feature_name; nbins=nbins, logspaced=logspaced)
-    # TODO: get type parameters, or decide we don't need them
+    encode_f = atoms -> map(e->onehot_lookup_encoder(e, feature_name; nbins=nbins, logspaced=logspaced), atoms.elements)
+    decode_f = encoded -> onecold_lookup_decoder(encoded, feature_name; nbins=nbins, logspaced=logspaced)
     AtomFeature(feature_name, encode_f, decode_f, categorical, false, length)
 end
 
