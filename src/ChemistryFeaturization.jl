@@ -69,6 +69,7 @@ function (f::AbstractFeature)(a::AbstractAtoms)
     f.encode_f(a)
 end
 
+export decode
 # generic decode
 # docstring
 function decode(f::AbstractFeature, encoded_feature)

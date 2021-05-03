@@ -83,12 +83,12 @@ function onehot_lookup_encoder(el::String, feature_name; nbins=default_nbins, lo
     @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own encoder function. Available built-in features are: $avail_feature_names"
     @assert el in atom_data_df.Symbol "Element $el is not in the database! :("
 
-    feature_vals = atom_data_df[:, Symbol(feature_name)]
+    feature_vals = atom_data_df[:, [:Symbol, Symbol(feature_name)]]
     categorical = feature_name in categorical_feature_names
     bins = get_bins(feature_name; nbins=nbins, logspaced=logspaced)
 
     # pull value of feature for this element
-    val = getproperty(feature_vals[feature_vals.symbol.==el,:], Symbol(feature_name))
+    val = getproperty(feature_vals[feature_vals.Symbol.==el,:][1,:], Symbol(feature_name))
     build_onehot_vec(val, bins, categorical)
 end
 
@@ -100,9 +100,9 @@ function onecold_lookup_decoder(encoded, feature_name; nbins=default_nbins, logs
     categorical = feature_name in categorical_feature_names
 
     if categorical # return value
-        decoded = onecold(vec, bins)
+        decoded = onecold(encoded, bins)
     else # return bounds
-        decoded = (onecold(vec, bins[1:end-1]), onecold(vec, bins[2:end]))
+        decoded = (onecold(encoded, bins[1:end-1]), onecold(encoded, bins[2:end]))
     end
     return decoded
 end
