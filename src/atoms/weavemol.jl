@@ -7,7 +7,7 @@ mutable struct WeaveMol <: AbstractAtoms
     atom_feats::Vector{SomethingOrOther} # I need to look more carefully to figure this out, heh
     pair_feats::Vector{SomethingOrOther}
     featurization::WeaveFeaturization
-    id # probably makes sense to have this in addition to smiles? Maybe?
+    id::Any # probably makes sense to have this in addition to smiles? Maybe?
 end
 
-# TODO: add visualize function, either via OpenSMILES or MolecularGraph
+# TODO: add visualize function, either via OpenSMILES or MolecularGraphtion, either via OpenSMILES or MolecularGraph

@@ -4,10 +4,10 @@ Feature of a single atom.
 May be contextual (depends on neighborhood) or elemental (defined just by the atomic identity of the node).
 =#
 # proper docstring
-struct AtomFeature<:AbstractFeature
+struct AtomFeature <: AbstractFeature
     name::String
-    encode_f
-    decode_f
+    encode_f::Any
+    decode_f::Any
     categorical::Bool
     contextual::Bool # can get from elemental lookup table (false) or not (true)?
     length::Int # length of encoded vector
@@ -15,11 +15,11 @@ end
 
 # TODO: add pretty printing
 
-# NEXT: test this constructor
 # docstring
 using ..ChemistryFeaturization.Utils.AtomFeatureUtils
-function AtomFeature(feature_name; nbins=default_nbins, logspaced=false)
-    @assert feature_name in continuous_feature_names || feature_name in categorical_feature_names "Cannot automatically build AtomFeat for $feature_name; I can't find it in a lookup table!"
+function AtomFeature(feature_name; nbins = default_nbins, logspaced = false)
+    @assert feature_name in continuous_feature_names ||
+            feature_name in categorical_feature_names "Cannot automatically build AtomFeat for $feature_name; I can't find it in a lookup table!"
     local vector_length
     categorical = feature_name in categorical_feature_names
     if categorical
@@ -27,8 +27,19 @@ function AtomFeature(feature_name; nbins=default_nbins, logspaced=false)
     else
         vector_length = nbins
     end
-    encode_f = atoms -> map(e->onehot_lookup_encoder(e, feature_name; nbins=nbins, logspaced=logspaced), atoms.elements)
-    decode_f = encoded -> onecold_lookup_decoder(encoded, feature_name; nbins=nbins, logspaced=logspaced)
+    encode_f =
+        atoms -> map(
+            e -> onehot_lookup_encoder(
+                e,
+                feature_name;
+                nbins = nbins,
+                logspaced = logspaced,
+            ),
+            atoms.elements,
+        )
+    decode_f =
+        encoded ->
+            onecold_decoder(encoded, feature_name; nbins = nbins, logspaced = logspaced)
     AtomFeature(feature_name, encode_f, decode_f, categorical, false, vector_length)
 end
 

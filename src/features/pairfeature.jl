@@ -2,10 +2,10 @@
 Feature of a pair of atoms. Currently only used in WeaveModel, but may eventually
 have a version of AtomGraph that allows edge features...
 =#
-struct PairFeature<:AbstractFeature
-    name
-    encode_f
-    decode_f
+struct PairFeature <: AbstractFeature
+    name::String
+    encode_f::Any
+    decode_f::Any
     length::Int # maybe, maybe not (does constrain/assume vector Te)
     # probably needs some other stuff...
 end
