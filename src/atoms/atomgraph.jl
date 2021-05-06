@@ -86,6 +86,7 @@ function AtomGraph(
     AtomGraph(gr, el_list, lapl, nothing, nothing, id)
 end
 
+
 # initialize directly from adjacency matrix, defaults to 32-bit integers because unlikely to need more nodes than that...
 AtomGraph(
     adj::Array{R},
@@ -96,55 +97,42 @@ AtomGraph(
     U = UInt32,
 ) where {R<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), el_list, features, featurization, id)
+
 AtomGraph(adj::Array{R}, el_list::Vector{String}, id = ""; U = UInt32) where {R<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), el_list, id)
+
 
 # pretty printing, short version
 function Base.show(io::IO, ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges"
+    if !isnothing(ag.featurization)
+        st = string(st, ", feature vector length $(size(ag.atom_feats)[1])")
+    end
+    print(io, st)
+end
+
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n   feature vector length: "
     if isnothing(ag.featurization)
         st = string(st, "uninitialized\n   encoded features: uninitialized")
     else
-        st = string(st, "$(size(ag.features)[1])\n   encoded features: ",  [string(f.name, ", ") for f in g.featurization]...)[1:end-2]
+        st = string(
+                    st,
+                    "$(size(ag.features)[1])\n   encoded features: ",
+                    [string(f.name, ", ") for f in g.featurization]...,
+                )[1:end-2]
     end
     print(io, st)
+
 end
+
 
 """
     normalized_laplacian(graph)
 
 Compute the normalized graph Laplacian matrix of the input graph, defined as
 
-``I - D^{-1/2} A D^{-1/2}``
-
-where ``A`` is the adjacency matrix and ``D`` is the degree matrix.
-"""
-function normalized_laplacian(g::G) where G<:LightGraphs.AbstractGraph
-    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n   feature vector length: "
-    if isnothing(ag.featurization)
-        st = string(st, "uninitialized\n   encoded features: uninitialized")
-    else
-        st = string(
-            st,
-            "$(size(ag.features)[1])\n   encoded features: ",
-            [string(f.name, ", ") for f in g.featurization]...,
-        )[1:end-2]
-    end
-    print(io, st)
-end
-normalized_laplacian(ag::AtomGraph) = ag.lapl
-
-# maybe some cutesy stuff like dispatching things like length as length(elements)
-
-# now visualization stuff...
-
-"Get a list of colors to use for graph visualization."
-function graph_colors(atno_list, seed_color=colorant"cyan4")
-    atom_types = unique(atno_list)
-    atom_type_inds = Dict(atom_types[i]=>i for i in 1:length(atom_types))
 ``I - D^{-1/2} A D^{-1/2}``
 
 where ``A`` is the adjacency matrix and ``D`` is the degree matrix.
@@ -162,13 +150,9 @@ function normalized_laplacian(g::G) where {G<:LightGraphs.AbstractGraph}
     return lapl
 end
 
-normalized_laplacian(ag::AtomGraph) = ag.lapl
-end
 
-"Compute edge widths (proportional to weights on graph) for graph visualization."
-function graph_edgewidths(ag::AtomGraph)
-    edgewidths = []
-    edges_sorted = sort([e for e in edges(ag.graph)], lt=lt_edge)
+normalized_laplacian(ag::AtomGraph) = ag.lapl
+
 
 # now visualization stuff...
 
@@ -181,6 +165,7 @@ function graph_colors(atno_list, seed_color = colorant"cyan4")
     return colors[color_inds]
 end
 
+
 # helper fcn for sorting because edge ordering isn't preserved when converting to SimpleGraph
 function lt_edge(
     e1::SimpleWeightedGraphs.SimpleWeightedEdge{<:Integer,<:Real},
@@ -190,6 +175,12 @@ function lt_edge(
         return true
     elseif e1.dst < e2.dst
         return true
+    else
+        return false
+    end
+end
+
+
 "Compute edge widths (proportional to weights on graph) for graph visualization."
 function graph_edgewidths(ag::AtomGraph)
     edgewidths = []
@@ -197,7 +188,10 @@ function graph_edgewidths(ag::AtomGraph)
     for e in edges_sorted
         append!(edgewidths, e.weight)
     end
-    return edgewidths"Visualize a given graph."
+    return edgewidths
+end
+
+"Visualize a given graph."
 function visualize(ag::AtomGraph)
     # gplot doesn't work on weighted graphs
     sg = SimpleGraph(adjacency_matrix(ag))
