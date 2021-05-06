@@ -67,16 +67,10 @@ function AtomGraph(
 end
 
 # one without features or featurization initialized yet
-function AtomGraph(gr::SimpleWeightedGraph{A,B}, el_list::Vector{String}, id="") where {B<:Real,A<:Integer}
-    # check that el_list is the right length
-    AtomGraph(gr, el_list, lapl, features, featurization, id)
-end
-
-# one without features or featurization initialized yet
 function AtomGraph(
     gr::SimpleWeightedGraph{A,B},
     el_list::Vector{String},
-    id = "",
+    id = ""
 ) where {B<:Real,A<:Integer}
     # check that el_list is the right length
     num_atoms = size(gr)[1]
@@ -87,18 +81,17 @@ function AtomGraph(
 end
 
 
-# initialize directly from adjacency matrix, defaults to 32-bit integers because unlikely to need more nodes than that...
+# initialize directly from adjacency matrix
 AtomGraph(
     adj::Array{R},
     el_list::Vector{String},
     features::Matrix{R},
     featurization::AbstractFeaturization,
-    id = "";
-    U = UInt32,
+    id = ""
 ) where {R<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), el_list, features, featurization, id)
 
-AtomGraph(adj::Array{R}, el_list::Vector{String}, id = ""; U = UInt32) where {R<:Real} =
+AtomGraph(adj::Array{R}, el_list::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), el_list, id)
 
 
@@ -119,9 +112,9 @@ function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
     else
         st = string(
                     st,
-                    "$(size(ag.features)[1])\n   encoded features: ",
-                    [string(f.name, ", ") for f in g.featurization]...,
-                )[1:end-2]
+                    "$(size(ag.atom_feats)[1])\n   encoded features: ",
+                    ag.featurization,
+                )
     end
     print(io, st)
 

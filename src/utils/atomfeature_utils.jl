@@ -13,7 +13,7 @@ export default_nbins, atom_data_df, avail_feature_names, not_features
 export categorical_feature_names, categorical_feature_vals 
 export continuous_feature_names, fea_minmax
 export get_bins, build_onehot_vec
-export onehot_lookup_encoder, onecold_lookup_decoder
+export onehot_lookup_encoder, onecold_decoder
 
 # default number of bins for continuous features, if unspecified
 const default_nbins = 10
@@ -66,8 +66,8 @@ function build_onehot_vec(val, bins, categorical)
         onehot_vec = [0.0 for i in 1:length(bins)]
         bin_index = findfirst(isequal(val), bins)
     else
-        onehot_vec = [0.0 for i in 1:nbins]
-        bin_index = searchsorted(f.vals, val).stop
+        onehot_vec = [0.0 for i in 1:(length(bins)-1)]
+        bin_index = searchsorted(bins, val).stop
         if bin_index == length(bins) # got the max value
             bin_index = bin_index - 1
         elseif isapprox(val, bins[1]) # sometimes will get 0 if this doesn't get checked
@@ -93,7 +93,7 @@ function onehot_lookup_encoder(el::String, feature_name; nbins=default_nbins, lo
 end
 
 # docstring
-function onecold_lookup_decoder(encoded, feature_name; nbins=default_nbins, logspaced=false)
+function onecold_decoder(encoded, feature_name; nbins=default_nbins, logspaced=false)
     @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own decoder function. Available built-in features are: $avail_feature_names"
 
     bins = get_bins(feature_name; nbins=nbins, logspaced=logspaced)

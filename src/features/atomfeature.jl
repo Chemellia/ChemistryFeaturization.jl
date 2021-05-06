@@ -28,7 +28,7 @@ function AtomFeature(feature_name; nbins = default_nbins, logspaced = false)
         vector_length = nbins
     end
     encode_f =
-        atoms -> map(
+        atoms -> reduce(hcat, map(
             e -> onehot_lookup_encoder(
                 e,
                 feature_name;
@@ -36,7 +36,7 @@ function AtomFeature(feature_name; nbins = default_nbins, logspaced = false)
                 logspaced = logspaced,
             ),
             atoms.elements,
-        )
+        ))
     decode_f =
         encoded ->
             onecold_decoder(encoded, feature_name; nbins = nbins, logspaced = logspaced)
