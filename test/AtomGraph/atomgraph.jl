@@ -74,7 +74,7 @@ end
     serialize(abspath(@__DIR__, "../test_data", "testgraph.jls"), ag)
     ag2 = deserialize(abspath(@__DIR__, "../test_data", "testgraph.jls"))
     @test ag2.elements==ag.elements
-    @test ag.lapl==ag2.lapl
+    @test ag.laplacian==ag2.laplacian
     @test ag.features==ag2.features
     for i in 1:2
         for field in [:name, :categorical, :num_bins, :logspaced, :vals]
