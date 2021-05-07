@@ -24,7 +24,11 @@ end
 
 # docstring
 using ..ChemistryFeaturization.Utils.AtomFeatureUtils
-function AtomFeature(feature_name; nbins = default_nbins, logspaced = default_log[feature_name])
+function AtomFeature(
+    feature_name;
+    nbins = default_nbins,
+    logspaced = default_log[feature_name],
+)
     @assert feature_name in continuous_feature_names ||
             feature_name in categorical_feature_names "Cannot automatically build AtomFeat for $feature_name; I can't find it in a lookup table!"
     local vector_length
@@ -53,16 +57,4 @@ function AtomFeature(feature_name; nbins = default_nbins, logspaced = default_lo
     AtomFeature(feature_name, encode_f, decode_f, categorical, false, vector_length)
 end
 
-#=
-we'll define a bunch of automatic stuff for building AtomFeatures with built-in data
-that will essentially copy the current contents of atomfeat.jl, ideally with some
-additions enabling the user to augment the lookup table
-
-should also have convenience functions for building encode_f and decode_f via keywords for, e.g.:
-    choosing one-hot (and how many bins, etc.) vs. direct float encoding
-    logspaced vs. linear spaced binning for one-hot encoding
-    maybe other stuff too
-...
-=#
-
-# then basically copy a bunch of the weave stuff, plus potentially things like oxidation state etc. from pymatgen belong here too
+# TODO: some Weave stuff needed here

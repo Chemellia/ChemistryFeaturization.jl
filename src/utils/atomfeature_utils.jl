@@ -11,7 +11,7 @@ using Flux: onecold
 # export things
 export default_nbins, oom_threshold_log
 export atom_data_df, avail_feature_names, not_features
-export categorical_feature_names, categorical_feature_vals 
+export categorical_feature_names, categorical_feature_vals
 export continuous_feature_names, fea_minmax, default_log
 export get_bins, build_onehot_vec
 export onehot_lookup_encoder, onecold_decoder
@@ -28,24 +28,28 @@ feature_info_path = joinpath(@__DIR__, "data", "feature_info.json")
 const feature_info = JSON.parsefile(feature_info_path)
 
 const categorical_feature_names = feature_info["categorical"]
-const categorical_feature_vals = Dict(fea=>sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for fea in categorical_feature_names)
+const categorical_feature_vals = Dict(
+    fea => sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for
+    fea in categorical_feature_names
+)
 # but I want blocks to be in my order
 categorical_feature_vals["Block"] = ["s", "p", "d", "f"]
 const continuous_feature_names = feature_info["continuous"]
 const not_features = feature_info["not_features"] # atomic name, symbol
-const avail_feature_names = cat(categorical_feature_names, continuous_feature_names; dims=1)
+const avail_feature_names =
+    cat(categorical_feature_names, continuous_feature_names; dims = 1)
 
 # compile min and max values of each feature and defaults for log-spacing...
-const fea_minmax = Dict{String, Tuple{Real, Real}}()
-const default_log = Dict{String, Bool}()
+const fea_minmax = Dict{String,Tuple{Real,Real}}()
+const default_log = Dict{String,Bool}()
 for feature in avail_feature_names
     if !(feature in categorical_feature_names)
         minval = minimum(skipmissing(atom_data_df[:, feature]))
         maxval = maximum(skipmissing(atom_data_df[:, feature]))
         fea_minmax[feature] = (minval, maxval)
-        same_sign = all(x->x==x[1], sign.(fea_minmax[feature]))
+        same_sign = all(x -> x == x[1], sign.(fea_minmax[feature]))
         if same_sign
-            oom_arg = sign(minval) < 0 ? minval/maxval : maxval/minval
+            oom_arg = sign(minval) < 0 ? minval / maxval : maxval / minval
             oom = log10(oom_arg)
             default_log[feature] = oom > oom_threshold_log
         else
@@ -65,9 +69,14 @@ function get_bins(feature_name; nbins=default_nbins, logspaced=default_log[featu
     else
         min_val, max_val = fea_minmax[feature_name]
         if logspaced
-            bins = 10 .^ range(log10(min_val), log10(max_val), length=nbins+1)
+            @assert all(x -> x == x[1], sign.(fea_minmax[feature_name])) "I don't know how to do a logarithmically spaced feature whose value can be zero! :("
+            if sign(min_val) > 0
+                bins = 10 .^ range(log10(min_val), log10(max_val), length = nbins + 1)
+            else
+                bins = -1 .* (10 .^ range(log10(abs(min_val)), log10(abs(max_val)), length = nbins + 1))
+            end
         else
-            bins = range(min_val, max_val, length=nbins+1)
+            bins = range(min_val, max_val, length = nbins + 1)
         end
     end
     return bins
@@ -77,15 +86,15 @@ end
 function build_onehot_vec(val, bins, categorical)
     local bin_index, onehot_vec
     if categorical
-        onehot_vec = [0.0 for i in 1:length(bins)]
+        onehot_vec = [0.0 for i = 1:length(bins)]
         bin_index = findfirst(isequal(val), bins)
     else
-        onehot_vec = [0.0 for i in 1:(length(bins)-1)]
+        onehot_vec = [0.0 for i = 1:(length(bins)-1)]
         bin_index = searchsorted(bins, val).stop
         if bin_index == length(bins) # got the max value
             bin_index = bin_index - 1
         elseif isapprox(val, bins[1]) # sometimes will get 0 if this doesn't get checked
-            bin_index=1
+            bin_index = 1
         end
     end
     onehot_vec[bin_index] = 1.0
@@ -93,24 +102,34 @@ function build_onehot_vec(val, bins, categorical)
 end
 
 # docstring
-function onehot_lookup_encoder(el::String, feature_name; nbins=default_nbins, logspaced=default_log[feature_name])
+function onehot_lookup_encoder(
+    el::String,
+    feature_name;
+    nbins = default_nbins,
+    logspaced = default_log[feature_name],
+)
     @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own encoder function. Available built-in features are: $avail_feature_names"
     @assert el in atom_data_df.Symbol "Element $el is not in the database! :("
 
     feature_vals = atom_data_df[:, [:Symbol, Symbol(feature_name)]]
     categorical = feature_name in categorical_feature_names
-    bins = get_bins(feature_name; nbins=nbins, logspaced=logspaced)
+    bins = get_bins(feature_name; nbins = nbins, logspaced = logspaced)
 
     # pull value of feature for this element
-    val = getproperty(feature_vals[feature_vals.Symbol.==el,:][1,:], Symbol(feature_name))
+    val = getproperty(feature_vals[feature_vals.Symbol.==el, :][1, :], Symbol(feature_name))
     build_onehot_vec(val, bins, categorical)
 end
 
 # docstring
-function onecold_decoder(encoded, feature_name; nbins=default_nbins, logspaced=default_log[feature_name])
+function onecold_decoder(
+    encoded,
+    feature_name;
+    nbins = default_nbins,
+    logspaced = default_log[feature_name],
+)
     @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own decoder function. Available built-in features are: $avail_feature_names"
 
-    bins = get_bins(feature_name; nbins=nbins, logspaced=logspaced)
+    bins = get_bins(feature_name; nbins = nbins, logspaced = logspaced)
     categorical = feature_name in categorical_feature_names
 
     if categorical # return value
