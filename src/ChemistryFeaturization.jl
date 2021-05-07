@@ -77,7 +77,7 @@ function decode(f::AbstractFeature, encoded_feature)
 end
 
 #= FEATURIZATION OBJECTS
-All such objects should define at least one list of <:AbstractFeature objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed.
+All such objects should define at least one list of <: AbstractFeature objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed.
 =#
 
 # export...

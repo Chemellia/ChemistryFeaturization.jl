@@ -3,7 +3,7 @@
 Featurization for `AtomGraph` objects that featurizes graph nodes only.
 =#
 struct GraphNodeFeaturization <: AbstractFeaturization
-    atom_feats::Vector{AtomFeature}
+    atom_features::Vector{AtomFeature}
 end
 
 # TODO: function to compute total vector length
