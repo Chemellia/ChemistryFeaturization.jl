@@ -6,7 +6,7 @@ struct GraphNodeFeaturization <: AbstractFeaturization
     atom_feats::Vector{AtomFeature}
 end
 
-# TODO: pretty printing
+# TODO: function to compute total vector length
 
 # TODO: in utils, add fcns to construct from feature names, etc.
 # (needs to build feature vectors also)

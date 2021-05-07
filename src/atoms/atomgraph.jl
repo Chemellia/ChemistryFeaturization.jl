@@ -70,7 +70,7 @@ end
 function AtomGraph(
     gr::SimpleWeightedGraph{A,B},
     el_list::Vector{String},
-    id = ""
+    id = "",
 ) where {B<:Real,A<:Integer}
     # check that el_list is the right length
     num_atoms = size(gr)[1]
@@ -87,7 +87,7 @@ AtomGraph(
     el_list::Vector{String},
     features::Matrix{R},
     featurization::AbstractFeaturization,
-    id = ""
+    id = "",
 ) where {R<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), el_list, features, featurization, id)
 
@@ -110,11 +110,8 @@ function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
     if isnothing(ag.featurization)
         st = string(st, "uninitialized\n   encoded features: uninitialized")
     else
-        st = string(
-                    st,
-                    "$(size(ag.atom_feats)[1])\n   encoded features: ",
-                    ag.featurization,
-                )
+        st =
+            string(st, "$(size(ag.atom_feats)[1])\n   featurization: ", ag.featurization)
     end
     print(io, st)
 
