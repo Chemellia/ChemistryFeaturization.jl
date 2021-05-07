@@ -102,6 +102,21 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
     a.featurization = fzn
 end
 
+# pretty printing for featurizations, short version
+Base.show(io::IO, fzn::AbstractFeaturization) = print(io, "$(typeof(fzn))")
+
+# pretty printing, long version
+function Base.show(io::IO, ::MIME"text/plain", fzn::AbstractFeaturization)
+    st = "$(typeof(fzn)):"
+    for feature_list in fieldnames(typeof(fzn))
+        st = string(st, "\n    $(feature_list):")
+        for feature in getproperty(fzn, feature_list)
+            st = string(st, "\n        $(feature)")
+        end
+    end
+    print(io, st)
+end
+
 # NEXT: 
 # building featurizations
 # featurize atomgraphs

@@ -114,11 +114,8 @@ function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
     if isnothing(ag.featurization)
         st = string(st, "uninitialized\n   encoded features: uninitialized")
     else
-        st = string(
-                    st,
-                    "$(size(ag.atom_features)[1])\n   encoded features: ",
-                    ag.featurization,
-                )
+        st =
+            string(st, "$(size(ag.atom_feats)[1])\n   featurization: ", ag.featurization)
     end
     print(io, st)
 

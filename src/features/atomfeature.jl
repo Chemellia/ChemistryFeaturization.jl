@@ -13,7 +13,14 @@ struct AtomFeature <: AbstractFeature
     length::Int # length of encoded vector
 end
 
-# TODO: add pretty printing
+# pretty printing, short version
+Base.show(io::IO, af::AtomFeature) = print(io, "AtomFeature $(af.name)")
+
+# pretty printing, long version
+function Base.show(io::IO, ::MIME"text/plain", af::AtomFeature)
+    st = "AtomFeature $(af.name):\n   categorical: $(af.categorical)\n   contextual: $(af.contextual)\n   encoded length: $(af.length)"
+    print(io, st)
+end
 
 # docstring
 using ..ChemistryFeaturization.Utils.AtomFeatureUtils
@@ -28,15 +35,18 @@ function AtomFeature(feature_name; nbins = default_nbins, logspaced = false)
         vector_length = nbins
     end
     encode_f =
-        atoms -> reduce(hcat, map(
-            e -> onehot_lookup_encoder(
-                e,
-                feature_name;
-                nbins = nbins,
-                logspaced = logspaced,
+        atoms -> reduce(
+            hcat,
+            map(
+                e -> onehot_lookup_encoder(
+                    e,
+                    feature_name;
+                    nbins = nbins,
+                    logspaced = logspaced,
+                ),
+                atoms.elements,
             ),
-            atoms.elements,
-        ))
+        )
     decode_f =
         encoded ->
             onecold_decoder(encoded, feature_name; nbins = nbins, logspaced = logspaced)
