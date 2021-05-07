@@ -118,8 +118,6 @@ function Base.show(io::IO, ::MIME"text/plain", fzn::AbstractFeaturization)
 end
 
 # NEXT: 
-# building featurizations
-# featurize atomgraphs
 # update tests
 # write docstrings
 

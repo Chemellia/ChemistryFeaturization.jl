@@ -9,14 +9,17 @@ using JSON
 using Flux: onecold
 
 # export things
-export default_nbins, atom_data_df, avail_feature_names, not_features
+export default_nbins, oom_threshold_log
+export atom_data_df, avail_feature_names, not_features
 export categorical_feature_names, categorical_feature_vals 
-export continuous_feature_names, fea_minmax
+export continuous_feature_names, fea_minmax, default_log
 export get_bins, build_onehot_vec
 export onehot_lookup_encoder, onecold_decoder
 
 # default number of bins for continuous features, if unspecified
 const default_nbins = 10
+# if values of a feature span more than this many orders of magnitude, log-space it by default (open to better names for this...)
+const oom_threshold_log = 2
 
 # read in features...
 atom_data_path = joinpath(@__DIR__, "data", "pymatgen_atom_data.csv")
@@ -32,18 +35,29 @@ const continuous_feature_names = feature_info["continuous"]
 const not_features = feature_info["not_features"] # atomic name, symbol
 const avail_feature_names = cat(categorical_feature_names, continuous_feature_names; dims=1)
 
-# compile min and max values of each feature...
+# compile min and max values of each feature and defaults for log-spacing...
 const fea_minmax = Dict{String, Tuple{Real, Real}}()
+const default_log = Dict{String, Bool}()
 for feature in avail_feature_names
     if !(feature in categorical_feature_names)
         minval = minimum(skipmissing(atom_data_df[:, feature]))
         maxval = maximum(skipmissing(atom_data_df[:, feature]))
         fea_minmax[feature] = (minval, maxval)
+        same_sign = all(x->x==x[1], sign.(fea_minmax[feature]))
+        if same_sign
+            oom_arg = sign(minval) < 0 ? minval/maxval : maxval/minval
+            oom = log10(oom_arg)
+            default_log[feature] = oom > oom_threshold_log
+        else
+            default_log[feature] = false
+        end
+    else
+        default_log[feature] = false
     end
 end
 
 # helper function for encoder and decoder...
-function get_bins(feature_name; nbins=default_nbins, logspaced=false)
+function get_bins(feature_name; nbins=default_nbins, logspaced=default_log[feature_name])
     categorical = feature_name in categorical_feature_names
     local bins
     if categorical
@@ -79,7 +93,7 @@ function build_onehot_vec(val, bins, categorical)
 end
 
 # docstring
-function onehot_lookup_encoder(el::String, feature_name; nbins=default_nbins, logspaced=false)
+function onehot_lookup_encoder(el::String, feature_name; nbins=default_nbins, logspaced=default_log[feature_name])
     @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own encoder function. Available built-in features are: $avail_feature_names"
     @assert el in atom_data_df.Symbol "Element $el is not in the database! :("
 
@@ -93,7 +107,7 @@ function onehot_lookup_encoder(el::String, feature_name; nbins=default_nbins, lo
 end
 
 # docstring
-function onecold_decoder(encoded, feature_name; nbins=default_nbins, logspaced=false)
+function onecold_decoder(encoded, feature_name; nbins=default_nbins, logspaced=default_log[feature_name])
     @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own decoder function. Available built-in features are: $avail_feature_names"
 
     bins = get_bins(feature_name; nbins=nbins, logspaced=logspaced)
@@ -107,6 +121,5 @@ function onecold_decoder(encoded, feature_name; nbins=default_nbins, logspaced=f
     return decoded
 end
 
-# TODO: add optional user-provided lookup table (will need to extend continuous/categorical feature name/val lists, make local versions and reference those instead)
 
 end

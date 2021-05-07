@@ -24,7 +24,7 @@ end
 
 # docstring
 using ..ChemistryFeaturization.Utils.AtomFeatureUtils
-function AtomFeature(feature_name; nbins = default_nbins, logspaced = false)
+function AtomFeature(feature_name; nbins = default_nbins, logspaced = default_log[feature_name])
     @assert feature_name in continuous_feature_names ||
             feature_name in categorical_feature_names "Cannot automatically build AtomFeat for $feature_name; I can't find it in a lookup table!"
     local vector_length

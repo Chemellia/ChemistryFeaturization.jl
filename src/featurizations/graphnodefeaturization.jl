@@ -8,5 +8,10 @@ end
 
 # TODO: function to compute total vector length
 
-# TODO: in utils, add fcns to construct from feature names, etc.
-# (needs to build feature vectors also)
+# docstring
+function GraphNodeFeaturization(feature_names::Vector{String}; nbins=default_nbins, logspaced=getindex.(Ref(default_log), feature_names))
+    afs = map(zip(feature_names, nbins, logspaced)) do args
+        AtomFeature(args[1], nbins=args[2], logspaced=args[3])
+    end 
+    GraphNodeFeaturization(afs)
+end
