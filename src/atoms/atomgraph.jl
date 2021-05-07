@@ -25,10 +25,10 @@ A type representing an atomic structure as a graph (`gr`).
   dataset.
 """
 mutable struct AtomGraph <: AbstractAtoms
-    graph::SimpleWeightedGraph{<: Integer, <: Real}
+    graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
-    laplacian::Matrix{<: Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
-    atom_features::Union{Matrix{<: Real},Nothing} # if we add edge features this type will have to relax
+    laplacian::Matrix{<:Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
+    atom_features::Union{Matrix{<:Real},Nothing} # if we add edge features this type will have to relax
     featurization::Union{AbstractFeaturization,Nothing}
     id::String # or maybe we let it be a number too?
 end
@@ -48,12 +48,12 @@ features are provided, so too must be the featurization scheme, in order to main
 "decodability" of features.
 """
 function AtomGraph(
-    gr::SimpleWeightedGraph{A, B},
+    gr::SimpleWeightedGraph{A,B},
     elements::Vector{String},
-    features::Matrix{<: Real},
+    features::Matrix{<:Real},
     featurization::AbstractFeaturization,
     id = "",
-) where {B <: Real, A <: Integer}
+) where {B<:Real,A<:Integer}
     # check that elements is the right length
     num_atoms = size(gr)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
@@ -70,10 +70,10 @@ end
 
 # one without features or featurization initialized yet
 function AtomGraph(
-    gr::SimpleWeightedGraph{A, B},
+    gr::SimpleWeightedGraph{A,B},
     elements::Vector{String},
-    id = ""
-) where {B <: Real,A <: Integer}
+    id = "",
+) where {B<:Real,A<:Integer}
     # check that elements is the right length
     num_atoms = size(gr)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
@@ -89,12 +89,12 @@ AtomGraph(
     elements::Vector{String},
     features::Matrix{R},
     featurization::AbstractFeaturization,
-    id = ""
-) where {R <: Real} =
+    id = "",
+) where {R<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), elements, features, featurization, id)
 
 
-AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R <: Real} =
+AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), elements, id)
 
 
@@ -131,7 +131,7 @@ Compute the normalized graph Laplacian matrix of the input graph, defined as
 
 where ``A`` is the adjacency matrix and ``D`` is the degree matrix.
 """
-function normalized_laplacian(g::G) where {G <: LightGraphs.AbstractGraph}
+function normalized_laplacian(g::G) where {G<:LightGraphs.AbstractGraph}
     a = adjacency_matrix(g)
     d = vec(sum(a, dims = 1))
     inv_sqrt_d = diagm(0 => d .^ (-0.5f0))
@@ -162,8 +162,8 @@ end
 
 # helper fcn for sorting because edge ordering isn't preserved when converting to SimpleGraph
 function lt_edge(
-    e1::SimpleWeightedGraphs.SimpleWeightedEdge{<: Integer, <: Real},
-    e2::SimpleWeightedGraphs.SimpleWeightedEdge{<: Integer, <: Real},
+    e1::SimpleWeightedGraphs.SimpleWeightedEdge{<:Integer,<:Real},
+    e2::SimpleWeightedGraphs.SimpleWeightedEdge{<:Integer,<:Real},
 )
     if e1.src < e2.src
         return true

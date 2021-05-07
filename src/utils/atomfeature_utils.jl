@@ -61,7 +61,11 @@ for feature in avail_feature_names
 end
 
 # helper function for encoder and decoder...
-function get_bins(feature_name; nbins=default_nbins, logspaced=default_log[feature_name])
+function get_bins(
+    feature_name;
+    nbins = default_nbins,
+    logspaced = default_log[feature_name],
+)
     categorical = feature_name in categorical_feature_names
     local bins
     if categorical
@@ -73,15 +77,15 @@ function get_bins(feature_name; nbins=default_nbins, logspaced=default_log[featu
             if sign(min_val) > 0
                 bins = 10 .^ range(log10(min_val), log10(max_val), length = nbins + 1)
             else
-                bins = -1 .* (10 .^ range(log10(abs(min_val)), log10(abs(max_val)), length = nbins + 1))
+                bins =
+                    -1 .* (
+                        10 .^
+                        range(log10(abs(min_val)), log10(abs(max_val)), length = nbins + 1)
+                    )
             end
         else
             bins = range(min_val, max_val, length = nbins + 1)
         end
-    end
-    return bins
-end
-
 # another helper function
 function build_onehot_vec(val, bins, categorical)
     local bin_index, onehot_vec
