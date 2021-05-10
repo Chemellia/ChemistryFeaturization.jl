@@ -1,9 +1,12 @@
+using ..ChemistryFeaturization.Utils.AtomFeatureUtils
+
 #=
 Feature of a single atom.
 
 May be contextual (depends on neighborhood) or elemental (defined just by the atomic identity of the node).
 =#
 # proper docstring
+# TODO: add way to get range/list of possible values for feature...
 struct AtomFeature <: AbstractFeature
     name::String
     encode_f::Any
@@ -11,6 +14,7 @@ struct AtomFeature <: AbstractFeature
     categorical::Bool
     contextual::Bool # can get from elemental lookup table (false) or not (true)?
     length::Int # length of encoded vector
+    encodable_elements::Vector{String}
 end
 
 # pretty printing, short version
@@ -23,7 +27,6 @@ function Base.show(io::IO, ::MIME"text/plain", af::AtomFeature)
 end
 
 # docstring
-using ..ChemistryFeaturization.Utils.AtomFeatureUtils
 function AtomFeature(
     feature_name;
     nbins = default_nbins,
@@ -54,7 +57,7 @@ function AtomFeature(
     decode_f =
         encoded ->
             onecold_decoder(encoded, feature_name; nbins = nbins, logspaced = logspaced)
-    AtomFeature(feature_name, encode_f, decode_f, categorical, false, vector_length)
+    AtomFeature(feature_name, encode_f, decode_f, categorical, false, vector_length, ChemistryFeaturization.Utils.AtomFeatureUtils.encodable_elements(feature_name))
 end
 
 # TODO: some Weave stuff needed here

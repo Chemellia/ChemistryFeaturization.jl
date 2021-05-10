@@ -14,7 +14,7 @@ export atom_data_df, avail_feature_names, not_features
 export categorical_feature_names, categorical_feature_vals
 export continuous_feature_names, fea_minmax, default_log
 export get_bins, build_onehot_vec
-export onehot_lookup_encoder, onecold_decoder
+export onehot_lookup_encoder, onecold_decoder, encodable_elements
 
 # default number of bins for continuous features, if unspecified
 const default_nbins = 10
@@ -86,6 +86,11 @@ function get_bins(
         else
             bins = range(min_val, max_val, length = nbins + 1)
         end
+    end
+    return bins
+end
+
+
 # another helper function
 function build_onehot_vec(val, bins, categorical)
     local bin_index, onehot_vec
@@ -144,5 +149,10 @@ function onecold_decoder(
     return decoded
 end
 
+# docstring
+function encodable_elements(feature_name::String)
+    info = atom_data_df[:, [Symbol(feature_name), :Symbol]]
+    return info[findall(x -> !ismissing(x), getproperty(info,Symbol(feature_name))), :Symbol]
+end
 
 end
