@@ -116,11 +116,17 @@ function onehot_lookup_encoder(
     feature_name;
     nbins = default_nbins,
     logspaced = default_log[feature_name],
+    lookup_table = atom_data_df,
 )
-    @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own encoder function. Available built-in features are: $avail_feature_names"
-    @assert el in atom_data_df.Symbol "Element $el is not in the database! :("
+    if lookup_table == atom_data_df
+        @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own encoder function. Available built-in features are: $avail_feature_names"
+    else
+        colnames = names(lookup_table)
+        @assert feature_name in colnames & "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
+    end
+    @assert el in lookup_table.Symbol "Element $el is not in the database! :("
 
-    feature_vals = atom_data_df[:, [:Symbol, Symbol(feature_name)]]
+    feature_vals = lookup_table[:, [:Symbol, Symbol(feature_name)]]
     categorical = feature_name in categorical_feature_names
     bins = get_bins(feature_name; nbins = nbins, logspaced = logspaced)
 
@@ -143,7 +149,7 @@ function onecold_decoder(
 
     if categorical # return value
         decoded = onecold(encoded, bins)
-    else # return bounds
+    else # return bounds (TODO: should this be a tuple or a vector..? I like tuple for distinguishing from encoded vectors, but it doesn't play so nice with broadcasting...)
         decoded = (onecold(encoded, bins[1:end-1]), onecold(encoded, bins[2:end]))
     end
     return decoded
