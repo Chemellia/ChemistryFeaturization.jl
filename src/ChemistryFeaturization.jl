@@ -51,7 +51,7 @@ bond type:                  PairFeat, String, Array{Float32,3}
 (bond type is categorical and gets one-hot encoded, so the first two indices of the Matrix
 should be atom indices and the third should be indexing into the one-hot vector, which should just contain all zeros if the two atoms are not bonded (or we add a bin to the one-hot encoding to indicate that)
 
-All subtypes should define `encode_f` and `decode_f`
+All subtypes should have `encode_f` and `decode_f` fields
 =#
 
 # link to guidance in docs about how to implement new feature types
@@ -120,5 +120,6 @@ end
 # NEXT: 
 # update tests
 # write docstrings
+# graph-building stuff
 
 end

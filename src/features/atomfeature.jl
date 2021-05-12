@@ -1,4 +1,5 @@
 using ..ChemistryFeaturization.Utils.AtomFeatureUtils
+using DataFrames
 
 #=
 Feature of a single atom.
@@ -32,21 +33,20 @@ function AtomFeature(
     nbins = default_nbins,
     logspaced = feature_name in keys(default_log) ? default_log[feature_name] : false,
     categorical = feature_name in categorical_feature_names,
-    lookup_table = atom_data_df,
+    custom_lookup_table::Union{Nothing,DataFrame} = nothing,
 )
-    local builtin =
-        feature_name in continuous_feature_names ||
-        feature_name in categorical_feature_names
-    if !builtin
+    local lookup_table
+    if isnothing(custom_lookup_table)
+        lookup_table = atom_data_df
+    else
+        lookup_table = custom_lookup_table
+    end
+    if !(feature_name in avail_feature_names)
         @assert feature_name in names(lookup_table) "$feature_name is not a built-in feature, but you haven't provided a lookup table to find its values!"
     end
     local vector_length
     if categorical
-        if builtin
-            vector_length = length(categorical_feature_vals[feature_name])
-        else
-            vector_length = length(unique(lookup_table[:, Symbol(feature_name)]))
-        end
+        vector_length = length(unique(skipmissing(lookup_table[:, Symbol(feature_name)])))
     else
         vector_length = nbins
     end
@@ -60,7 +60,7 @@ function AtomFeature(
                     nbins = nbins,
                     logspaced = logspaced,
                     categorical = categorical,
-                    lookup_table = lookup_table,
+                    custom_lookup_table = custom_lookup_table,
                 ),
                 atoms.elements,
             ),
@@ -72,7 +72,7 @@ function AtomFeature(
             nbins = nbins,
             logspaced = logspaced,
             categorical = categorical,
-            lookup_table = lookup_table,
+            custom_lookup_table = custom_lookup_table,
         )
     AtomFeature(
         feature_name,

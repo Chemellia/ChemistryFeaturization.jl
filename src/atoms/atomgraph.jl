@@ -48,14 +48,14 @@ features are provided, so too must be the featurization scheme, in order to main
 "decodability" of features.
 """
 function AtomGraph(
-    gr::SimpleWeightedGraph{A,B},
+    graph::SimpleWeightedGraph{A,B},
     elements::Vector{String},
     features::Matrix{<:Real},
     featurization::AbstractFeaturization,
     id = "",
 ) where {B<:Real,A<:Integer}
     # check that elements is the right length
-    num_atoms = size(gr)[1]
+    num_atoms = size(graph)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
 
     # check that features is the right dimensions (# features x # nodes)
@@ -63,39 +63,39 @@ function AtomGraph(
     @assert size(features) == (expected_feature_length, num_atoms) "Feature matrix is of wrong dimension! It should be of size (# features, # nodes)"
 
     # if all these are good, calculate laplacian and build the thing
-    laplacian = normalized_laplacian(gr)
-    AtomGraph(gr, elements, laplacian, features, featurization, id)
+    laplacian = normalized_laplacian(graph)
+    AtomGraph(graph, elements, laplacian, features, featurization, id)
 end
 
 
 # one without features or featurization initialized yet
 function AtomGraph(
-    gr::SimpleWeightedGraph{A,B},
+    graph::SimpleWeightedGraph{A,B},
     elements::Vector{String},
     id = "",
 ) where {B<:Real,A<:Integer}
     # check that elements is the right length
-    num_atoms = size(gr)[1]
+    num_atoms = size(graph)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
 
-    laplacian = B.(normalized_laplacian(gr))
-    AtomGraph(gr, elements, laplacian, nothing, nothing, id)
+    laplacian = B.(normalized_laplacian(graph))
+    AtomGraph(graph, elements, laplacian, nothing, nothing, id)
 end
 
 
 # initialize directly from adjacency matrix
 AtomGraph(
-    adj::Array{R},
+    adj::Array{R1},
     elements::Vector{String},
-    features::Matrix{R},
+    features::Matrix{R2},
     featurization::AbstractFeaturization,
     id = "",
-) where {R<:Real} =
+) where {R2<:Real, R1<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), elements, features, featurization, id)
 
 
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
-    AtomGraph(SimpleWeightedGraph{R}(adj), elements, id)
+    AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
 
 # pretty printing, short version

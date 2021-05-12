@@ -4,11 +4,12 @@ using Test
 const testdir = dirname(@__FILE__)
 
 tests = [
-	"AtomFeat/atomfeat",
-	"AtomGraph/atomgraph",
+	"AtomGraph/AtomGraph_tests",
 	"AtomGraph/batch_processing",
 	"AtomGraph/graph_building",
-	"graph_visualization/graph_visualization",
+	"AtomFeature/AtomFeature_tests",
+	"AtomFeature/AtomFeatureUtils_tests",
+	# featurization
 	"Weave/smiles",
 	"Weave/featurization"
 ]
