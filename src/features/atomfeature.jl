@@ -30,14 +30,23 @@ end
 function AtomFeature(
     feature_name;
     nbins = default_nbins,
-    logspaced = default_log[feature_name],
+    logspaced = feature_name in keys(default_log) ? default_log[feature_name] : false,
+    categorical = feature_name in categorical_feature_names,
+    lookup_table = atom_data_df,
 )
-    @assert feature_name in continuous_feature_names ||
-            feature_name in categorical_feature_names "Cannot automatically build AtomFeat for $feature_name; I can't find it in a lookup table!"
+    local builtin =
+        feature_name in continuous_feature_names ||
+        feature_name in categorical_feature_names
+    if !builtin
+        @assert feature_name in names(lookup_table) "$feature_name is not a built-in feature, but you haven't provided a lookup table to find its values!"
+    end
     local vector_length
-    categorical = feature_name in categorical_feature_names
     if categorical
-        vector_length = length(categorical_feature_vals[feature_name])
+        if builtin
+            vector_length = length(categorical_feature_vals[feature_name])
+        else
+            vector_length = length(unique(lookup_table[:, Symbol(feature_name)]))
+        end
     else
         vector_length = nbins
     end
@@ -50,14 +59,40 @@ function AtomFeature(
                     feature_name;
                     nbins = nbins,
                     logspaced = logspaced,
+                    categorical = categorical,
+                    lookup_table = lookup_table,
                 ),
                 atoms.elements,
             ),
         )
     decode_f =
-        encoded ->
-            onecold_decoder(encoded, feature_name; nbins = nbins, logspaced = logspaced)
-    AtomFeature(feature_name, encode_f, decode_f, categorical, false, vector_length, ChemistryFeaturization.Utils.AtomFeatureUtils.encodable_elements(feature_name))
+        encoded -> onecold_decoder(
+            encoded,
+            feature_name;
+            nbins = nbins,
+            logspaced = logspaced,
+            categorical = categorical,
+            lookup_table = lookup_table,
+        )
+    AtomFeature(
+        feature_name,
+        encode_f,
+        decode_f,
+        categorical,
+        false,
+        vector_length,
+        ChemistryFeaturization.Utils.AtomFeatureUtils.encodable_elements(
+            feature_name,
+            lookup_table,
+        ),
+    )
+end
+
+encodable_elements(f::AtomFeature) = f.encodable_elements
+
+function (f::AtomFeature)(a::AbstractAtoms)
+    @assert all([el in f.encodable_elements for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
+    f.encode_f(a)
 end
 
 # TODO: some Weave stuff needed here

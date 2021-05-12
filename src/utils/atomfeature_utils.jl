@@ -65,13 +65,31 @@ function get_bins(
     feature_name;
     nbins = default_nbins,
     logspaced = default_log[feature_name],
+    categorical = feature_name in categorical_feature_names,
+    lookup_table = nothing,
 )
-    categorical = feature_name in categorical_feature_names
-    local bins
+    local bins, min_val, max_val
+    builtin = feature_name in avail_feature_names
+    if !builtin
+        @assert !isnothing(lookup_table) "$feature_name is not a built-in feature, but you haven't provided a lookup table to find its values!"
+    end
     if categorical
-        bins = categorical_feature_vals[feature_name]
+        if builtin
+            bins = categorical_feature_vals[feature_name]
+        else
+            bins = unique(lookup_table[:, Symbol(feature_name)])
+        end
     else
-        min_val, max_val = fea_minmax[feature_name]
+        if builtin
+            min_val, max_val = fea_minmax[feature_name]
+        else
+            min_val, max_val = [f(skipmissing(lookup_table[:, Symbol(feature_name)])) for f in [minimum, maximum]]
+        end
+        
+        if isapprox(min_val, max_val)
+            @warn "It looks like the minimum and maximum possible values of $feature_name are approximately equal. This could cause numerical issues with binning, and also this feature is likely uninformative. Perhaps reconsider if it needs to be included?"
+        end
+
         if logspaced
             @assert all(x -> x == x[1], sign.(fea_minmax[feature_name])) "I don't know how to do a logarithmically spaced feature whose value can be zero! :("
             if sign(min_val) > 0
@@ -113,22 +131,20 @@ end
 # docstring
 function onehot_lookup_encoder(
     el::String,
-    feature_name;
-    nbins = default_nbins,
-    logspaced = default_log[feature_name],
-    lookup_table = atom_data_df,
+    feature_name::String;
+    nbins::Integer = default_nbins,
+    logspaced::Bool = feature_name in keys(default_log) ? default_log[feature_name] : false,
+    categorical::Bool = feature_name in categorical_feature_names,
+    lookup_table::DataFrame = atom_data_df,
 )
-    if lookup_table == atom_data_df
-        @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own encoder function. Available built-in features are: $avail_feature_names"
-    else
-        colnames = names(lookup_table)
-        @assert feature_name in colnames & "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
-    end
-    @assert el in lookup_table.Symbol "Element $el is not in the database! :("
+    colnames = names(lookup_table)
+    @assert (feature_name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
 
     feature_vals = lookup_table[:, [:Symbol, Symbol(feature_name)]]
-    categorical = feature_name in categorical_feature_names
-    bins = get_bins(feature_name; nbins = nbins, logspaced = logspaced)
+
+    @assert el in feature_vals.Symbol "Element $el is not in the database! :("
+
+    bins = get_bins(feature_name; nbins = nbins, logspaced = logspaced, categorical = categorical, lookup_table = lookup_table)
 
     # pull value of feature for this element
     val = getproperty(feature_vals[feature_vals.Symbol.==el, :][1, :], Symbol(feature_name))
@@ -138,14 +154,20 @@ end
 # docstring
 function onecold_decoder(
     encoded,
-    feature_name;
-    nbins = default_nbins,
-    logspaced = default_log[feature_name],
+    feature_name::String;
+    nbins::Integer = default_nbins,
+    logspaced::Bool = logspaced = feature_name in keys(default_log) ? default_log[feature_name] : false,
+    categorical::Bool = feature_name in categorical_feature_names,
+    lookup_table::DataFrame = atom_data_df,
 )
-    @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own decoder function. Available built-in features are: $avail_feature_names"
+    if lookup_table == atom_data_df
+        @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own decoder function. Available built-in features are: $avail_feature_names"
+    else
+        colnames = names(lookup_table)
+        @assert feature_name in colnames & "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
+    end
 
-    bins = get_bins(feature_name; nbins = nbins, logspaced = logspaced)
-    categorical = feature_name in categorical_feature_names
+    bins = get_bins(feature_name; nbins = nbins, logspaced = logspaced, categorical = categorical, lookup_table = lookup_table)
 
     if categorical # return value
         decoded = onecold(encoded, bins)
@@ -156,8 +178,8 @@ function onecold_decoder(
 end
 
 # docstring
-function encodable_elements(feature_name::String)
-    info = atom_data_df[:, [Symbol(feature_name), :Symbol]]
+function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
+    info = lookup_table[:, [Symbol(feature_name), :Symbol]]
     return info[findall(x -> !ismissing(x), getproperty(info,Symbol(feature_name))), :Symbol]
 end
 
