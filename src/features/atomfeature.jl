@@ -31,19 +31,13 @@ end
 function AtomFeature(
     feature_name;
     nbins = default_nbins,
-    logspaced = feature_name in keys(default_log) ? default_log[feature_name] : false,
-    categorical = feature_name in categorical_feature_names,
-    custom_lookup_table::Union{Nothing,DataFrame} = nothing,
+    lookup_table::DataFrame = atom_data_df,
+    logspaced::Bool = default_log(feature_name, lookup_table),
+    categorical::Bool = default_categorical(feature_name, lookup_table)
 )
-    local lookup_table
-    if isnothing(custom_lookup_table)
-        lookup_table = atom_data_df
-    else
-        lookup_table = custom_lookup_table
-    end
-    if !(feature_name in avail_feature_names)
-        @assert feature_name in names(lookup_table) "$feature_name is not a built-in feature, but you haven't provided a lookup table to find its values!"
-    end
+    colnames = names(lookup_table)
+    @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
+
     local vector_length
     if categorical
         vector_length = length(unique(skipmissing(lookup_table[:, Symbol(feature_name)])))
@@ -60,7 +54,7 @@ function AtomFeature(
                     nbins = nbins,
                     logspaced = logspaced,
                     categorical = categorical,
-                    custom_lookup_table = custom_lookup_table,
+                    lookup_table = lookup_table,
                 ),
                 atoms.elements,
             ),
@@ -72,7 +66,7 @@ function AtomFeature(
             nbins = nbins,
             logspaced = logspaced,
             categorical = categorical,
-            custom_lookup_table = custom_lookup_table,
+            lookup_table = lookup_table,
         )
     AtomFeature(
         feature_name,

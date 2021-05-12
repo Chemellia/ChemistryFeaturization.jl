@@ -39,7 +39,7 @@ const cf = ChemistryFeaturization
 
     # and make a custom lookup table...
     df = DataFrame(:Symbol=>["C", "As"],:MeaningOfLife=>[42, 0])
-    meaning = AtomFeature("MeaningOfLife", custom_lookup_table=df)
+    meaning = AtomFeature("MeaningOfLife", lookup_table=df)
     @test meaning(triangle_C)[10,:] == ones(3)
     @test encodable_elements(meaning) == ["C", "As"]
 

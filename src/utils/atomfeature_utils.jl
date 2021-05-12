@@ -10,9 +10,9 @@ using Flux: onecold
 
 # export things
 export default_nbins, oom_threshold_log
-export atom_data_df, avail_feature_names, not_features
-export categorical_feature_names, categorical_feature_vals
-export continuous_feature_names, fea_minmax, default_log
+export atom_data_df, avail_feature_names
+export categorical_feature_names, categorical_feature_vals, continuous_feature_names
+export default_log, fea_minmax, default_categorical
 export get_bins, build_onehot_vec
 export onehot_lookup_encoder, onecold_decoder, encodable_elements
 
@@ -35,55 +35,83 @@ const categorical_feature_vals = Dict(
 # but I want blocks to be in my order
 categorical_feature_vals["Block"] = ["s", "p", "d", "f"]
 const continuous_feature_names = feature_info["continuous"]
-const not_features = feature_info["not_features"] # atomic name, symbol
 const avail_feature_names =
     cat(categorical_feature_names, continuous_feature_names; dims = 1)
 
-# compile min and max values of each feature and defaults for log-spacing...
-const fea_minmax = Dict{String,Tuple{Real,Real}}()
-const default_log = Dict{String,Bool}()
-for feature in avail_feature_names
-    if !(feature in categorical_feature_names)
-        minval = minimum(skipmissing(atom_data_df[:, feature]))
-        maxval = maximum(skipmissing(atom_data_df[:, feature]))
-        fea_minmax[feature] = (minval, maxval)
-        same_sign = all(x -> x == x[1], sign.(fea_minmax[feature]))
+# helper function
+function fea_minmax(feature_name::String,
+    lookup_table::DataFrame = atom_data_df)
+    @assert feature_name in names(lookup_table) "Feature $feature_name isn't in the lookup table!"
+    return [
+        f(skipmissing(lookup_table[:, Symbol(feature_name)])) for
+                f in [minimum, maximum]
+        ]
+end
+
+# helper function
+function default_log(feature_name::String,
+    lookup_table::DataFrame = atom_data_df;
+    threshold::Real = oom_threshold_log)
+    min_val, max_val = fea_minmax(feature_name, lookup_table)
+    local log
+    if typeof(min_val) <: Number
+        signs = sign.(fea_minmax(feature_name, lookup_table))
+        same_sign = all(x -> x == signs[1], signs)
         if same_sign
-            oom_arg = sign(minval) < 0 ? minval / maxval : maxval / minval
+            oom_arg = sign(min_val) < 0 ? min_val / max_val : max_val / min_val
             oom = log10(oom_arg)
-            default_log[feature] = oom > oom_threshold_log
+            log = oom > oom_threshold_log
         else
-            default_log[feature] = false
+            log = false
         end
     else
-        default_log[feature] = false
+        log = false
     end
+    return log
+end
+
+# helper function - if no info, be categorical for non-numbers and noncategorical for numbers
+function default_categorical(feature_name::String,
+    lookup_table::DataFrame = atom_data_df)
+    local categorical
+    if feature_name in avail_feature_names
+        if feature_name in categorical_feature_names
+            categorical = true
+        else
+            categorical = false
+        end
+    else
+        feature_type = eltype(skipmissing(lookup_table[:, Symbol(feature_name)]))
+        if feature_type <: Number
+            categorical = false
+        else
+            categorical = true
+        end
+    end
+    return categorical
 end
 
 # helper function for encoder and decoder...
 function get_bins(
     feature_name::String;
     nbins::Integer = default_nbins,
-    logspaced::Bool = feature_name in keys(default_log) ? default_log[feature_name] : false,
-    categorical::Bool = feature_name in categorical_feature_names,
     lookup_table::DataFrame = atom_data_df,
+    logspaced::Bool = default_log(feature_name, lookup_table),
+    categorical::Bool = default_categorical(feature_name, lookup_table)
 )
     local bins, min_val, max_val
 
     if categorical
         bins = unique(lookup_table[:, Symbol(feature_name)])
     else
-        min_val, max_val = [
-            f(skipmissing(lookup_table[:, Symbol(feature_name)])) for
-                f in [minimum, maximum]
-        ]
+        min_val, max_val = fea_minmax(feature_name, lookup_table)
 
         if isapprox(min_val, max_val)
             @warn "It looks like the minimum and maximum possible values of $feature_name are approximately equal. This could cause numerical issues with binning, and also this feature is likely uninformative. Perhaps reconsider if it needs to be included?"
         end
 
         if logspaced
-            @assert all(x -> x == x[1], sign.(fea_minmax[feature_name])) "I don't know how to do a logarithmically spaced feature whose value can be zero! :("
+            @assert all(x -> x == x[1], [min_val, max_val]) "I don't know how to do a logarithmically spaced feature whose value can be zero! :("
             if sign(min_val) > 0
                 bins = 10 .^ range(log10(min_val), log10(max_val), length = nbins + 1)
             else
@@ -125,16 +153,10 @@ function onehot_lookup_encoder(
     el::String,
     feature_name::String;
     nbins::Integer = default_nbins,
-    logspaced::Bool = feature_name in keys(default_log) ? default_log[feature_name] : false,
-    categorical::Bool = feature_name in categorical_feature_names,
-    custom_lookup_table::Union{Nothing,DataFrame} = nothing,
+    lookup_table::DataFrame = atom_data_df,
+    logspaced::Bool = default_log(feature_name, lookup_table),
+    categorical::Bool = default_categorical(feature_name, lookup_table)
 )
-    local lookup_table
-    if isnothing(custom_lookup_table)
-        lookup_table = atom_data_df
-    else
-        lookup_table = custom_lookup_table
-    end
     colnames = names(lookup_table)
     @assert (feature_name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
 
@@ -160,19 +182,13 @@ function onecold_decoder(
     encoded,
     feature_name::String;
     nbins::Integer = default_nbins,
-    logspaced::Bool = feature_name in keys(default_log) ? default_log[feature_name] : false,
-    categorical::Bool = feature_name in categorical_feature_names,
-    custom_lookup_table::Union{Nothing,DataFrame} = nothing,
+    lookup_table::DataFrame = atom_data_df,
+    logspaced::Bool = default_log(feature_name, lookup_table),
+    categorical::Bool = default_categorical(feature_name, lookup_table)
 )
-    local lookup_table
-    if isnothing(custom_lookup_table)
-        @assert feature_name in avail_feature_names "$feature_name is not a built-in feature, you'll have to write your own decoder function. Available built-in features are: $avail_feature_names"
-        lookup_table = atom_data_df
-    else
-        colnames = names(lookup_table)
-        @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
-        lookup_table = custom_lookup_table
-    end
+    colnames = names(lookup_table)
+    @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
+
     bins = get_bins(
         feature_name;
         nbins = nbins,
