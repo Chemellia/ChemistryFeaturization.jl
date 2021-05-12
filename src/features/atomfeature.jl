@@ -33,7 +33,7 @@ function AtomFeature(
     nbins = default_nbins,
     lookup_table::DataFrame = atom_data_df,
     logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table)
+    categorical::Bool = default_categorical(feature_name, lookup_table),
 )
     colnames = names(lookup_table)
     @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
@@ -51,10 +51,11 @@ function AtomFeature(
                 e -> onehot_lookup_encoder(
                     e,
                     feature_name;
+                    lookup_table = lookup_table,
                     nbins = nbins,
                     logspaced = logspaced,
                     categorical = categorical,
-                    lookup_table = lookup_table,
+                    
                 ),
                 atoms.elements,
             ),
@@ -63,10 +64,10 @@ function AtomFeature(
         encoded -> onecold_decoder(
             encoded,
             feature_name;
+            lookup_table = lookup_table,
             nbins = nbins,
             logspaced = logspaced,
             categorical = categorical,
-            lookup_table = lookup_table,
         )
     AtomFeature(
         feature_name,

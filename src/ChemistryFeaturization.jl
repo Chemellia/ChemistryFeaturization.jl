@@ -102,6 +102,8 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
     a.featurization = fzn
 end
 
+# TODO: featurization-level decode (bring back chunk_vec)
+
 # pretty printing for featurizations, short version
 Base.show(io::IO, fzn::AbstractFeaturization) = print(io, "$(typeof(fzn))")
 
@@ -117,9 +119,10 @@ function Base.show(io::IO, ::MIME"text/plain", fzn::AbstractFeaturization)
     print(io, st)
 end
 
-# NEXT: 
+# NEXT:
 # update tests
 # write docstrings
+# decoding for featurizations
 # graph-building stuff
 
 end

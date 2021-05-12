@@ -39,19 +39,19 @@ const avail_feature_names =
     cat(categorical_feature_names, continuous_feature_names; dims = 1)
 
 # helper function
-function fea_minmax(feature_name::String,
-    lookup_table::DataFrame = atom_data_df)
+function fea_minmax(feature_name::String, lookup_table::DataFrame = atom_data_df)
     @assert feature_name in names(lookup_table) "Feature $feature_name isn't in the lookup table!"
     return [
-        f(skipmissing(lookup_table[:, Symbol(feature_name)])) for
-                f in [minimum, maximum]
-        ]
+        f(skipmissing(lookup_table[:, Symbol(feature_name)])) for f in [minimum, maximum]
+    ]
 end
 
 # helper function
-function default_log(feature_name::String,
+function default_log(
+    feature_name::String,
     lookup_table::DataFrame = atom_data_df;
-    threshold::Real = oom_threshold_log)
+    threshold::Real = oom_threshold_log,
+)
     min_val, max_val = fea_minmax(feature_name, lookup_table)
     local log
     if typeof(min_val) <: Number
@@ -71,8 +71,7 @@ function default_log(feature_name::String,
 end
 
 # helper function - if no info, be categorical for non-numbers and noncategorical for numbers
-function default_categorical(feature_name::String,
-    lookup_table::DataFrame = atom_data_df)
+function default_categorical(feature_name::String, lookup_table::DataFrame = atom_data_df)
     local categorical
     if feature_name in avail_feature_names
         if feature_name in categorical_feature_names
@@ -94,10 +93,10 @@ end
 # helper function for encoder and decoder...
 function get_bins(
     feature_name::String;
-    nbins::Integer = default_nbins,
     lookup_table::DataFrame = atom_data_df,
+    nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table)
+    categorical::Bool = default_categorical(feature_name, lookup_table),
 )
     local bins, min_val, max_val
 
@@ -152,12 +151,13 @@ end
 function onehot_lookup_encoder(
     el::String,
     feature_name::String;
-    nbins::Integer = default_nbins,
     lookup_table::DataFrame = atom_data_df,
+    nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table)
+    categorical::Bool = default_categorical(feature_name, lookup_table),
 )
     colnames = names(lookup_table)
+    @assert (feature_name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
     @assert (feature_name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
 
     feature_vals = lookup_table[:, [:Symbol, Symbol(feature_name)]]
@@ -184,7 +184,7 @@ function onecold_decoder(
     nbins::Integer = default_nbins,
     lookup_table::DataFrame = atom_data_df,
     logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table)
+    categorical::Bool = default_categorical(feature_name, lookup_table),
 )
     colnames = names(lookup_table)
     @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
