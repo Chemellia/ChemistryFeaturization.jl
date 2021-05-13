@@ -100,7 +100,7 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
     # encode each feature in that list and assign the results to the
     # field of the same name in `a`
     for feats_list in fieldnames(typeof(fzn))
-        encoded = reduce(vcat, map((x) -> x(a), getproperty(fzn,feats_list)))
+        encoded = reduce(vcat, map((x) -> x(a), getproperty(fzn, feats_list)))
         setproperty!(a, feats_list, encoded)
     end
     a.featurization = fzn

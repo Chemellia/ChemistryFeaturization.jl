@@ -24,29 +24,36 @@ function GraphNodeFeaturization(
         lookup_table_here = atom_data_df
     else
         # need to merge them in case some data is in one place and some the other
-        lookup_table_here = outerjoin(atom_data_df, lookup_table, on=:Symbol)
+        lookup_table_here = outerjoin(atom_data_df, lookup_table, on = :Symbol)
     end
 
     if isnothing(logspaced)
-        logspaced_here = map(fn->default_log(fn, lookup_table_here), feature_names)
+        logspaced_here = map(fn -> default_log(fn, lookup_table_here), feature_names)
     else
         logspaced_here = get_param_vec(logspaced, num_features)
     end
 
     if isnothing(categorical)
-        categorical_here = map(fn->default_categorical(fn, lookup_table_here), feature_names)
+        categorical_here =
+            map(fn -> default_categorical(fn, lookup_table_here), feature_names)
     else
         categorical_here = get_param_vec(categorical, num_features)
     end
 
     if isnothing(nbins)
-        nbins_here = [default_nbins for i in 1:num_features]
+        nbins_here = [default_nbins for i = 1:num_features]
     else
-        nbins_here = get_param_vec(nbins, num_features, pad_val=default_nbins)
+        nbins_here = get_param_vec(nbins, num_features, pad_val = default_nbins)
     end
 
     afs = map(zip(feature_names, nbins_here, logspaced_here, categorical_here)) do args
-        AtomFeature(args[1], lookup_table_here, nbins = args[2], logspaced = args[3], categorical=args[4])
+        AtomFeature(
+            args[1],
+            lookup_table_here,
+            nbins = args[2],
+            logspaced = args[3],
+            categorical = args[4],
+        )
     end
     GraphNodeFeaturization(afs)
 end
@@ -57,7 +64,7 @@ end
 encodable_elements(fzn::GraphNodeFeaturization) =
     intersect([f.encodable_elements for f in fzn.atom_features]...)
 
-    """
+"""
     chunk_vec(vec, nbins)
 
 Divide up an already-constructed feature vector into "chunks" (presumably one for each feature) of lengths specified by the vector nbins.
@@ -79,7 +86,7 @@ function chunk_vec(vec::Vector{<:Real}, nbins::Vector{<:Integer})
         if i==1
             start_ind = 1
         else
-            start_ind = sum(nbins[1:i-1])+1
+            start_ind = sum(nbins[1:i-1]) + 1
         end
         chunks[i] = vec[start_ind:start_ind+nbins[i]-1]
     end
@@ -87,12 +94,12 @@ function chunk_vec(vec::Vector{<:Real}, nbins::Vector{<:Integer})
 end
 
 function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
-    num_atoms = size(encoded,2)
+    num_atoms = size(encoded, 2)
     nbins = [f.length for f in fzn.atom_features]
     local decoded = Dict{Integer,Dict{String,Any}}()
-    for i=1:num_atoms
+    for i = 1:num_atoms
         #println("atom $i")
-        chunks = chunk_vec(encoded[:,i], nbins)
+        chunks = chunk_vec(encoded[:, i], nbins)
         decoded[i] = Dict{String,Any}()
         for (chunk, f) in zip(chunks, fzn.atom_features)
             #println("    $(f.name): $(decode(f, chunk))")

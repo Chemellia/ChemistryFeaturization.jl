@@ -71,14 +71,14 @@ function default_log(
 end
 
 "Little helper function to check that the logspace/categorical vector/boolean is appropriate and convert it to a vector as needed."
-function get_param_vec(vec, num_features::Integer; pad_val=false)
-    if typeof(vec)<:Number # not a vector
-        output_vec = [vec for i in 1:num_features]
+function get_param_vec(vec, num_features::Integer; pad_val = false)
+    if typeof(vec) <: Number # not a vector
+        output_vec = [vec for i = 1:num_features]
     elseif length(vec) == num_features # specified properly
         output_vec = vec
     elseif length(vec) < num_features
         println("Parameter vector too short. Padding end with $pad_val.")
-        output_vec = vcat(vec, [pad_val for i in 1:num_features-size(vec,1)])
+        output_vec = vcat(vec, [pad_val for i = 1:num_features-size(vec, 1)])
     elseif size(vec, 1) > num_features
         println("Parameter vector too long. Cutting off at appropriate length.")
         output_vec = vec[1:num_features]
