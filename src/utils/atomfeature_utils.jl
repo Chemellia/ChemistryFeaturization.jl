@@ -55,12 +55,12 @@ function default_log(
     min_val, max_val = fea_minmax(feature_name, lookup_table)
     local log
     if typeof(min_val) <: Number
-        signs = sign.(fea_minmax(feature_name, lookup_table))
+        signs = sign.([min_val, max_val])
         same_sign = all(x -> x == signs[1], signs)
         if same_sign
             oom_arg = sign(min_val) < 0 ? min_val / max_val : max_val / min_val
             oom = log10(oom_arg)
-            log = oom > oom_threshold_log
+            log = oom > threshold
         else
             log = false
         end
@@ -68,22 +68,6 @@ function default_log(
         log = false
     end
     return log
-end
-
-"Little helper function to check that the logspace/categorical vector/boolean is appropriate and convert it to a vector as needed."
-function get_param_vec(vec, num_features::Integer; pad_val = false)
-    if typeof(vec) <: Number # not a vector
-        output_vec = [vec for i = 1:num_features]
-    elseif length(vec) == num_features # specified properly
-        output_vec = vec
-    elseif length(vec) < num_features
-        println("Parameter vector too short. Padding end with $pad_val.")
-        output_vec = vcat(vec, [pad_val for i = 1:num_features-size(vec, 1)])
-    elseif size(vec, 1) > num_features
-        println("Parameter vector too long. Cutting off at appropriate length.")
-        output_vec = vec[1:num_features]
-    end
-    return output_vec
 end
 
 # helper function - if no info, be categorical for non-numbers and noncategorical for numbers
@@ -106,7 +90,23 @@ function default_categorical(feature_name::String, lookup_table::DataFrame = ato
     return categorical
 end
 
-# helper function for encoder and decoder...
+"Little helper function to check that the logspace/categorical vector/boolean is appropriate and convert it to a vector as needed."
+function get_param_vec(vec, num_features::Integer; pad_val = false)
+    if !(typeof(vec) <: Vector)
+        output_vec = [vec for i = 1:num_features]
+    elseif length(vec) == num_features # specified properly
+        output_vec = vec
+    elseif length(vec) < num_features
+        @info "Parameter vector too short. Padding end with $pad_val."
+        output_vec = vcat(vec, [pad_val for i = 1:num_features-size(vec, 1)])
+    elseif size(vec, 1) > num_features
+        @info "Parameter vector too long. Cutting off at appropriate length."
+        output_vec = vec[1:num_features]
+    end
+    return output_vec
+end
+
+# helper function for encoder and decoder...(nbins is ignored for categorical=true)
 function get_bins(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
@@ -116,8 +116,12 @@ function get_bins(
 )
     local bins, min_val, max_val
 
-    if categorical # ignores nbins
-        bins = unique(skipmissing(lookup_table[:, Symbol(feature_name)]))
+    if categorical
+        if feature_name in categorical_feature_names
+            bins = categorical_feature_vals[feature_name]
+        else
+            bins = sort(unique(skipmissing(lookup_table[:, Symbol(feature_name)])))
+        end
     else
         min_val, max_val = fea_minmax(feature_name, lookup_table)
 
@@ -126,7 +130,7 @@ function get_bins(
         end
 
         if logspaced
-            @assert all(x -> x == x[1], [min_val, max_val]) "I don't know how to do a logarithmically spaced feature whose value can be zero! :("
+            @assert all(x -> sign(x) == sign(min_val), [min_val, max_val]) "I don't know how to do a logarithmically spaced feature whose value can be zero! :("
             if sign(min_val) > 0
                 bins = 10 .^ range(log10(min_val), log10(max_val), length = nbins + 1)
             else

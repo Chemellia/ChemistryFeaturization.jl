@@ -4,14 +4,13 @@ using Test
 const testdir = dirname(@__FILE__)
 
 tests = [
-	"AtomGraph/AtomGraph_tests",
-	"AtomGraph/batch_processing",
-	"AtomGraph/graph_building",
-	"AtomFeature/AtomFeature_tests",
-	"AtomFeature/AtomFeatureUtils_tests",
-	# featurization
-	"Weave/smiles",
-	"Weave/featurization"
+	"utils/AtomFeatureUtils_tests",
+	#"atoms/AtomGraph/AtomGraph_tests",
+	#"atoms/AtomGraph/graph_building",
+	#"atoms/AtomGraph/batch_processing",
+	"features/AtomFeature_tests",
+	"featurizations/GraphNodeFeaturization_tests",
+	# Weave stuff
 ]
 
 @testset "ChemistryFeaturization" begin

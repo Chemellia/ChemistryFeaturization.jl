@@ -112,7 +112,7 @@ end
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n   feature vector length: "
     if isnothing(ag.featurization)
-        st = string(st, "uninitialized\n   encoded features: uninitialized")
+        st = string(st, "uninitialized\n   featurization: uninitialized")
     else
         st =
             string(st, "$(size(ag.atom_features)[1])\n   featurization: ", ag.featurization)
