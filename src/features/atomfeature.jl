@@ -29,9 +29,9 @@ end
 
 # docstring
 function AtomFeature(
-    feature_name;
+    feature_name,
+    lookup_table::DataFrame = atom_data_df;
     nbins = default_nbins,
-    lookup_table::DataFrame = atom_data_df,
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )

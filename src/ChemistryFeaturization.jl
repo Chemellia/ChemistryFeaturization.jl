@@ -77,11 +77,15 @@ function decode(f::AbstractFeature, encoded_feature)
 end
 
 #= FEATURIZATION OBJECTS
-All such objects should define at least one list of <: AbstractFeature objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed.
+All such objects should define at least one list of <: AbstractFeature objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed. You should also dispatch the decode function, for which a generic implementation does not currently exist.
+
+TODO: generic decode, maybe
 =#
 
 # export...
-export GraphNodeFeaturization, WeaveFeaturization, featurize!
+export GraphNodeFeaturization, decode
+export encodable_elements, featurize!
+export WeaveFeaturization
 
 # include...
 include("featurizations/graphnodefeaturization.jl")
@@ -102,7 +106,11 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
     a.featurization = fzn
 end
 
-# TODO: featurization-level decode (bring back chunk_vec)
+# generic decode
+function decode(fzn::AbstractFeaturization, encoded)
+    println("Implement me please!")
+end
+
 
 # pretty printing for featurizations, short version
 Base.show(io::IO, fzn::AbstractFeaturization) = print(io, "$(typeof(fzn))")

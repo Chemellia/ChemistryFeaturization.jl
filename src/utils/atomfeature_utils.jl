@@ -70,6 +70,22 @@ function default_log(
     return log
 end
 
+"Little helper function to check that the logspace/categorical vector/boolean is appropriate and convert it to a vector as needed."
+function get_param_vec(vec, num_features::Integer; pad_val=false)
+    if typeof(vec)<:Number # not a vector
+        output_vec = [vec for i in 1:num_features]
+    elseif length(vec) == num_features # specified properly
+        output_vec = vec
+    elseif length(vec) < num_features
+        println("Parameter vector too short. Padding end with $pad_val.")
+        output_vec = vcat(vec, [pad_val for i in 1:num_features-size(vec,1)])
+    elseif size(vec, 1) > num_features
+        println("Parameter vector too long. Cutting off at appropriate length.")
+        output_vec = vec[1:num_features]
+    end
+    return output_vec
+end
+
 # helper function - if no info, be categorical for non-numbers and noncategorical for numbers
 function default_categorical(feature_name::String, lookup_table::DataFrame = atom_data_df)
     local categorical
@@ -92,16 +108,16 @@ end
 
 # helper function for encoder and decoder...
 function get_bins(
-    feature_name::String;
-    lookup_table::DataFrame = atom_data_df,
+    feature_name::String,
+    lookup_table::DataFrame = atom_data_df;
     nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
     local bins, min_val, max_val
 
-    if categorical
-        bins = unique(lookup_table[:, Symbol(feature_name)])
+    if categorical # ignores nbins
+        bins = unique(skipmissing(lookup_table[:, Symbol(feature_name)]))
     else
         min_val, max_val = fea_minmax(feature_name, lookup_table)
 
@@ -165,11 +181,11 @@ function onehot_lookup_encoder(
     @assert el in feature_vals.Symbol "Element $el is not in the database! :("
 
     bins = get_bins(
-        feature_name;
+        feature_name,
+        lookup_table;
         nbins = nbins,
         logspaced = logspaced,
         categorical = categorical,
-        lookup_table = lookup_table,
     )
 
     # pull value of feature for this element
@@ -190,11 +206,11 @@ function onecold_decoder(
     @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
 
     bins = get_bins(
-        feature_name;
+        feature_name,
+        lookup_table;
         nbins = nbins,
         logspaced = logspaced,
         categorical = categorical,
-        lookup_table = lookup_table,
     )
     local decoded
     if categorical # return value
