@@ -50,8 +50,8 @@ function AtomFeature(
             map(
                 e -> onehot_lookup_encoder(
                     e,
-                    feature_name;
-                    lookup_table = lookup_table,
+                    feature_name,
+                    lookup_table;
                     nbins = nbins,
                     logspaced = logspaced,
                     categorical = categorical,
@@ -63,8 +63,8 @@ function AtomFeature(
     decode_f =
         encoded -> onecold_decoder(
             encoded,
-            feature_name;
-            lookup_table = lookup_table,
+            feature_name,
+            lookup_table;
             nbins = nbins,
             logspaced = logspaced,
             categorical = categorical,
@@ -76,7 +76,7 @@ function AtomFeature(
         categorical,
         false,
         vector_length,
-        ChemistryFeaturization.Utils.AtomFeatureUtils.encodable_elements(
+        encodable_elements(
             feature_name,
             lookup_table,
         ),
@@ -84,6 +84,15 @@ function AtomFeature(
 end
 
 encodable_elements(f::AtomFeature) = f.encodable_elements
+
+# docstring
+function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
+    info = lookup_table[:, [Symbol(feature_name), :Symbol]]
+    return info[
+        findall(x -> !ismissing(x), getproperty(info, Symbol(feature_name))),
+        :Symbol,
+    ]
+end
 
 function (f::AtomFeature)(a::AbstractAtoms)
     @assert all([el in f.encodable_elements for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"

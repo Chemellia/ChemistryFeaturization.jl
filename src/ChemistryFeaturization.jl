@@ -58,6 +58,7 @@ All subtypes should have `encode_f` and `decode_f` fields
 
 # export...
 export AtomFeature, PairFeature
+export encodable_elements
 
 # include...
 include("features/atomfeature.jl")

@@ -8,7 +8,7 @@ using ChemistryFeaturization
 
 @testset "AtomGraph" begin
 
-    @testset "construct" begin
+    @testset "construct_object" begin
         # build a silly little triangle graph
         adj = Float32.([0 1 1; 1 0 1; 1 1 0])
         g = SimpleWeightedGraph{Int32}(adj)
@@ -56,4 +56,13 @@ using ChemistryFeaturization
         # visualize_graph yet to be tested
     end
 
+    @testset "batch_processing" begin
+
+    end
+
+    @testset "build_adjacency_matrix" begin
+
+    end
+
 end
+

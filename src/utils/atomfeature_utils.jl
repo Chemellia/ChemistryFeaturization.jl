@@ -155,6 +155,8 @@ function build_onehot_vec(val, bins, categorical)
         onehot_vec = [0.0 for i = 1:length(bins)]
         bin_index = findfirst(isequal(val), bins)
     else
+        @assert eltype(bins)<:Number "Your bins aren't numbers...are you sure you didn't mean for this feature to be categorical?"
+        @assert bins[1] <= val <= bins[end] "The value $val is outside the range of bins $bins"
         onehot_vec = [0.0 for i = 1:(length(bins)-1)]
         bin_index = searchsorted(bins, val).stop
         if bin_index == length(bins) # got the max value
@@ -170,14 +172,13 @@ end
 # docstring
 function onehot_lookup_encoder(
     el::String,
-    feature_name::String;
-    lookup_table::DataFrame = atom_data_df,
+    feature_name::String,
+    lookup_table::DataFrame = atom_data_df;
     nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
     colnames = names(lookup_table)
-    @assert (feature_name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
     @assert (feature_name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
 
     feature_vals = lookup_table[:, [:Symbol, Symbol(feature_name)]]
@@ -200,9 +201,9 @@ end
 # docstring
 function onecold_decoder(
     encoded,
-    feature_name::String;
+    feature_name::String,
+    lookup_table::DataFrame = atom_data_df;
     nbins::Integer = default_nbins,
-    lookup_table::DataFrame = atom_data_df,
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
@@ -223,15 +224,6 @@ function onecold_decoder(
         decoded = (onecold(encoded, bins[1:end-1]), onecold(encoded, bins[2:end]))
     end
     return decoded
-end
-
-# docstring
-function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
-    info = lookup_table[:, [Symbol(feature_name), :Symbol]]
-    return info[
-        findall(x -> !ismissing(x), getproperty(info, Symbol(feature_name))),
-        :Symbol,
-    ]
 end
 
 end

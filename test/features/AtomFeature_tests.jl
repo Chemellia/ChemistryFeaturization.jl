@@ -42,6 +42,7 @@ const cf = ChemistryFeaturization
     meaning = AtomFeature("MeaningOfLife", df)
     @test meaning(triangle_C)[10, :] == ones(3)
     @test encodable_elements(meaning) == ["C", "As"]
+    @test encodable_elements("MeaningOfLife", df) == ["C", "As"]
 
     # make a totally custom one, with a silly encode/decode
     element_encoder(element::String) = length(element)
