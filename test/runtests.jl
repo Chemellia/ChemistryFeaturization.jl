@@ -5,9 +5,8 @@ const testdir = dirname(@__FILE__)
 
 tests = [
 	"utils/AtomFeatureUtils_tests",
-	#"atoms/AtomGraph/AtomGraph_tests",
-	#"atoms/AtomGraph/graph_building",
-	#"atoms/AtomGraph/batch_processing",
+	"utils/GraphBuilding_tests",
+	"atoms/AtomGraph_tests",
 	"features/AtomFeature_tests",
 	"featurizations/GraphNodeFeaturization_tests",
 	# Weave stuff
