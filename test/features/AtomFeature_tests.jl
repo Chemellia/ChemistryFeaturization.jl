@@ -1,5 +1,6 @@
 using Test
 using DataFrames
+using CSV
 const cf = ChemistryFeaturization
 
 @testset "AtomFeature" begin
@@ -34,15 +35,18 @@ const cf = ChemistryFeaturization
     block = AtomFeature("Block", nbins = 5)
     triangle_C = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
     @test X(triangle_C)[6, :] == ones(3)
-    # TODO: decoded values
     @test block(triangle_C)[2, :] == ones(3)
+    true_X = atom_data_df.X[6]
+    decoded_X_range = decode(X, X(triangle_C)[:, 1])
+    @test decoded_X_range[1] < true_X < decoded_X_range[2]
+    @test decode(block, block(triangle_C)) == ["p", "p", "p"]
 
     # and make a custom lookup table...
-    df = DataFrame(:Symbol => ["C", "As"], :MeaningOfLife => [42, 0])
+    df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
     meaning = AtomFeature("MeaningOfLife", df)
     @test meaning(triangle_C)[10, :] == ones(3)
-    @test encodable_elements(meaning) == ["C", "As"]
-    @test encodable_elements("MeaningOfLife", df) == ["C", "As"]
+    @test encodable_elements(meaning) == ["C", "As", "Tc"]
+    @test encodable_elements("MeaningOfLife", df) == ["C", "As", "Tc"]
 
     # make a totally custom one, with a silly encode/decode
     element_encoder(element::String) = length(element)

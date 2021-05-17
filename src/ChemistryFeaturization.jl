@@ -106,13 +106,18 @@ function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
         setproperty!(a, feats_list, encoded)
     end
     a.featurization = fzn
+    return
 end
+
+# dispatch some things so that featurize!.(::Vector{AbstractAtoms}, ::AbstractFeaturization) will work...
+Base.iterate(fzn::AbstractFeaturization) = (fzn, nothing)
+Base.iterate(fzn::AbstractFeaturization, state) = nothing
+Base.length(fzn::AbstractFeaturization) = 1
 
 # generic decode
 function decode(fzn::AbstractFeaturization, encoded)
     println("Implement me please!")
 end
-
 
 # pretty printing for featurizations, short version
 Base.show(io::IO, fzn::AbstractFeaturization) = print(io, "$(typeof(fzn))")
@@ -132,7 +137,5 @@ end
 # NEXT:
 # update tests
 # write docstrings
-# decoding for featurizations
-# graph-building stuff
 
 end

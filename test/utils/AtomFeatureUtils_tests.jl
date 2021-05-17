@@ -1,19 +1,11 @@
 using Test
 using DataFrames
+using CSV
 const cf = ChemistryFeaturization
 const afu = ChemistryFeaturization.Utils.AtomFeatureUtils
 
 @testset "AtomFeatureUtils" begin
-    # one function at a time...
-
-    # first make a dummy lookup table we'll use a few times...
-    df = DataFrame(
-        :Symbol => ["C", "As", "Tc"],
-        :MeaningOfLife => [42, 0, -1],
-        :first_letter => ['C', 'A', 'T'],
-        :neg_nums => [-1, -10, -1000],
-        :noarsenic => [1, missing, 2],
-    )
+    df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
 
     # fea_minmax
     @test_throws AssertionError fea_minmax("heffalump")
@@ -24,7 +16,7 @@ const afu = ChemistryFeaturization.Utils.AtomFeatureUtils
     @test default_log("Block") == false # not numbers
     @test default_log("MeaningOfLife", df) == false # values span 0
     @test default_log("Valence") == false # extremal value 0
-    @test default_log("Atomic mass") == true 
+    @test default_log("Atomic mass") == true
     @test default_log("Atomic mass", threshold = 3) == false
     # default_log
     @test default_log("Block") == false # not numbers
@@ -41,7 +33,7 @@ const afu = ChemistryFeaturization.Utils.AtomFeatureUtils
     @test afu.get_param_vec([false, false, false], 2) == [false, false]
     @test afu.get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
     @test afu.get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
-    @test afu.get_param_vec('a', 3, pad_val = 'b') == ['a','a','a']
+    @test afu.get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
 
     @test afu.get_param_vec([false, false], 3) == [false, false, false]
     @test afu.get_param_vec([false, false, false], 2) == [false, false]
@@ -51,7 +43,7 @@ const afu = ChemistryFeaturization.Utils.AtomFeatureUtils
 
     # get_bins
     @test get_bins("Block") == ["s", "p", "d", "f"]
-    @test get_bins("first_letter", df) == ['A', 'C', 'T']
+    @test get_bins("first_letter", df) == ["A", "C", "T"]
     @test get_bins("Group", categorical = false, nbins = 2) == 1.0:8.5:18.0
     @test get_bins("MeaningOfLife", df, categorical = true) == [-1, 0, 42]
     logbins = get_bins("Atomic mass")
@@ -79,7 +71,7 @@ const afu = ChemistryFeaturization.Utils.AtomFeatureUtils
     # onehot_lookup_encoder
     @test onehot_lookup_encoder("C", "Block") == [0, 1, 0, 0]
     @test onehot_lookup_encoder("C", "Row")[2] == 1
-    @test onehot_lookup_encoder("C", "MeaningOfLife", df, nbins=4) == [0, 0, 0, 1]
+    @test onehot_lookup_encoder("C", "MeaningOfLife", df, nbins = 4) == [0, 0, 0, 1]
     @test_throws TypeError onehot_lookup_encoder("He", "X")
     @test_throws TypeError onehot_lookup_encoder("As", "noarsenic", df)
     @test_throws AssertionError onehot_lookup_encoder("C", "heffalump")
@@ -88,7 +80,11 @@ const afu = ChemistryFeaturization.Utils.AtomFeatureUtils
     # onecold_decoder
     @test onecold_decoder([0, 1, 0, 0], "Block") == "p"
     @test onecold_decoder([0 1; 1 0; 0 0; 0 0], "Block") == ["p", "s"]
-    decoded = onecold_decoder(onehot_lookup_encoder("As", "MeaningOfLife", df), "MeaningOfLife", df)
+    decoded = onecold_decoder(
+        onehot_lookup_encoder("As", "MeaningOfLife", df),
+        "MeaningOfLife",
+        df,
+    )
     @test decoded[1] <= 0 < decoded[2]
     @test_throws AssertionError onecold_decoder([1, 0, 0], "heffalump")
 

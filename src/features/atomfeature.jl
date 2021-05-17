@@ -18,15 +18,6 @@ struct AtomFeature <: AbstractFeature
     encodable_elements::Vector{String}
 end
 
-# pretty printing, short version
-Base.show(io::IO, af::AtomFeature) = print(io, "AtomFeature $(af.name)")
-
-# pretty printing, long version
-function Base.show(io::IO, ::MIME"text/plain", af::AtomFeature)
-    st = "AtomFeature $(af.name):\n   categorical: $(af.categorical)\n   contextual: $(af.contextual)\n   encoded length: $(af.length)"
-    print(io, st)
-end
-
 # docstring
 function AtomFeature(
     feature_name,
@@ -81,6 +72,15 @@ function AtomFeature(
             lookup_table,
         ),
     )
+end
+
+# pretty printing, short version
+Base.show(io::IO, af::AtomFeature) = print(io, "AtomFeature $(af.name)")
+
+# pretty printing, long version
+function Base.show(io::IO, ::MIME"text/plain", af::AtomFeature)
+    st = "AtomFeature $(af.name):\n   categorical: $(af.categorical)\n   contextual: $(af.contextual)\n   encoded length: $(af.length)"
+    print(io, st)
 end
 
 encodable_elements(f::AtomFeature) = f.encodable_elements

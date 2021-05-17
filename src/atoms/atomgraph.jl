@@ -113,7 +113,7 @@ function AtomGraph(
 )
 
     local ag
-    local to_build_graph
+    local to_build_graph = true
     to_serialize = !isnothing(output_file_path)
 
     if to_serialize
@@ -122,17 +122,14 @@ function AtomGraph(
                 @info "Output file already exists and `overwrite_file` is set to false; returning deserialized AtomGraph at $output_file_path. If you wanted to rebuild the graph, set `overwrite=true`."
                 to_build_graph = false
                 ag = deserialize(output_file_path)
-            else
-                to_build_graph = true
             end
-        else
-            to_build_graph = true
         end
     end
 
     if to_build_graph
-        if splitext(input_file_path)[2] == "jls"
+        if splitext(input_file_path)[end] == ".jls"
             ag = deserialize(input_file_path)
+            ag.id = id
         else
             try
                 ag = AtomGraph(
@@ -147,8 +144,8 @@ function AtomGraph(
                     id,
                 )
             catch
-                @warn "Unable to build graph for $file"
-                return nothing
+                @warn "Unable to build graph for $input_file_path"
+                return missing
             end
         end
     end

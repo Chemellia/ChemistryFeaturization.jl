@@ -67,7 +67,7 @@ encodable_elements(fzn::GraphNodeFeaturization) =
 """
     chunk_vec(vec, nbins)
 
-Divide up an already-constructed feature vector into "chunks" (presumably one for each feature) of lengths specified by the vector nbins.
+Helper function that divides up an already-constructed feature vector into "chunks" (one for each feature) of lengths specified by the vector nbins.
 
 Sum of nbins should be equal to the length of vec.
 
