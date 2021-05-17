@@ -33,12 +33,19 @@ Function to build graph from a file storing a crystal structure (currently suppo
 - `dist_decay_func::Function=inverse_square`: function to determine falloff of graph edge weights with neighbor distance
 
 """
-function build_graph(file_path::String; use_voronoi::Bool=false, cutoff_radius::Real=8.0, max_num_nbr::Integer=12, dist_decay_func::Function=inverse_square, normalize_weights::Bool=true)
+function build_graph(
+    file_path::String;
+    use_voronoi::Bool = false,
+    cutoff_radius::Real = 8.0,
+    max_num_nbr::Integer = 12,
+    dist_decay_func::Function = inverse_square,
+    normalize_weights::Bool = true,
+)
     aseio = pyimport_conda("ase.io", "ase", "conda-forge")
     atoms_object = aseio.read(file_path)
 
     # list of atom symbols
-    atom_ids = [get(atoms_object, i-1).symbol for i=1:length(atoms_object)]
+    atom_ids = [get(atoms_object, i - 1).symbol for i = 1:length(atoms_object)]
 
     # check if any nonperiodic BC's
     nonpbc = any(.!atoms_object.pbc)
@@ -85,7 +92,7 @@ function weights_cutoff(is, js, dists; max_num_nbr=12, dist_decay_func=inverse_s
     # iterate over list of tuples to build edge weights...
     # note that neighbor list double counts so we only have to increment one counter per pair
     weight_mat = zeros(Float32, num_atoms, num_atoms)
-    for (i,j,d) in ijd
+    for (i, j, d) in ijd
         # if we're under the max OR if it's at the same distance as the previous one
         if nb_counts[i] < max_num_nbr || isapprox(longest_dists[i], d)
             weight_mat[i, j] += dist_decay_func(d)
@@ -122,7 +129,7 @@ function weights_voronoi(struc)
     end
 
     # average across diagonal (because neighborness isn't strictly symmetric in the way we're defining it here)
-    weight_mat = 0.5.* (weight_mat .+ weight_mat')
+    weight_mat = 0.5 .* (weight_mat .+ weight_mat')
 end
 
 # TODO: graphs from SMILES via OpenSMILES.jl

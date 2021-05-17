@@ -92,23 +92,25 @@ AtomGraph(
     features::Matrix{R2},
     featurization::AbstractFeaturization,
     id = "",
-) where {R2<:Real, R1<:Real} =
+) where {R2<:Real,R1<:Real} =
     AtomGraph(SimpleWeightedGraph{R}(adj), elements, features, featurization, id)
 
 
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
-function AtomGraph(input_file_path::String,
+function AtomGraph(
+    input_file_path::String,
     id::String = "",
-    output_file_path::Union{String, Nothing} = nothing,
-    featurization::Union{AbstractFeaturization, Nothing} = nothing;
+    output_file_path::Union{String,Nothing} = nothing,
+    featurization::Union{AbstractFeaturization,Nothing} = nothing;
     overwrite_file::Bool = false,
     use_voronoi::Bool = false,
     cutoff_radius::Real = 8.0,
     max_num_nbr::Integer = 12,
     dist_decay_func::Function = inverse_square,
-    normalize_weights::Bool = true)
+    normalize_weights::Bool = true,
+)
 
     local ag
     local to_build_graph
@@ -127,13 +129,23 @@ function AtomGraph(input_file_path::String,
             to_build_graph = true
         end
     end
-    
+
     if to_build_graph
         if splitext(input_file_path)[2] == "jls"
             ag = deserialize(input_file_path)
         else
             try
-                ag = AtomGraph(build_graph(input_file_path, use_voronoi = use_voronoi, cutoff_radius = cutoff_radius, max_num_nbr = max_num_nbr, dist_decay_func = dist_decay_func, normalize_weights = normalize_weights)..., id)
+                ag = AtomGraph(
+                    build_graph(
+                        input_file_path,
+                        use_voronoi = use_voronoi,
+                        cutoff_radius = cutoff_radius,
+                        max_num_nbr = max_num_nbr,
+                        dist_decay_func = dist_decay_func,
+                        normalize_weights = normalize_weights,
+                    )...,
+                    id,
+                )
             catch
                 @warn "Unable to build graph for $file"
                 return nothing

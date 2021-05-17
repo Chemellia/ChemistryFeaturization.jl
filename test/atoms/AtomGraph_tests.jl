@@ -24,7 +24,9 @@ using Serialization
         # TODO: this
 
         # test that warning is thrown for NaNs in laplacian
-        @test_throws ArgumentError AtomGraph(build_graph(abspath(@__DIR__, "../test_data", "nanlaplstruc.cif"))...)
+        @test_throws ArgumentError AtomGraph(
+            build_graph(abspath(@__DIR__, "../test_data", "nanlaplstruc.cif"))...,
+        )
     end
 
     @testset "save/load" begin
@@ -42,12 +44,10 @@ using Serialization
         adj = Float32.([0 1 2; 1 0 1; 2 1 0])
         g = SimpleWeightedGraph{Int32}(adj)
         e_adj = [e for e in edges(g)]
-        
+
         @test ChemistryFeaturization.lt_edge(e_adj[2], e_adj[3]) == true # e1.src < e2.src
         @test ChemistryFeaturization.lt_edge(e_adj[1], e_adj[2]) == true # e1.dest < e2.dest
         @test ChemistryFeaturization.lt_edge(e_adj[3], e_adj[2]) == false
-
-        # test graph_edgewidths
         adj = Float32.([0 1 1; 1 0 1; 1 1 0])
         g = SimpleWeightedGraph{Int32}(adj)
         ag = AtomGraph(g, ["C", "C", "C"])
