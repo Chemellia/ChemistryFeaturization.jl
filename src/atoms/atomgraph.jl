@@ -3,6 +3,8 @@ using SimpleWeightedGraphs
 using LinearAlgebra
 using GraphPlot
 using Colors
+using Serialization
+using ..ChemistryFeaturization.Utils.GraphBuilding
 
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 """
@@ -50,7 +52,7 @@ features are provided, so too must be the featurization scheme, in order to main
 function AtomGraph(
     graph::SimpleWeightedGraph{A,B},
     elements::Vector{String},
-    features::Matrix{<:Real},
+    features::Matrix{<:Real}, # this only works for node-only features
     featurization::AbstractFeaturization,
     id = "",
 ) where {B<:Real,A<:Integer}
@@ -97,6 +99,58 @@ AtomGraph(
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
+function AtomGraph(input_file_path::String,
+    id::String = "",
+    output_file_path::Union{String, Nothing} = nothing,
+    featurization::Union{AbstractFeaturization, Nothing} = nothing;
+    overwrite_file::Bool = false,
+    use_voronoi::Bool = false,
+    cutoff_radius::Real = 8.0,
+    max_num_nbr::Integer = 12,
+    dist_decay_func::Function = inverse_square,
+    normalize_weights::Bool = true)
+
+    local ag
+    local to_build_graph
+    to_serialize = !isnothing(output_file_path)
+
+    if to_serialize
+        if isfile(output_file_path)
+            if overwrite_file
+                @info "Output file already exists and `overwrite_file` is set to false; returning deserialized AtomGraph at $output_file_path. If you wanted to rebuild the graph, set `overwrite=true`."
+                to_build_graph = false
+                ag = deserialize(output_file_path)
+            else
+                to_build_graph = true
+            end
+        else
+            to_build_graph = true
+        end
+    end
+    
+    if to_build_graph
+        if splitext(input_file_path)[2] == "jls"
+            ag = deserialize(input_file_path)
+        else
+            try
+                ag = AtomGraph(build_graph(input_file_path, use_voronoi = use_voronoi, cutoff_radius = cutoff_radius, max_num_nbr = max_num_nbr, dist_decay_func = dist_decay_func, normalize_weights = normalize_weights)..., id)
+            catch
+                @warn "Unable to build graph for $file"
+                return nothing
+            end
+        end
+    end
+
+    if !isnothing(featurization)
+        featurize!(ag, featurization)
+    end
+
+    if to_serialize
+        serialize(output_file_path, ag)
+    end
+
+    return ag
+end
 
 # pretty printing, short version
 function Base.show(io::IO, ag::AtomGraph)

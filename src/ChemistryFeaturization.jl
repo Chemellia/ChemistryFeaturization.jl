@@ -11,6 +11,7 @@ abstract type AbstractFeaturization end
 
 include("utils/Utils.jl")
 @reexport using .Utils.AtomFeatureUtils
+@reexport using .Utils.GraphBuilding
 
 #= ATOMS OBJECTS
 
