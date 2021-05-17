@@ -9,7 +9,7 @@ tests = [
 	"atoms/AtomGraph_tests",
 	"features/AtomFeature_tests",
 	"featurizations/GraphNodeFeaturization_tests",
-	# Weave stuff
+	# TODO: add Weave stuff
 ]
 
 @testset "ChemistryFeaturization" begin
