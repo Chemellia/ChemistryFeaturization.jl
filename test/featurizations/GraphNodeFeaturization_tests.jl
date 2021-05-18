@@ -21,6 +21,13 @@ using CSV
 
 
     # encodable_elements
+    @testset "Encodable Elements" begin
+        fzn3 = GraphNodeFeaturization(AtomFeature.(["Boiling point", "6d"]))
+        fzn4 = GraphNodeFeaturization(AtomFeature.(["7s", "Valence"]))
+        @test encodable_elements(fzn3) == ["Ac", "Th", "U"]
+        @test encodable_elements(fzn4) == ["Fr", "Ra", "Ac", "Th"]
+    end
+
 
     # chunk_vec helper fcn
     @testset "chunk_vec" begin
