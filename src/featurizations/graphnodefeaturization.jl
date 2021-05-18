@@ -3,7 +3,7 @@
 Featurization for `AtomGraph` objects that featurizes graph nodes only.
 =#
 export GraphNodeFeaturization
-export encodable_elements, decode
+export encodable_elements, decode, chunk_vec
 
 struct GraphNodeFeaturization <: AbstractFeaturization
     atom_features::Vector{AtomFeature}
@@ -19,7 +19,7 @@ function GraphNodeFeaturization(
     categorical::Union{Vector{Bool},Bool,Nothing} = nothing,
 )
     num_features = length(feature_names)
-    local lookup_table_here, logspaced_here, categorical_here, nbins_here
+    local lookup_table_here , logspaced_here , categorical_here , nbins_here
     if isnothing(lookup_table)
         lookup_table_here = atom_data_df
     else
@@ -81,9 +81,9 @@ julia> chunk_vec([1,0,0,1,0], [3,2])
 """
 function chunk_vec(vec::Vector{<:Real}, nbins::Vector{<:Integer})
     chunks = fill(Bool[], size(nbins, 1))
-    @assert length(vec)==sum(nbins) "Total number of bins doesn't match length of feature vector."
-    for i in 1:size(nbins,1)
-        if i==1
+    @assert length(vec) == sum(nbins) "Total number of bins doesn't match length of feature vector."
+    for i = 1:size(nbins, 1)
+        if i == 1
             start_ind = 1
         else
             start_ind = sum(nbins[1:i-1]) + 1

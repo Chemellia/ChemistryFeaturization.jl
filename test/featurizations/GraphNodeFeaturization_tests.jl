@@ -23,6 +23,11 @@ using CSV
     # encodable_elements
 
     # chunk_vec helper fcn
+    @testset "chunk_vec" begin
+        vec = [1, 1, 0, 1, 0, 1, 0]
+        @test_throws AssertionError chunk_vec(vec, [3, 3])
+        @test chunk_vec(vec, [4, 1, 2]) == [[1, 1, 0, 1], [0], [1, 0]]
+    end
 
     # featurize!
 
