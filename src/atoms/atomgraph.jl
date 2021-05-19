@@ -170,7 +170,6 @@ function Base.show(io::IO, ag::AtomGraph)
     print(io, st)
 end
 
-
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n   feature vector length: "
@@ -223,7 +222,7 @@ function graph_colors(atno_list, seed_color = colorant"cyan4")
 end
 
 
-# helper fcn for sorting because edge ordering isn't preserved when converting to SimpleGraph
+"Helper function for sorting because edge ordering isn't preserved when converting to SimpleGraph."
 function lt_edge(
     e1::SimpleWeightedGraphs.SimpleWeightedEdge{<:Integer,<:Real},
     e2::SimpleWeightedGraphs.SimpleWeightedEdge{<:Integer,<:Real},

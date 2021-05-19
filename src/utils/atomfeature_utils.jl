@@ -38,7 +38,7 @@ const continuous_feature_names = feature_info["continuous"]
 const avail_feature_names =
     cat(categorical_feature_names, continuous_feature_names; dims = 1)
 
-# helper function
+"Compute the minimum and maximum possible values of a feature."
 function fea_minmax(feature_name::String, lookup_table::DataFrame = atom_data_df)
     @assert feature_name in names(lookup_table) "Feature $feature_name isn't in the lookup table!"
     return [
@@ -168,7 +168,7 @@ function build_onehot_vec(val, bins, categorical)
         onehot_vec = [0.0 for i = 1:length(bins)]
         bin_index = findfirst(isequal(val), bins)
     else
-        @assert eltype(bins)<:Number "Your bins aren't numbers...are you sure you didn't mean for this feature to be categorical?"
+        @assert eltype(bins) <: Number "Your bins aren't numbers...are you sure you didn't mean for this feature to be categorical?"
         @assert bins[1] <= val <= bins[end] "The value $val is outside the range of bins $bins"
         onehot_vec = [0.0 for i = 1:(length(bins)-1)]
         bin_index = searchsorted(bins, val).stop

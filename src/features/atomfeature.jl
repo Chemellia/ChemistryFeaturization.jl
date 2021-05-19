@@ -69,7 +69,6 @@ function AtomFeature(
                     nbins = nbins,
                     logspaced = logspaced,
                     categorical = categorical,
-                    
                 ),
                 atoms.elements,
             ),
@@ -90,10 +89,7 @@ function AtomFeature(
         categorical,
         false,
         vector_length,
-        encodable_elements(
-            feature_name,
-            lookup_table,
-        ),
+        encodable_elements(feature_name, lookup_table),
     )
 end
 

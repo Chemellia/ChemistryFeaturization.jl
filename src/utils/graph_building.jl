@@ -29,7 +29,6 @@ Function to build graph from a file storing a crystal structure (currently suppo
 - `cutoff_radius::Real=8.0`: cutoff radius for atoms to be considered neighbors (in angstroms)
 - `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
 - `dist_decay_func::Function=inverse_square`: function to determine falloff of graph edge weights with neighbor distance
-
 """
 function build_graph(
     file_path::String;
@@ -62,7 +61,13 @@ function build_graph(
     else
         nl = pyimport_conda("ase.neighborlist", "ase", "conda-forge")
         is, js, dists = nl.neighbor_list("ijd", atoms_object, cutoff_radius)
-        weight_mat = weights_cutoff(is.+1, js.+1, dists; max_num_nbr=max_num_nbr, dist_decay_func=dist_decay_func)
+        weight_mat = weights_cutoff(
+            is .+ 1,
+            js .+ 1,
+            dists;
+            max_num_nbr = max_num_nbr,
+            dist_decay_func = dist_decay_func,
+        )
     end
 
     if normalize_weights
@@ -78,14 +83,14 @@ Build graph using neighbor number cutoff method adapted from original CGCNN. Not
 # TODO
 - option to cut off by nearest, next-nearest, etc. by DISTANCE rather than NUMBER of neighbors
 """
-function weights_cutoff(is, js, dists; max_num_nbr=12, dist_decay_func=inverse_square)
+function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inverse_square)
     # sort by distance
-    ijd = sort([t for t in zip(is, js, dists)], by = t->t[3])
+    ijd = sort([t for t in zip(is, js, dists)], by = t -> t[3])
 
     # initialize neighbor counts
     num_atoms = maximum(is)
-    local nb_counts = Dict(i=>0 for i=1:num_atoms)
-    local longest_dists = Dict(i=>0.0 for i in 1:num_atoms)
+    local nb_counts = Dict(i => 0 for i = 1:num_atoms)
+    local longest_dists = Dict(i => 0.0 for i = 1:num_atoms)
 
     # iterate over list of tuples to build edge weights...
     # note that neighbor list double counts so we only have to increment one counter per pair
@@ -113,14 +118,14 @@ function weights_voronoi(struc)
     conn = vc.connectivity_array
     weight_mat = zeros(Float32, num_atoms, num_atoms)
     # loop over central atoms
-    for atom_ind in 1:size(conn)[1]
+    for atom_ind = 1:size(conn)[1]
         # loop over neighbor atoms
-        for nb_ind in 1:size(conn)[2]
+        for nb_ind = 1:size(conn)[2]
             # loop over each possible PBC image for chosen image
-            for image_ind in 1:size(conn)[3]
+            for image_ind = 1:size(conn)[3]
                 # only add as neighbor if atom is not current center one AND there is connectivity to image
-                if (atom_ind != image_ind) & (conn[atom_ind, nb_ind, image_ind] != 0)
-                    weight_mat[atom_ind, nb_ind] += conn[atom_ind, nb_ind, image_ind]/maximum(conn[atom_ind, :, :])
+                if (atom_ind != image_ind) && (conn[atom_ind, nb_ind, image_ind] != 0)
+                    weight_mat[atom_ind, nb_ind] += conn[atom_ind, nb_ind, image_ind] / maximum(conn[atom_ind, :, :])
                 end
             end
         end
