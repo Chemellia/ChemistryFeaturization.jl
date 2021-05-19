@@ -38,7 +38,13 @@ const continuous_feature_names = feature_info["continuous"]
 const avail_feature_names =
     cat(categorical_feature_names, continuous_feature_names; dims = 1)
 
-# helper function
+"""
+    default_log(feature_name, lookup_table = atom_data_df; threshold = oom_threshold_log)
+
+Determine whether a continuous-valued feature should have logarithmically spaced bins. 
+
+Operates by finding the minimum and maximum values the feature can take on and comparing their ratio to a specified order-of-magnitude threshold that defaults to a package constant if not provided.
+"""
 function default_log(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
@@ -62,7 +68,15 @@ function default_log(
     return log
 end
 
-# helper function - if no info, be categorical for non-numbers and noncategorical for numbers
+"""
+    default_categorical(feature_name, lookup_table = atom_data_df)
+
+Determine if a feature should be treated as categorical or continuous-valued.
+
+If the value type is not a number, always returns true. If it is, checks whether it is in the built-in list of categorical features.
+
+TODO: possibly add behavior where it will default to categorical if there is below some threshold number of discrete values?
+"""
 function default_categorical(feature_name::String, lookup_table::DataFrame = atom_data_df)
     local categorical
     if feature_name in avail_feature_names
@@ -98,7 +112,7 @@ function get_param_vec(vec, num_features::Integer; pad_val = false)
     return output_vec
 end
 
-# helper function for encoder and decoder...(nbins is ignored for categorical=true)
+"Helper function for encoder and decoder...(nbins is ignored for categorical=true)"
 function get_bins(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
@@ -139,8 +153,7 @@ function get_bins(
     return bins
 end
 
-
-# another helper function
+"A flexible version of Flux.onehot that can handle both categorical and continuous-valued encoding."
 function build_onehot_vec(val, bins, categorical)
     local bin_index, onehot_vec
     if categorical
@@ -161,7 +174,7 @@ function build_onehot_vec(val, bins, categorical)
     return onehot_vec
 end
 
-# docstring
+"Function for encoding onehot-style vectors based on values in a lookup table. Intended to be used as an `encode_f` for `AtomFeature` objects. See source code of convenience constructor for `AtomFeature` for more details."
 function onehot_lookup_encoder(
     el::String,
     feature_name::String,
@@ -190,7 +203,7 @@ function onehot_lookup_encoder(
     build_onehot_vec(val, bins, categorical)
 end
 
-# docstring
+"Function for decoding onehot-style vectors based on values in a lookup table. Intended to be used as an `decode_f` for `AtomFeature` objects. See source code of convenience constructor for `AtomFeature` for more details."
 function onecold_decoder(
     encoded,
     feature_name::String,

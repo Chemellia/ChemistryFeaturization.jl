@@ -13,8 +13,6 @@ using Serialization
 inverse_square(x) = x^-2.0
 exp_decay(x) = exp(-x)
 
-# TODO: figure out best/idiomatic way to pass through the keyword arguments, surely the copy/paste is not it
-# TODO: option to featurize here?
 """
 Function to build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
 
