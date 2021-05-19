@@ -1,28 +1,51 @@
 using ..ChemistryFeaturization.Utils.AtomFeatureUtils
 using DataFrames
 
-#=
-Feature of a single atom.
+"""
+    AtomFeature(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
 
-May be contextual (depends on neighborhood) or elemental (defined just by the atomic identity of the node).
-=#
-# proper docstring
-# TODO: add way to get range/list of possible values for feature...
+Construct a feature object that encodes features associated with individual atoms. If `contextual==false`, then the encoding is done solely based on elemental identity, otherwise it depends on the neighborhood.
+
+## Arguments
+- `name::String`: the name of the feature
+- `encode_f::Function`: a function that takes in <:AbstractAtoms and returns encoded values of this feature for the atoms in that structure
+- `decode_f::Function`: inverse function to `encode_f`, takes in encoded feature and returns value (for categorical) or range of values (for continuous-valued) of the feature
+- `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
+- `contextual::Bool`: flag for whether the feature's value depends on an atom's environment
+- `length::Int`: length of encoded vector
+- `encodable_elements::Vector{String}`: list of elemental symbols representing species that can be encoded by this feature
+"""
 struct AtomFeature <: AbstractFeature
     name::String
-    encode_f::Any
-    decode_f::Any
+    encode_f::Function
+    decode_f::Function
     categorical::Bool
-    contextual::Bool # can get from elemental lookup table (false) or not (true)?
-    length::Int # length of encoded vector
+    contextual::Bool
+    length::Integer
     encodable_elements::Vector{String}
 end
 
-# docstring
+"""
+    AtomFeature(feature_name, lookup_table = atom_data_df; nbins, logspaced, categorical)
+
+Construct a non-contextual AtomFeature that encodes using a lookup table.
+
+## Required Arguments
+- `feature_name::String`: Name of the feature
+- `lookup_table::DataFrame` (optional): if feature is not included in the built-in `atom_data_df`, provide a lookup table that includes its value for every element you want to encode it on
+
+## Keyword Arguments
+- `nbins::Integer`: Number of bins for one-hot encoding of continuous-valued features. Will be ignored for categorical features.
+- `logspaced::Bool`: flag for whether bins should be logarithmically spaced
+- `categorical::Bool`: flag for whether feature is categorical or continuous-valued
+
+## Examples
+
+"""
 function AtomFeature(
-    feature_name,
+    feature_name::String,
     lookup_table::DataFrame = atom_data_df;
-    nbins = default_nbins,
+    nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
@@ -83,9 +106,10 @@ function Base.show(io::IO, ::MIME"text/plain", af::AtomFeature)
     print(io, st)
 end
 
+# TODO: add way to get range/list of possible values for feature...
+
 encodable_elements(f::AtomFeature) = f.encodable_elements
 
-# docstring
 function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
     info = lookup_table[:, [Symbol(feature_name), :Symbol]]
     return info[

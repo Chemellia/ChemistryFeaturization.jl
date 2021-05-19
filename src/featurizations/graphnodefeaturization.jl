@@ -1,18 +1,30 @@
-# TODO: proper docstring
-#=
-Featurization for `AtomGraph` objects that featurizes graph nodes only.
-=#
 export GraphNodeFeaturization
 export encodable_elements, decode, chunk_vec
 
+"""
+    GraphNodeFeaturization(atom_features::Vector{AtomFeature})
+    GraphNodeFeaturization(feature_names, lookup_table, nbins, logspaced, categorical)
+
+A featurization for AtomGraph objects that encodes features associated with each node. Contains a collection of `AtomFeature` objects, and can be initialized by passing those, or by passing parameters for constructing them.
+
+## Notes
+The "convenience constructor" that builds the AtomFeature objects for you only supports noncontextual AtomFeatures (i.e. those that can be encoded solely based on elemental identity and hence tabulated in a lookup table). If you have contextual features that require non-lookup-table encoding functions, you currently must build those features yourself and use the default constructor.
+
+## Required Arguments
+- `feature_names::Vector{String}`: Names of each feature
+- `lookup_table::DataFrame` (optional): source of data for features, if not included in built-in `atom_data_df`
+
+## Keyword Arguments
+- `nbins::Union{Vector{Integer},Integer}`: Number of bins to use for one-hot encoding of continuous-valued features. Will be ignored for categorical features.
+- `logspaced::Union{Vector{Bool},Bool}`: Whether to logarithmically space the bins
+- `categorical::Union{Vector{Bool},Bool}`: Whether each feature is categorical or continous-valued.
+"""
 struct GraphNodeFeaturization <: AbstractFeaturization
     atom_features::Vector{AtomFeature}
 end
 
-# TODO: not sure if this is the most elegant way to handle some data from a custom lookup table and some data from the built-in one...
-# docstring
 function GraphNodeFeaturization(
-    feature_names::Vector{String},
+    feature_names::Vector{String};
     lookup_table::Union{DataFrame,Nothing} = nothing,
     nbins::Union{Vector{Integer},Integer,Nothing} = nothing,
     logspaced::Union{Vector{Bool},Bool,Nothing} = nothing,
@@ -60,7 +72,6 @@ end
 
 # TODO: function to compute total vector length?
 
-# docstring
 encodable_elements(fzn::GraphNodeFeaturization) =
     intersect([f.encodable_elements for f in fzn.atom_features]...)
 

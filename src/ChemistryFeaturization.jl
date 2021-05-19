@@ -15,7 +15,7 @@ include("utils/Utils.jl")
 
 #= ATOMS OBJECTS
 
-Should have a field called `elements` that is a list of strings of elemental symbols.
+Should have a field called `elements` that is a list of strings of elemental symbols, as well as fields to store features and an associated featurization object.
 
 AtomGraph shouldn't have to change too much from its current incarnation. WeaveMol is 
 not currently a thing that can be directly fed into a model, so that will have to get
@@ -59,21 +59,40 @@ All subtypes should have `encode_f` and `decode_f` fields
 
 # export...
 export AtomFeature, PairFeature
-export encodable_elements
+export encodable_elements, decode
+
+"""
+    encodable_elements(f::AbstractFeature)
+    encodable_elements(feature_name::String)
+    encodable_elements(fzn::AbstractFeaturization)
+
+Return a list of elements encodable by a given feature or featurization.
+"""
+encodable_elements(f::AbstractFeature) = println("Implement me please!")
+encodable_elements(fzn::AbstractFeaturization) = println("Implement me please!")
 
 # include...
 include("features/atomfeature.jl")
 include("features/pairfeature.jl")
 
 # generic encode
-# docstring
 function (f::AbstractFeature)(a::AbstractAtoms)
     f.encode_f(a)
 end
 
-export decode
-# generic decode
-# docstring
+
+"""
+    decode(f::AbstractFeature, encoded_feature)
+
+Decode a feature that was encoded using the provided feature object.
+
+## Examples
+
+```jldoctest
+julia> decode(AtomFeature("Block"), [0, 1, 0, 0])
+"p"
+```
+"""
 function decode(f::AbstractFeature, encoded_feature)
     f.decode_f(encoded_feature)
 end
@@ -93,11 +112,16 @@ export WeaveFeaturization
 include("featurizations/graphnodefeaturization.jl")
 include("featurizations/weavefeaturization.jl")
 
-# generic featurize!
-# this assumes that `a` has fields with names corresponding to each field in `fzn`, if not you need to dispatch this function to your specific case
-# TODO: maybe add option to exclude field names from iteration over fzn?
-# docstring
+"""
+    featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
+
+Featurize a structure with a given featurization.
+
+Note that this generic dispatch on the abstract types assumes that `a` has fields with names corresponding to each field of `fzn`. If this is not the case for the atoms and featurization objects you are using, it will likely not work and need to be dispatched to that specific case.
+"""
 function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
+    # TO CONSIDER: maybe add option to exclude field names from iteration over fzn?
+
     # loop over fields in featurization, each one is a list of features
     # encode each feature in that list and assign the results to the
     # field of the same name in `a`
@@ -114,7 +138,11 @@ Base.iterate(fzn::AbstractFeaturization) = (fzn, nothing)
 Base.iterate(fzn::AbstractFeaturization, state) = nothing
 Base.length(fzn::AbstractFeaturization) = 1
 
-# generic decode
+"""
+    decode(fzn::AbstractFeaturization, encoded)
+
+Decode a set of features that were encoded using the provided featurization.
+"""
 function decode(fzn::AbstractFeaturization, encoded)
     println("Implement me please!")
 end
@@ -133,9 +161,5 @@ function Base.show(io::IO, ::MIME"text/plain", fzn::AbstractFeaturization)
     end
     print(io, st)
 end
-
-# NEXT:
-# update tests
-# write docstrings
 
 end
