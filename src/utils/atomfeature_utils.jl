@@ -12,7 +12,7 @@ using Flux: onecold
 export default_nbins, oom_threshold_log
 export atom_data_df, avail_feature_names
 export categorical_feature_names, categorical_feature_vals, continuous_feature_names
-export default_log, default_categorical
+export default_log, fea_minmax, default_categorical
 export get_bins, build_onehot_vec
 export onehot_lookup_encoder, onecold_decoder, encodable_elements
 
@@ -38,6 +38,14 @@ const continuous_feature_names = feature_info["continuous"]
 const avail_feature_names =
     cat(categorical_feature_names, continuous_feature_names; dims = 1)
 
+# helper function
+function fea_minmax(feature_name::String, lookup_table::DataFrame = atom_data_df)
+    @assert feature_name in names(lookup_table) "Feature $feature_name isn't in the lookup table!"
+    return [
+        f(skipmissing(lookup_table[:, Symbol(feature_name)])) for f in [minimum, maximum]
+    ]
+end
+
 """
     default_log(feature_name, lookup_table = atom_data_df; threshold = oom_threshold_log)
 
@@ -50,7 +58,7 @@ function default_log(
     lookup_table::DataFrame = atom_data_df;
     threshold::Real = oom_threshold_log,
 )
-    min_val, max_val = feature_range(feature_name, lookup_table)
+    min_val, max_val = fea_minmax(feature_name, lookup_table)
     local log
     if typeof(min_val) <: Number
         signs = sign.([min_val, max_val])
@@ -129,7 +137,7 @@ function get_bins(
             bins = sort(unique(skipmissing(lookup_table[:, Symbol(feature_name)])))
         end
     else
-        min_val, max_val = feature_range(feature_name, lookup_table)
+        min_val, max_val = fea_minmax(feature_name, lookup_table)
 
         if isapprox(min_val, max_val)
             @warn "It looks like the minimum and maximum possible values of $feature_name are approximately equal. This could cause numerical issues with binning, and also this feature is likely uninformative. Perhaps reconsider if it needs to be included?"

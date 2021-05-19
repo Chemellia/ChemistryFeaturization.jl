@@ -106,18 +106,7 @@ function Base.show(io::IO, ::MIME"text/plain", af::AtomFeature)
     print(io, st)
 end
 
-"""
-    feature_range(feature_name::String, lookup_table::DataFrame = atom_data_df)
-    feature_range(feature::AtomFeature)
-
-Return minimum and maximum values of the provided feature.
-"""
-function feature_range(feature_name::String, lookup_table::DataFrame = atom_data_df)
-    @assert feature_name in names(lookup_table) "Feature $feature_name isn't in the lookup table!"
-    return [
-        f(skipmissing(lookup_table[:, Symbol(feature_name)])) for f in [minimum, maximum]
-    ]
-end
+# TODO: add way to get range/list of possible values for feature...
 
 encodable_elements(f::AtomFeature) = f.encodable_elements
 

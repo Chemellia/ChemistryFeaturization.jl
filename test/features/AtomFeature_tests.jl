@@ -56,11 +56,4 @@ const cf = ChemistryFeaturization
         AtomFeature("silly", atoms_encoder, decoder, false, false, 1, ["C", "Ne"])
     @test sillyfeature(triangle_C) == ones(1, 3)
     @test encodable_elements(sillyfeature) == ["C", "Ne"]
-    
-    # feature_range
-    @test_throws AssertionError feature_range("heffalump")
-    @test feature_range("Group") == [1, 18]
-    @test feature_range("MeaningOfLife", df) == [-1, 42]
-
-
 end

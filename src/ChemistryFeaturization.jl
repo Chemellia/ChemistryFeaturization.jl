@@ -59,7 +59,7 @@ All subtypes should have `encode_f` and `decode_f` fields
 
 # export...
 export AtomFeature, PairFeature
-export encodable_elements, feature_range, decode
+export encodable_elements, decode
 
 """
     encodable_elements(f::AbstractFeature)

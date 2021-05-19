@@ -7,6 +7,11 @@ const afu = ChemistryFeaturization.Utils.AtomFeatureUtils
 @testset "AtomFeatureUtils" begin
     df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
 
+    # fea_minmax
+    @test_throws AssertionError fea_minmax("heffalump")
+    @test fea_minmax("Group") == [1, 18]
+    @test fea_minmax("MeaningOfLife", df) == [-1, 42]
+
     # default_log
     @test default_log("Block") == false # not numbers
     @test default_log("MeaningOfLife", df) == false # values span 0
