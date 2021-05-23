@@ -2,7 +2,9 @@
 Feature of a pair of atoms. Currently only used in WeaveModel, but may eventually
 have a version of AtomGraph that allows edge features...
 =#
-struct PairFeature <: AbstractFeature
+
+# GeneralPairFeature describes the general features between any given pair of atoms.
+struct GeneralPairFeature <: AbstractFeature
     name::String
     encode_f::Any
     decode_f::Any

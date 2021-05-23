@@ -58,7 +58,7 @@ All subtypes should have `encode_f` and `decode_f` fields
 # link to guidance in docs about how to implement new feature types
 
 # export...
-export AtomFeature, PairFeature
+export AtomFeature, GeneralPairFeature
 export encodable_elements, decode
 
 """
@@ -73,7 +73,7 @@ encodable_elements(fzn::AbstractFeaturization) = println("Implement me please!")
 
 # include...
 include("features/atomfeature.jl")
-include("features/pairfeature.jl")
+include("features/generalpairfeature.jl")
 
 # generic encode
 function (f::AbstractFeature)(a::AbstractAtoms)
