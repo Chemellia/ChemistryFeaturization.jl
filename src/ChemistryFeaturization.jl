@@ -73,7 +73,7 @@ encodable_elements(fzn::AbstractFeaturization) = println("Implement me please!")
 
 # include...
 include("features/atomfeature.jl")
-include("features/generalpairfeature.jl")
+include("features/pairfeature.jl")
 
 # generic encode
 function (f::AbstractFeature)(a::AbstractAtoms)

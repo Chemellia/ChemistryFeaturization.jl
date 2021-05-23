@@ -4,8 +4,8 @@ Composition of a GeneralPairFeature and BondFeature
 include("generalpairfeature.jl")
 include("bondfeatures.jl")
 
-# Maybe better as struct WeavePair{T, S} where T <: GeneralPairFeature, S <: BondFeature ?
-struct WeavePair
+# Maybe better as struct PairFeature{T, S} where T <: GeneralPairFeature, S <: BondFeature ?
+struct PairFeature
     general_pair_feature::GeneralPairFeature
-    bond_features::Union{Vector{BondFeature}, Nothing}
+    bond_features::Union{Vector{BondFeature},Nothing}
 end
