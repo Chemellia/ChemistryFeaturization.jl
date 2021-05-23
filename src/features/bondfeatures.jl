@@ -12,7 +12,7 @@ struct Single <: Bonds end
 struct Double <: Bonds end
 struct Triple <: Bonds end
 
-struct BondType{T <: Bonds} <: BondFeature end
+struct BondType{T<:Bonds} <: BondFeature end
 
 struct InRing <: BondFeature end
 struct IsConjugated <: BondFeature end
