@@ -2,7 +2,7 @@
 
 struct WeaveFeaturization <: AbstractFeaturization
     atom_features::Vector{AtomFeature}
-    pair_features::Vector{GeneralPairFeature}
+    pair_features::Vector{PairFeature}
 end
 
 function encodable_elements(fzn::WeaveFeaturization)
