@@ -20,12 +20,12 @@ The "convenience constructor" that builds the AtomFeature objects for you only s
 - `categorical::Union{Vector{Bool},Bool}`: Whether each feature is categorical or continous-valued.
 """
 struct GraphNodeFeaturization <: AbstractFeaturization
-    atom_features::Vector{AtomFeature}
+    atom_features::Vector{<:AbstractAtomFeature}
 end
 
 function GraphNodeFeaturization(
-    feature_names::Vector{String};
-    lookup_table::Union{DataFrame,Nothing} = nothing,
+    feature_names::Vector{String},
+    lookup_table::Union{DataFrame,Nothing} = nothing;
     nbins::Union{Vector{Integer},Integer,Nothing} = nothing,
     logspaced::Union{Vector{Bool},Bool,Nothing} = nothing,
     categorical::Union{Vector{Bool},Bool,Nothing} = nothing,
@@ -116,6 +116,15 @@ function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
             #println("    $(f.name): $(decode(f, chunk))")
             decoded[i][f.name] = decode(f, chunk)
         end
+    end
+    return decoded
+end
+
+function decode(ag::AtomGraph)
+    @assert !(all(isnothing.(ag.featurization, ag.atom_features))
+    decoded = decode(ag.fzn, ag.atom_features)
+    for (k,v) in decoded
+        v["Symbol"] = ag.elements[k]
     end
     return decoded
 end

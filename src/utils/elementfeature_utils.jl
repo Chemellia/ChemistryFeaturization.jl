@@ -1,7 +1,7 @@
 #=
 This module houses the built-in feature values for a variety of non-contextual atom features and also some convenience functions for constructing them easily.
 =#
-module AtomFeatureUtils
+module ElementFeatureUtils
 
 using DataFrames
 using CSV
@@ -13,7 +13,7 @@ export default_nbins, oom_threshold_log
 export atom_data_df, avail_feature_names
 export categorical_feature_names, categorical_feature_vals, continuous_feature_names
 export default_log, fea_minmax, default_categorical
-export get_bins, build_onehot_vec
+export get_bins, build_onehot_vec, get_param_vec
 export onehot_lookup_encoder, onecold_decoder, encodable_elements
 
 # default number of bins for continuous features, if unspecified

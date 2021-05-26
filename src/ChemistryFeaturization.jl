@@ -3,11 +3,15 @@ module ChemistryFeaturization
 using SimpleWeightedGraphs
 using Reexport
 
-# define all the abstract types 
+# define all the abstract types
 export AbstractAtoms, AbstractFeature, AbstractFeaturization
+export AbstractPairFeature, AbstractAtomFeature, AbstractEnvironmentFeature
 abstract type AbstractAtoms end
 abstract type AbstractFeature end
 abstract type AbstractFeaturization end
+abstract type AbstractAtomFeature end
+abstract type AbstractPairFeature end
+abstract type AbstractEnvironmentFeature end
 
 include("utils/Utils.jl")
 @reexport using .Utils.AtomFeatureUtils
@@ -58,7 +62,7 @@ All subtypes should have `encode_f` and `decode_f` fields
 # link to guidance in docs about how to implement new feature types
 
 # export...
-export AtomFeature, GeneralPairFeature
+export ElementFeature, SpeciesFeature, PairFeature
 export encodable_elements, decode
 
 """
@@ -73,11 +77,13 @@ encodable_elements(fzn::AbstractFeaturization) = println("Implement me please!")
 
 # include...
 include("features/atomfeature.jl")
+include("features/speciesfeature.jl")
 include("features/pairfeature.jl")
 
 # generic encode
 function (f::AbstractFeature)(a::AbstractAtoms)
-    f.encode_f(a)
+    #f.encode_f(a)
+    println("Implement me, please!")
 end
 
 """
@@ -93,7 +99,8 @@ julia> decode(AtomFeature("Block"), [0, 1, 0, 0])
 ```
 """
 function decode(f::AbstractFeature, encoded_feature)
-    f.decode_f(encoded_feature)
+    #f.decode_f(encoded_feature)
+    println("Implement me, please!")
 end
 
 #= FEATURIZATION OBJECTS

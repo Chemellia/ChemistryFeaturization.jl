@@ -1,11 +1,8 @@
-#=
-Composition of a GeneralPairFeature and BondFeature
-=#
-include("generalpairfeature.jl")
-include("bondfeatures.jl")
 
-# Maybe better as struct PairFeature{T, S} where T <: GeneralPairFeature, S <: BondFeature ?
-struct PairFeature
-    general_pair_feature::GeneralPairFeature
-    bond_features::Union{Vector{BondFeature},Nothing}
+struct PairFeature <: AbstractPairFeature
+    name::String
+    encode_f::Any
+    decode_f::Any
+    length::Int # maybe, maybe not (does constrain/assume vector Te)
+    # probably needs some other stuff...
 end
