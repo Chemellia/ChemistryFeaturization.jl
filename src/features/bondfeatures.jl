@@ -1,6 +1,6 @@
 include("abstractfeatures.jl")
 
-abstract type BondFeature <: AbstractPairFeature end
+abstract type BondFeatureDescriptor <: AbstractPairFeatureDescriptor end
 
 #=
 TODO - Come up with a better name for these type
@@ -12,7 +12,7 @@ struct Single <: Bonds end
 struct Double <: Bonds end
 struct Triple <: Bonds end
 
-struct BondType{T<:Bonds} <: BondFeature end
+struct BondType{T<:Bonds} <: BondFeatureDescriptor end
 
-struct InRing <: BondFeature end
-struct IsConjugated <: BondFeature end
+struct InRing <: BondFeatureDescriptor end
+struct IsConjugated <: BondFeatureDescriptor end

@@ -1,5 +1,5 @@
 
-struct PairFeature <: AbstractPairFeature
+struct PairFeatureDescriptor <: AbstractPairFeatureDescriptor
     name::String
     encode_f::Any
     decode_f::Any

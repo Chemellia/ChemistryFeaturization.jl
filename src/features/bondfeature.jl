@@ -1,5 +1,5 @@
 
-struct BondFeature <: AbstractPairFeature
+struct BondFeatureDescriptor <: AbstractPairFeatureDescriptor
     # stuff
 end
 

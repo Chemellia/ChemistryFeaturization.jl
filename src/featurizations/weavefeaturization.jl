@@ -1,8 +1,8 @@
 # some commentary
 
 struct WeaveFeaturization <: AbstractFeaturization
-    atom_features::Vector{<: AbstractAtomFeature}
-    pair_features::Vector{<: AbstractPairFeature}
+    atom_features::Vector{<:AbstractAtomFeatureDescriptor}
+    pair_features::Vector{<:AbstractPairFeatureDescriptor}
 end
 
 function encodable_elements(fzn::WeaveFeaturization)

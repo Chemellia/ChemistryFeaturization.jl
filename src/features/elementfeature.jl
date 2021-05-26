@@ -3,9 +3,9 @@ using DataFrames
 
 # TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
 """
-    ElementFeature(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
+    ElementFeatureDescriptor(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
 
-Construct a feature object that encodes features associated with individual atoms that depend only upon their elemental identity (if you want to encode a feature that depends upon an atom's environment, you shold use SpeciesFeature!)
+Construct a feature object that encodes features associated with individual atoms that depend only upon their elemental identity (if you want to encode a feature that depends upon an atom's environment, you shold use SpeciesFeatureDescriptor!)
 
 ## Arguments
 - `name::String`: the name of the feature
@@ -14,7 +14,7 @@ Construct a feature object that encodes features associated with individual atom
 - `logspaced::Bool`: whether onehot-style bins should be logarithmically spaced or not
 - `lookup_table::DataFrame`: table containing values of feature for every encodable element
 """
-struct ElementFeature <: AbstractAtomFeature
+struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
     categorical::Bool
     length::Integer
@@ -24,7 +24,7 @@ end
 
 # TODO: update this, encoder stuff needs to be broken out as dispatches
 # also, should trim lookup_table to just have the columns it needs before constructing object
-function ElementFeature(
+function ElementFeatureDescriptor(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
     length::Integer = default_nbins,
@@ -64,7 +64,7 @@ function ElementFeature(
             logspaced = logspaced,
             categorical = categorical,
         )
-    AtomFeature(
+    AtomFeatureDescriptor(
         feature_name,
         encode_f,
         decode_f,
@@ -76,7 +76,7 @@ function ElementFeature(
 end
 
 # TODO: update this to just call thing below essentially
-#encodable_elements(f::ElementFeature) = f.encodable_elements
+#encodable_elements(f::ElementFeatureDescriptor) = f.encodable_elements
 
 function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
     info = lookup_table[:, [Symbol(feature_name), :Symbol]]

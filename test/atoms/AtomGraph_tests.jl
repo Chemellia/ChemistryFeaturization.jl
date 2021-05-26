@@ -3,7 +3,7 @@ using LightGraphs
 using SimpleWeightedGraphs
 using Serialization
 
-# NB: featurizing graphs is tested in AtomFeature and GraphNodeFeaturization tests
+# NB: featurizing graphs is tested in AtomFeatureDescriptor and GraphNodeFeaturization tests
 
 @testset "AtomGraph" begin
 

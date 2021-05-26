@@ -3,9 +3,9 @@ using DataFrames
 using CSV
 const cf = ChemistryFeaturization
 
-@testset "AtomFeature" begin
+@testset "AtomFeatureDescriptor" begin
     # test for errors...
-    @test_throws AssertionError AtomFeature("heffalump")
+    @test_throws AssertionError AtomFeatureDescriptor("heffalump")
 
     # construct a few from built-in features...
     local fnames = ["X", "Block", "Atomic mass"]
@@ -13,7 +13,7 @@ const cf = ChemistryFeaturization
     local cats = [false, true, false]
     local conts = [false, false, false]
     for i = 1:3
-        f = AtomFeature(fnames[i])
+        f = AtomFeatureDescriptor(fnames[i])
         @test f.length == lengths[i]
         @test f.categorical == cats[i]
         @test f.contextual == conts[i]
@@ -21,7 +21,7 @@ const cf = ChemistryFeaturization
 
     # encode/decode some stuff...
     He_mol = AtomGraph(Float32.([1 0; 0 1]), ["He", "He"])
-    X, block, amass = AtomFeature.(fnames)
+    X, block, amass = AtomFeatureDescriptor.(fnames)
     @test_throws AssertionError X(He_mol)
     @test block(He_mol) == Float64.([0 0; 1 1; 0 0; 0 0])
     @test decode(block, block(He_mol)) == ["p", "p"]
@@ -31,8 +31,8 @@ const cf = ChemistryFeaturization
     @test He_amass_min < true_He_amass < He_amass_max
 
     # now let's try some options (and make sure they're ignored when appropriate...)...
-    X = AtomFeature("X", nbins = 8, logspaced = true)
-    block = AtomFeature("Block", nbins = 5)
+    X = AtomFeatureDescriptor("X", nbins = 8, logspaced = true)
+    block = AtomFeatureDescriptor("Block", nbins = 5)
     triangle_C = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
     @test X(triangle_C)[6, :] == ones(3)
     @test block(triangle_C)[2, :] == ones(3)
@@ -43,7 +43,7 @@ const cf = ChemistryFeaturization
 
     # and make a custom lookup table...
     df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
-    meaning = AtomFeature("MeaningOfLife", df)
+    meaning = AtomFeatureDescriptor("MeaningOfLife", df)
     @test meaning(triangle_C)[10, :] == ones(3)
     @test encodable_elements(meaning) == ["C", "As", "Tc"]
     @test encodable_elements("MeaningOfLife", df) == ["C", "As", "Tc"]
@@ -53,7 +53,7 @@ const cf = ChemistryFeaturization
     atoms_encoder = atoms -> reduce(hcat, map(e -> element_encoder(e), atoms.elements))
     decoder(encoded::Int) = string(['a' for i = 1:encoded]...)
     sillyfeature =
-        AtomFeature("silly", atoms_encoder, decoder, false, false, 1, ["C", "Ne"])
+        AtomFeatureDescriptor("silly", atoms_encoder, decoder, false, false, 1, ["C", "Ne"])
     @test sillyfeature(triangle_C) == ones(1, 3)
     @test encodable_elements(sillyfeature) == ["C", "Ne"]
 end

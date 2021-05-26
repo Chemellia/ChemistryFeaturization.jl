@@ -2,13 +2,13 @@ export GraphNodeFeaturization
 export encodable_elements, decode, chunk_vec
 
 """
-    GraphNodeFeaturization(atom_features::Vector{AtomFeature})
+    GraphNodeFeaturization(atom_features::Vector{AtomFeatureDescriptor})
     GraphNodeFeaturization(feature_names, lookup_table, nbins, logspaced, categorical)
 
-A featurization for AtomGraph objects that encodes features associated with each node. Contains a collection of `AtomFeature` objects, and can be initialized by passing those, or by passing parameters for constructing them.
+A featurization for AtomGraph objects that encodes features associated with each node. Contains a collection of `AtomFeatureDescriptor` objects, and can be initialized by passing those, or by passing parameters for constructing them.
 
 ## Notes
-The "convenience constructor" that builds the AtomFeature objects for you only supports noncontextual AtomFeatures (i.e. those that can be encoded solely based on elemental identity and hence tabulated in a lookup table). If you have contextual features that require non-lookup-table encoding functions, you currently must build those features yourself and use the default constructor.
+The "convenience constructor" that builds the AtomFeatureDescriptor objects for you only supports noncontextual AtomFeatureDescriptors (i.e. those that can be encoded solely based on elemental identity and hence tabulated in a lookup table). If you have contextual features that require non-lookup-table encoding functions, you currently must build those features yourself and use the default constructor.
 
 ## Required Arguments
 - `feature_names::Vector{String}`: Names of each feature
@@ -20,7 +20,7 @@ The "convenience constructor" that builds the AtomFeature objects for you only s
 - `categorical::Union{Vector{Bool},Bool}`: Whether each feature is categorical or continous-valued.
 """
 struct GraphNodeFeaturization <: AbstractFeaturization
-    atom_features::Vector{<:AbstractAtomFeature}
+    atom_features::Vector{<:AbstractAtomFeatureDescriptor}
 end
 
 function GraphNodeFeaturization(
@@ -59,7 +59,7 @@ function GraphNodeFeaturization(
     end
 
     afs = map(zip(feature_names, nbins_here, logspaced_here, categorical_here)) do args
-        AtomFeature(
+        AtomFeatureDescriptor(
             args[1],
             lookup_table_here,
             nbins = args[2],

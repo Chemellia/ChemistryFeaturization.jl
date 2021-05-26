@@ -19,7 +19,7 @@ A type representing an atomic structure as a graph (`gr`).
   graph
 - `laplacian::Matrix{Float32}`: Normalized graph Laplacian matrix, stored to speed up
   convolution operations by avoiding recomputing it every pass.
-- `features::Matrix{Float32}`: Feature matrix of size (# features, # nodes). AtomGraph can
+- `features::Matrix{Float32}`: FeatureDescriptor matrix of size (# features, # nodes). AtomGraph can
   be initialized without defining this field, but if it is defined, the subsequent field must be also.
 - `featurization::AbstractFeaturization`: Featurization scheme specification to maintain 
   "decodability" of features.
