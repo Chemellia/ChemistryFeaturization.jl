@@ -19,7 +19,7 @@ A type representing an atomic structure as a graph (`gr`).
   graph
 - `laplacian::Matrix{Float32}`: Normalized graph Laplacian matrix, stored to speed up
   convolution operations by avoiding recomputing it every pass.
-- `features::Matrix{Float32}`: FeatureDescriptor matrix of size (# features, # nodes). AtomGraph can
+- `encoded_atom_features::Matrix{Float32}`: Feature matrix of size (# features, # nodes). AtomGraph can
   be initialized without defining this field, but if it is defined, the subsequent field must be also.
 - `featurization::AbstractFeaturization`: Featurization scheme specification to maintain 
   "decodability" of features.
@@ -30,7 +30,7 @@ mutable struct AtomGraph <: AbstractAtoms
     graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
     laplacian::Matrix{<:Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
-    atom_features::Union{Matrix{<:Real},Nothing} # if we add edge features this type will have to relax
+    encoded_atom_features::Union{Matrix{<:Real},Nothing} # if we add edge features this type will have to relax
     featurization::Union{AbstractFeaturization,Nothing}
     id::String # or maybe we let it be a number too?
 end
