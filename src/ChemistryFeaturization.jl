@@ -6,12 +6,14 @@ using Reexport
 # define all the abstract types
 export AbstractAtoms, AbstractFeatureDescriptor, AbstractFeaturization
 export AbstractPairFeatureDescriptor, AbstractAtomFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
+
 abstract type AbstractAtoms end
 abstract type AbstractFeatureDescriptor end
 abstract type AbstractFeaturization end
-abstract type AbstractAtomFeatureDescriptor end
-abstract type AbstractPairFeatureDescriptor end
-abstract type AbstractEnvironmentFeatureDescriptor end
+
+abstract type AbstractAtomFeatureDescriptor <: AbstractFeatureDescriptor end
+abstract type AbstractPairFeatureDescriptor <: AbstractFeatureDescriptor end
+abstract type AbstractEnvironmentFeatureDescriptor <: AbstractFeatureDescriptor end
 
 include("utils/Utils.jl")
 @reexport using .Utils.ElementFeatureUtils
