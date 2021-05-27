@@ -14,7 +14,7 @@ abstract type AbstractPairFeatureDescriptor end
 abstract type AbstractEnvironmentFeatureDescriptor end
 
 include("utils/Utils.jl")
-@reexport using .Utils.AtomFeatureUtils
+@reexport using .Utils.ElementFeatureUtils
 @reexport using .Utils.GraphBuilding
 
 #= ATOMS OBJECTS
@@ -76,13 +76,12 @@ encodable_elements(f::AbstractFeatureDescriptor) = println("Implement me please!
 encodable_elements(fzn::AbstractFeaturization) = println("Implement me please!")
 
 # include...
-include("features/atomfeature.jl")
+include("features/elementfeature.jl")
 include("features/speciesfeature.jl")
 include("features/pairfeature.jl")
 
 # generic encode
 function (f::AbstractFeatureDescriptor)(a::AbstractAtoms)
-    #f.encode_f(a)
     println("Implement me, please!")
 end
 

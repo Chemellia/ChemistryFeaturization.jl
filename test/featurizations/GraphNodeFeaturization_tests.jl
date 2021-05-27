@@ -6,7 +6,7 @@ using CSV
 
     # make sure both constructors give the same results
     local fnames = ["X", "Block", "Atomic mass"]
-    features = AtomFeatureDescriptor.(fnames)
+    features = ElementFeatureDescriptor.(fnames)
     fzn1 = GraphNodeFeaturization(features)
     fzn2 = GraphNodeFeaturization(fnames)
 
@@ -18,16 +18,16 @@ using CSV
 
     # encodable_elements
     @testset "Encodable Elements" begin
-        fzn3 = GraphNodeFeaturization(AtomFeatureDescriptor.(["Boiling point", "6d"]))
-        fzn4 = GraphNodeFeaturization(AtomFeatureDescriptor.(["7s", "Valence"]))
+        fzn3 = GraphNodeFeaturization(ElementFeatureDescriptor.(["Boiling point", "6d"]))
+        fzn4 = GraphNodeFeaturization(ElementFeatureDescriptor.(["7s", "Valence"]))
         @test encodable_elements(fzn3) == ["Ac", "Th", "U"]
         @test encodable_elements(fzn4) == ["Fr", "Ra", "Ac", "Th"]
 
         # Custom lookup_table
-        feature_1 = AtomFeatureDescriptor("MeaningOfLife", test_df)   # zero-value case - `As` has a value = 0
-        feature_2 = AtomFeatureDescriptor("neg_nums", test_df)
-        feature_3 = AtomFeatureDescriptor("first_letter", test_df)
-        feature_4 = AtomFeatureDescriptor("noarsenic", test_df) # missing value case - `As` has a missing value
+        feature_1 = ElementFeatureDescriptor("MeaningOfLife", test_df)   # zero-value case - `As` has a value = 0
+        feature_2 = ElementFeatureDescriptor("neg_nums", test_df)
+        feature_3 = ElementFeatureDescriptor("first_letter", test_df)
+        feature_4 = ElementFeatureDescriptor("noarsenic", test_df) # missing value case - `As` has a missing value
 
         @test encodable_elements(GraphNodeFeaturization([feature_1, feature_2])) ==
               ["C", "As", "Tc"]

@@ -59,7 +59,7 @@ function GraphNodeFeaturization(
     end
 
     afs = map(zip(feature_names, nbins_here, logspaced_here, categorical_here)) do args
-        AtomFeatureDescriptor(
+        ElementFeatureDescriptor(
             args[1],
             lookup_table_here,
             nbins = args[2],
@@ -73,7 +73,7 @@ end
 # TODO: function to compute total vector length?
 
 encodable_elements(fzn::GraphNodeFeaturization) =
-    intersect([f.encodable_elements for f in fzn.atom_features]...)
+    intersect([encodable_elements(f) for f in fzn.atom_features]...)
 
 """
     chunk_vec(vec, nbins)
@@ -121,7 +121,7 @@ function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
 end
 
 function decode(ag::AtomGraph)
-    @assert !(all(isnothing.(ag.featurization, ag.atom_features))
+    @assert !(all(isnothing.(ag.featurization, ag.atom_features)))
     decoded = decode(ag.fzn, ag.atom_features)
     for (k,v) in decoded
         v["Symbol"] = ag.elements[k]

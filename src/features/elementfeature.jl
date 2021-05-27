@@ -1,4 +1,4 @@
-using ..ChemistryFeaturization.Utils.AtomFeatureUtils
+using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
 # TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
@@ -16,9 +16,10 @@ Construct a feature object that encodes features associated with individual atom
 """
 struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
-    categorical::Bool
     length::Integer
+    nbins::Integer
     logspaced::Bool
+    categorical::Bool
     lookup_table::DataFrame
 end
 
@@ -27,9 +28,9 @@ end
 function ElementFeatureDescriptor(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
-    length::Integer = default_nbins,
+    nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table),
+    categorical::Bool = default_categorical(feature_name, lookup_table)
 )
     colnames = names(lookup_table)
     @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
@@ -40,43 +41,29 @@ function ElementFeatureDescriptor(
     else
         vector_length = nbins
     end
-    encode_f =
-        atoms -> reduce(
-            hcat,
-            map(
-                e -> onehot_lookup_encoder(
-                    e,
-                    feature_name,
-                    lookup_table;
-                    nbins = nbins,
-                    logspaced = logspaced,
-                    categorical = categorical,
-                ),
-                atoms.elements,
-            ),
-        )
-    decode_f =
-        encoded -> onecold_decoder(
-            encoded,
-            feature_name,
-            lookup_table;
-            nbins = nbins,
-            logspaced = logspaced,
-            categorical = categorical,
-        )
-    AtomFeatureDescriptor(
+
+    ElementFeatureDescriptor(
         feature_name,
-        encode_f,
-        decode_f,
-        categorical,
-        false,
         vector_length,
-        encodable_elements(feature_name, lookup_table),
+        nbins,
+        logspaced,
+        categorical,
+        lookup_table
     )
 end
 
-# TODO: update this to just call thing below essentially
-#encodable_elements(f::ElementFeatureDescriptor) = f.encodable_elements
+# pretty printing, short version
+Base.show(io::IO, af::ElementFeatureDescriptor) = print(io, "ElementFeature $(af.name)")
+
+# pretty printing, long version
+function Base.show(io::IO, ::MIME"text/plain", af::ElementFeatureDescriptor)
+    st = "ElementFeature $(af.name):\n   categorical: $(af.categorical)\n   contextual: $(af.contextual)\n   encoded length: $(af.length)"
+    print(io, st)
+end
+
+# TODO: add way to get range/list of possible values for feature...
+
+encodable_elements(f::ElementFeatureDescriptor) = encodable_elements(f.name, f.lookup_table)
 
 function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
     info = lookup_table[:, [Symbol(feature_name), :Symbol]]
@@ -85,3 +72,40 @@ function encodable_elements(feature_name::String, lookup_table::DataFrame = atom
         :Symbol,
     ]
 end
+
+function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
+    @assert all([el in encodable_elements(f) for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
+    reduce(
+        hcat,
+            map(
+                e -> onehot_lookup_encoder(
+                    e,
+                    f.name,
+                    f.lookup_table;
+                    nbins = f.nbins,
+                    logspaced = f.logspaced,
+                    categorical = f.categorical,
+            ),
+            a.elements,
+        )
+    )
+end
+
+#=
+    decode_f =
+        encoded_feature -> onecold_decoder(
+            encoded_feature,
+            feature_name,
+            lookup_table;
+            nbins = nbins,
+            logspaced = logspaced,
+            categorical = categorical,
+        )
+=#
+
+function decode(f::ElementFeatureDescriptor, encoded_feature)
+    onecold_decoder(encoded_feature, f.name, f.lookup_table;
+                    nbins = f.nbins, logspaced = f.logspaced, categorical = f.categorical)
+end
+
+

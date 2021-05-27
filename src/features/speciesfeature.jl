@@ -24,10 +24,10 @@ end
 
 
 # pretty printing, short version
-Base.show(io::IO, af::AtomFeatureDescriptor) = print(io, "AtomFeature $(af.name)")
+Base.show(io::IO, af::SpeciesFeatureDescriptor) = print(io, "AtomFeature $(af.name)")
 
 # pretty printing, long version
-function Base.show(io::IO, ::MIME"text/plain", af::AtomFeatureDescriptor)
+function Base.show(io::IO, ::MIME"text/plain", af::SpeciesFeatureDescriptor)
     st = "AtomFeature $(af.name):\n   categorical: $(af.categorical)\n   contextual: $(af.contextual)\n   encoded length: $(af.length)"
     print(io, st)
 end

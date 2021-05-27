@@ -2,9 +2,9 @@ using Test
 using DataFrames
 using CSV
 const cf = ChemistryFeaturization
-const afu = ChemistryFeaturization.Utils.AtomFeatureUtils
+const afu = ChemistryFeaturization.Utils.ElementFeatureUtils
 
-@testset "AtomFeatureUtils" begin
+@testset "ElementFeatureUtils" begin
     df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
 
     # fea_minmax
