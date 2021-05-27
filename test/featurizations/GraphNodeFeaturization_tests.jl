@@ -49,7 +49,7 @@ using CSV
 
     # featurize!
     featurize!.([triangle_C_1, triangle_C_2], [fzn1, fzn2])
-    @test triangle_C_1.atom_features == triangle_C_2.atom_features
+    @test triangle_C_1.encoded_atom_features == triangle_C_2.encoded_atom_features
 
     # decode
 

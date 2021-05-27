@@ -2,7 +2,7 @@ export GraphNodeFeaturization
 export encodable_elements, decode, chunk_vec
 
 """
-    GraphNodeFeaturization(atom_features::Vector{AtomFeatureDescriptor})
+    GraphNodeFeaturization(encoded_atom_features::Vector{AtomFeatureDescriptor})
     GraphNodeFeaturization(feature_names, lookup_table, nbins, logspaced, categorical)
 
 A featurization for AtomGraph objects that encodes features associated with each node. Contains a collection of `AtomFeatureDescriptor` objects, and can be initialized by passing those, or by passing parameters for constructing them.
@@ -20,7 +20,7 @@ The "convenience constructor" that builds the AtomFeatureDescriptor objects for 
 - `categorical::Union{Vector{Bool},Bool}`: Whether each feature is categorical or continous-valued.
 """
 struct GraphNodeFeaturization <: AbstractFeaturization
-    atom_features::Vector{<:AbstractAtomFeatureDescriptor}
+    encoded_atom_features::Vector{<:AbstractAtomFeatureDescriptor}
 end
 
 function GraphNodeFeaturization(
@@ -73,7 +73,7 @@ end
 # TODO: function to compute total vector length?
 
 encodable_elements(fzn::GraphNodeFeaturization) =
-    intersect([encodable_elements(f) for f in fzn.atom_features]...)
+    intersect([encodable_elements(f) for f in fzn.encoded_atom_features]...)
 
 """
     chunk_vec(vec, nbins)
@@ -106,13 +106,13 @@ end
 
 function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
     num_atoms = size(encoded, 2)
-    nbins = [f.length for f in fzn.atom_features]
+    nbins = [f.length for f in fzn.encoded_atom_features]
     local decoded = Dict{Integer,Dict{String,Any}}()
     for i = 1:num_atoms
         #println("atom $i")
         chunks = chunk_vec(encoded[:, i], nbins)
         decoded[i] = Dict{String,Any}()
-        for (chunk, f) in zip(chunks, fzn.atom_features)
+        for (chunk, f) in zip(chunks, fzn.encoded_atom_features)
             #println("    $(f.name): $(decode(f, chunk))")
             decoded[i][f.name] = decode(f, chunk)
         end
@@ -121,8 +121,8 @@ function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
 end
 
 function decode(ag::AtomGraph)
-    @assert !(all(isnothing.(ag.featurization, ag.atom_features)))
-    decoded = decode(ag.fzn, ag.atom_features)
+    @assert !(all(isnothing.(ag.featurization, ag.encoded_atom_features)))
+    decoded = decode(ag.fzn, ag.encoded_atom_features)
     for (k,v) in decoded
         v["Symbol"] = ag.elements[k]
     end
