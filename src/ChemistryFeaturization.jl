@@ -48,10 +48,10 @@ and "magical decoding" bits.
 
 Representative examples – feature: feature object type, input to encoder, output of encoder:
 
-block (s,p,d,f):            AtomFeatureDescriptor (contextual=false), String, Flux.OneHotMatrix
-electronegativity (binned): AtomFeatureDescriptor (contextual=false), Float32, Flux.OneHotMatrix
-electronegativity (direct): AtomFeatureDescriptor (contextual=false), Float32, Vector{Float32}
-oxidation state:            AtomFeatureDescriptor (contextual=true) Int, Vector{Float32}
+block (s,p,d,f):            ElementFeatureDescriptor, String, Flux.OneHotMatrix
+electronegativity (binned): ElementFeatureDescriptor, Float32, Flux.OneHotMatrix
+electronegativity (direct): ElementFeatureDescriptor, Float32, Vector{Float32}
+oxidation state:            SpeciesFeatureDescriptor, Int, Vector{Float32}
 distance between atoms:     PairFeat, Float32, Matrix{Float32}
 bond type:                  PairFeat, String, Array{Float32,3}
 

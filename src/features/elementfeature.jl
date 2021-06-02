@@ -57,7 +57,7 @@ Base.show(io::IO, af::ElementFeatureDescriptor) = print(io, "ElementFeature $(af
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", af::ElementFeatureDescriptor)
-    st = "ElementFeature $(af.name):\n   categorical: $(af.categorical)\n   contextual: $(af.contextual)\n   encoded length: $(af.length)"
+    st = "ElementFeature $(af.name):\n   categorical: $(af.categorical)\n   encoded length: $(af.length)"
     print(io, st)
 end
 

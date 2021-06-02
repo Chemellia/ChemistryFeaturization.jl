@@ -8,7 +8,6 @@ export encodable_elements, decode, chunk_vec
 A featurization for AtomGraph objects that encodes features associated with each node. Contains a collection of `AtomFeatureDescriptor` objects, and can be initialized by passing those, or by passing parameters for constructing them.
 
 ## Notes
-The "convenience constructor" that builds the AtomFeatureDescriptor objects for you only supports noncontextual AtomFeatureDescriptors (i.e. those that can be encoded solely based on elemental identity and hence tabulated in a lookup table). If you have contextual features that require non-lookup-table encoding functions, you currently must build those features yourself and use the default constructor.
 
 ## Required Arguments
 - `feature_names::Vector{String}`: Names of each feature
