@@ -66,7 +66,7 @@ end
 
 # TODO: add way to get range/list of possible values for feature...
 
-encodable_elements(f::ElementFeatureDescriptor) = encodable_elements(f.name, f.lookup_table)
+encodable_elements(f::ElementFeatureDescriptor) = f.lookup_table[:, :Symbol]
 
 function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
     info = lookup_table[:, [Symbol(feature_name), :Symbol]]
