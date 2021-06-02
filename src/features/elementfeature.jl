@@ -42,6 +42,9 @@ function ElementFeatureDescriptor(
         vector_length = nbins
     end
 
+    lookup_table = lookup_table[:, ["Symbol", feature_name]]
+    dropmissing!(lookup_table)
+
     ElementFeatureDescriptor(
         feature_name,
         vector_length,
