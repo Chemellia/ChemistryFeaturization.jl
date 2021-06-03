@@ -1,8 +1,8 @@
 module Utils
 
 using Reexport
-include("atomfeature_utils.jl")
-@reexport using .AtomFeatureUtils
+include("elementfeature_utils.jl")
+@reexport using .ElementFeatureUtils
 
 include("graph_building.jl")
 @reexport using .GraphBuilding

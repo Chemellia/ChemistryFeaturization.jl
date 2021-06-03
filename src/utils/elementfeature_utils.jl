@@ -182,7 +182,7 @@ function build_onehot_vec(val, bins, categorical)
     return onehot_vec
 end
 
-"Function for encoding onehot-style vectors based on values in a lookup table. Intended to be used as an `encode_f` for `AtomFeature` objects. See source code of convenience constructor for `AtomFeature` for more details."
+"Function for encoding onehot-style vectors based on values in a lookup table. Intended to be used as an `encode_f` for `ElementFeatureDescriptor` objects. See source code of convenience constructor for `ElementFeatureDescriptor` for more details."
 function onehot_lookup_encoder(
     el::String,
     feature_name::String,
@@ -211,7 +211,7 @@ function onehot_lookup_encoder(
     build_onehot_vec(val, bins, categorical)
 end
 
-"Function for decoding onehot-style vectors based on values in a lookup table. Intended to be used as an `decode_f` for `AtomFeature` objects. See source code of convenience constructor for `AtomFeature` for more details."
+"Function for decoding onehot-style vectors based on values in a lookup table. Intended to be used as an `decode_f` for `ElementFeatureDescriptor` objects. See source code of convenience constructor for `ElementFeatureDescriptor` for more details."
 function onecold_decoder(
     encoded,
     feature_name::String,

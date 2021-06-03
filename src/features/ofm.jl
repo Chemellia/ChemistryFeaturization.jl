@@ -1,5 +1,5 @@
 
-struct OrbitalFieldMatrix <: AbstractEnvironmentFeature
+struct OrbitalFieldMatrix <: AbstractEnvironmentFeatureDescriptor
     # stuff
 end
 
