@@ -1,11 +1,13 @@
 # some commentary
 
 # docstring...
+
 mutable struct WeaveMol <: AbstractAtoms
     smiles::String
     elements::Vector{String}
-    atom_features::Vector{SomethingOrOther} # I need to look more carefully to figure this out, heh
-    pair_features::Vector{SomethingOrOther}
+    graph::SimpleWeightedGraph{<:Integer,<:Real}
+    encoded_atom_features::Union{Matrix{<:Real},Nothing}
+    encoded_pair_features::Union{Matrix{Union{Vector{<:Real}, Nothing}},Nothing}
     featurization::WeaveFeaturization
     id::Any # probably makes sense to have this in addition to smiles? Maybe?
 end

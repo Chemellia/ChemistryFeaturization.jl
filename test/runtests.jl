@@ -4,10 +4,10 @@ using Test
 const testdir = dirname(@__FILE__)
 
 tests = [
-	"utils/AtomFeatureUtils_tests",
+	"utils/ElementFeatureUtils_tests",
 	"utils/GraphBuilding_tests",
 	"atoms/AtomGraph_tests",
-	"features/AtomFeature_tests",
+	"features/ElementFeature_tests",
 	"featurizations/GraphNodeFeaturization_tests",
 	# TODO: add Weave stuff
 ]

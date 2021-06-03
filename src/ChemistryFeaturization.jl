@@ -4,17 +4,19 @@ using SimpleWeightedGraphs
 using Reexport
 
 # define all the abstract types
-export AbstractAtoms, AbstractFeature, AbstractFeaturization
-export AbstractPairFeature, AbstractAtomFeature, AbstractEnvironmentFeature
+export AbstractAtoms, AbstractFeatureDescriptor, AbstractFeaturization
+export AbstractPairFeatureDescriptor, AbstractAtomFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
+
 abstract type AbstractAtoms end
-abstract type AbstractFeature end
+abstract type AbstractFeatureDescriptor end
 abstract type AbstractFeaturization end
-abstract type AbstractAtomFeature end
-abstract type AbstractPairFeature end
-abstract type AbstractEnvironmentFeature end
+
+abstract type AbstractAtomFeatureDescriptor <: AbstractFeatureDescriptor end
+abstract type AbstractPairFeatureDescriptor <: AbstractFeatureDescriptor end
+abstract type AbstractEnvironmentFeatureDescriptor <: AbstractFeatureDescriptor end
 
 include("utils/Utils.jl")
-@reexport using .Utils.AtomFeatureUtils
+@reexport using .Utils.ElementFeatureUtils
 @reexport using .Utils.GraphBuilding
 
 #= ATOMS OBJECTS
@@ -46,10 +48,10 @@ and "magical decoding" bits.
 
 Representative examples – feature: feature object type, input to encoder, output of encoder:
 
-block (s,p,d,f):            AtomFeature (contextual=false), String, Flux.OneHotMatrix 
-electronegativity (binned): AtomFeature (contextual=false), Float32, Flux.OneHotMatrix
-electronegativity (direct): AtomFeature (contextual=false), Float32, Vector{Float32}
-oxidation state:            AtomFeature (contextual=true) Int, Vector{Float32}
+block (s,p,d,f):            ElementFeatureDescriptor, String, Flux.OneHotMatrix
+electronegativity (binned): ElementFeatureDescriptor, Float32, Flux.OneHotMatrix
+electronegativity (direct): ElementFeatureDescriptor, Float32, Vector{Float32}
+oxidation state:            SpeciesFeatureDescriptor, Int, Vector{Float32}
 distance between atoms:     PairFeat, Float32, Matrix{Float32}
 bond type:                  PairFeat, String, Array{Float32,3}
 
@@ -62,49 +64,48 @@ All subtypes should have `encode_f` and `decode_f` fields
 # link to guidance in docs about how to implement new feature types
 
 # export...
-export ElementFeature, SpeciesFeature, PairFeature
+export ElementFeatureDescriptor, SpeciesFeatureDescriptor, PairFeatureDescriptor
 export encodable_elements, decode
 
 """
-    encodable_elements(f::AbstractFeature)
+    encodable_elements(f::AbstractFeatureDescriptor)
     encodable_elements(feature_name::String)
     encodable_elements(fzn::AbstractFeaturization)
 
 Return a list of elements encodable by a given feature or featurization.
 """
-encodable_elements(f::AbstractFeature) = println("Implement me please!")
+encodable_elements(f::AbstractFeatureDescriptor) = println("Implement me please!")
 encodable_elements(fzn::AbstractFeaturization) = println("Implement me please!")
 
 # include...
-include("features/atomfeature.jl")
+include("features/elementfeature.jl")
 include("features/speciesfeature.jl")
 include("features/pairfeature.jl")
 
 # generic encode
-function (f::AbstractFeature)(a::AbstractAtoms)
-    #f.encode_f(a)
+function (f::AbstractFeatureDescriptor)(a::AbstractAtoms)
     println("Implement me, please!")
 end
 
 """
-    decode(f::AbstractFeature, encoded_feature)
+    decode(f::AbstractFeatureDescriptor, encoded_feature)
 
 Decode a feature that was encoded using the provided feature object.
 
 ## Examples
 
 ```jldoctest
-julia> decode(AtomFeature("Block"), [0, 1, 0, 0])
+julia> decode(AtomFeatureDescriptor("Block"), [0, 1, 0, 0])
 "p"
 ```
 """
-function decode(f::AbstractFeature, encoded_feature)
+function decode(f::AbstractFeatureDescriptor, encoded_feature)
     #f.decode_f(encoded_feature)
     println("Implement me, please!")
 end
 
 #= FEATURIZATION OBJECTS
-All such objects should define at least one list of <: AbstractFeature objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed. You should also dispatch the decode function, for which a generic implementation does not currently exist.
+All such objects should define at least one list of <: AbstractFeatureDescriptor objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed. You should also dispatch the decode function, for which a generic implementation does not currently exist.
 
 TODO: generic decode, maybe
 =#

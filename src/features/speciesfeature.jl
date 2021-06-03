@@ -1,9 +1,9 @@
 using DataFrames
 
 """
-    SpeciesFeature(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
+    SpeciesFeatureDescriptor(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
 
-Construct a feature object that encodes features associated with individual atoms that depend upon their local environment in some way (if your feature is defined only by elemental identity, you should use ElementFeature!)
+Construct a feature object that encodes features associated with individual atoms that depend upon their local environment in some way (if your feature is defined only by elemental identity, you should use ElementFeatureDescriptor!)
 
 ## Arguments
 - `name::String`: the name of the feature
@@ -13,7 +13,7 @@ Construct a feature object that encodes features associated with individual atom
 - `length::Int`: length of encoded vector
 - `encodable_elements::Vector{String}`: list of elements (by symbol) that can be encoded by this feature
 """
-struct SpeciesFeature <: AbstractAtomFeature
+struct SpeciesFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
     encode_f::Function
     decode_f::Function
@@ -24,18 +24,18 @@ end
 
 
 # pretty printing, short version
-Base.show(io::IO, af::AtomFeature) = print(io, "AtomFeature $(af.name)")
+Base.show(io::IO, af::SpeciesFeatureDescriptor) = print(io, "AtomFeature $(af.name)")
 
 # pretty printing, long version
-function Base.show(io::IO, ::MIME"text/plain", af::AtomFeature)
-    st = "AtomFeature $(af.name):\n   categorical: $(af.categorical)\n   contextual: $(af.contextual)\n   encoded length: $(af.length)"
+function Base.show(io::IO, ::MIME"text/plain", af::SpeciesFeatureDescriptor)
+    st = "AtomFeature $(af.name):\n   categorical: $(af.categorical)\n   encoded length: $(af.length)"
     print(io, st)
 end
 
 # TODO: add way to get range/list of possible values for feature...
-encodable_elements(f::SpeciesFeature) = f.encodable_elements
+encodable_elements(f::SpeciesFeatureDescriptor) = f.encodable_elements
 
-function (f::SpeciesFeature)(a::AbstractAtoms)
+function (f::SpeciesFeatureDescriptor)(a::AbstractAtoms)
     @assert all([el in f.encodable_elements for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
     f.encode_f(a)
 end
