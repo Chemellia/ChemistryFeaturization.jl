@@ -107,8 +107,6 @@ end
 
 #= FEATURIZATION OBJECTS
 All such objects should define at least one list of <: AbstractFeatureDescriptor objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed. You should also dispatch the decode function, for which a generic implementation does not currently exist.
-
-TODO: generic decode, maybe
 =#
 
 # export...

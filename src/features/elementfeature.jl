@@ -23,8 +23,6 @@ struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     lookup_table::DataFrame
 end
 
-# TODO: update this, encoder stuff needs to be broken out as dispatches
-# also, should trim lookup_table to just have the columns it needs before constructing object
 function ElementFeatureDescriptor(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
@@ -64,8 +62,6 @@ function Base.show(io::IO, ::MIME"text/plain", af::ElementFeatureDescriptor)
     print(io, st)
 end
 
-# TODO: add way to get range/list of possible values for feature...
-
 encodable_elements(f::ElementFeatureDescriptor) = f.lookup_table[:, :Symbol]
 
 function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
@@ -93,8 +89,6 @@ function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
         ),
     )
 end
-
-# TODO: add option to encode elemental symbol
 
 decode(f::ElementFeatureDescriptor, encoded_feature) = onecold_decoder(
     encoded_feature,
