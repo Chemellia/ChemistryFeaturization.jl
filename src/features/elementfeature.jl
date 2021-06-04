@@ -94,21 +94,6 @@ function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
     )
 end
 
-#=
-    decode_f =
-        encoded_feature -> onecold_decoder(
-            encoded_feature,
-            feature_name,
-            lookup_table;
-            nbins = nbins,
-            logspaced = logspaced,
-            categorical = categorical,
-        )
-=#
-
-function decode(f::ElementFeatureDescriptor, encoded_feature)
+decode(f::ElementFeatureDescriptor, encoded_feature) =
     onecold_decoder(encoded_feature, f.name, f.lookup_table;
                     nbins = f.nbins, logspaced = f.logspaced, categorical = f.categorical)
-end
-
-

@@ -21,12 +21,14 @@ using CSV
         @test triangle_C_1.encoded_features == triangle_C_2.encoded_features
 
         # test that other options work properly
-        fzn3 = GraphNodeFeaturization(fnames, nbins=2)
+        fzn3 = GraphNodeFeaturization(fnames, nbins = 2)
         F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
         featurize!(F2, fzn3)
         decoded_matrix = decode(fzn3, F2.encoded_features)
         decoded_ag = decode(F2)
-        @test all(map(d->d[1]["Block"]==d[2]["Block"]=="p", [decoded_matrix, decoded_ag]))
+        @test all(
+            map(d -> d[1]["Block"] == d[2]["Block"] == "p", [decoded_matrix, decoded_ag]),
+        )
     end
 
     # encodable_elements

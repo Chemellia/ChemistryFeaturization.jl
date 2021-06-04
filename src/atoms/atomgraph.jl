@@ -176,8 +176,11 @@ function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
     if isnothing(ag.featurization)
         st = string(st, "uninitialized\n   featurization: uninitialized")
     else
-        st =
-            string(st, "$(size(ag.encoded_features)[1])\n   featurization: ", ag.featurization)
+        st = string(
+            st,
+            "$(size(ag.encoded_features)[1])\n   featurization: ",
+            ag.featurization,
+        )
     end
     print(io, st)
 
