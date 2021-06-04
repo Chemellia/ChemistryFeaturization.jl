@@ -1,4 +1,4 @@
-export GraphNodeFeaturization
+export GraphNodeFeaturization, featurize!
 export encodable_elements, decode, chunk_vec
 
 """
@@ -19,7 +19,7 @@ A featurization for AtomGraph objects that encodes features associated with each
 - `categorical::Union{Vector{Bool},Bool}`: Whether each feature is categorical or continous-valued.
 """
 struct GraphNodeFeaturization <: AbstractFeaturization
-    encoded_atom_features::Vector{<:AbstractAtomFeatureDescriptor}
+    features::Vector{<:AbstractAtomFeatureDescriptor} # TODO: this might need another name
 end
 
 function GraphNodeFeaturization(
@@ -72,7 +72,7 @@ end
 # TODO: function to compute total vector length?
 
 encodable_elements(fzn::GraphNodeFeaturization) =
-    intersect([encodable_elements(f) for f in fzn.encoded_atom_features]...)
+    intersect([encodable_elements(f) for f in fzn.features]...)
 
 """
     chunk_vec(vec, nbins)
@@ -103,15 +103,21 @@ function chunk_vec(vec::Vector{<:Real}, nbins::Vector{<:Integer})
     return chunks
 end
 
+function featurize!(ag::AtomGraph, fzn::GraphNodeFeaturization)
+    encoded = reduce(vcat, map((x) -> x(ag), fzn.features))
+    ag.encoded_features = encoded
+    ag.featurization = fzn
+end
+
 function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
     num_atoms = size(encoded, 2)
-    nbins = [f.length for f in fzn.encoded_atom_features]
+    nbins = [f.length for f in fzn.features]
     local decoded = Dict{Integer,Dict{String,Any}}()
     for i = 1:num_atoms
         #println("atom $i")
         chunks = chunk_vec(encoded[:, i], nbins)
         decoded[i] = Dict{String,Any}()
-        for (chunk, f) in zip(chunks, fzn.encoded_atom_features)
+        for (chunk, f) in zip(chunks, fzn.features)
             #println("    $(f.name): $(decode(f, chunk))")
             decoded[i][f.name] = decode(f, chunk)
         end
@@ -120,8 +126,8 @@ function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
 end
 
 function decode(ag::AtomGraph)
-    @assert !(all(isnothing.(ag.featurization, ag.encoded_atom_features)))
-    decoded = decode(ag.fzn, ag.encoded_atom_features)
+    @assert !(any(isnothing.([ag.featurization, ag.encoded_features])))
+    decoded = decode(ag.featurization, ag.encoded_features)
     for (k,v) in decoded
         v["Symbol"] = ag.elements[k]
     end

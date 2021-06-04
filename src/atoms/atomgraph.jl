@@ -30,7 +30,7 @@ mutable struct AtomGraph <: AbstractAtoms
     graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
     laplacian::Matrix{<:Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
-    encoded_atom_features::Union{Matrix{<:Real},Nothing} # if we add edge features this type will have to relax
+    encoded_features::Union{Matrix{<:Real},Nothing} # if we add edge features this type will have to relax
     featurization::Union{AbstractFeaturization,Nothing}
     id::String # or maybe we let it be a number too?
 end
@@ -52,7 +52,7 @@ features are provided, so too must be the featurization scheme, in order to main
 function AtomGraph(
     graph::SimpleWeightedGraph{A,B},
     elements::Vector{String},
-    features::Matrix{<:Real}, # this only works for node-only features
+    features::Matrix{<:Real},
     featurization::AbstractFeaturization,
     id = "",
 ) where {B<:Real,A<:Integer}
@@ -165,7 +165,7 @@ end
 function Base.show(io::IO, ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges"
     if !isnothing(ag.featurization)
-        st = string(st, ", feature vector length $(size(ag.atom_features)[1])")
+        st = string(st, ", feature vector length $(size(ag.encoded_features)[1])")
     end
     print(io, st)
 end
@@ -177,7 +177,7 @@ function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
         st = string(st, "uninitialized\n   featurization: uninitialized")
     else
         st =
-            string(st, "$(size(ag.atom_features)[1])\n   featurization: ", ag.featurization)
+            string(st, "$(size(ag.encoded_features)[1])\n   featurization: ", ag.featurization)
     end
     print(io, st)
 
