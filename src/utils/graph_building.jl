@@ -125,7 +125,8 @@ function weights_voronoi(struc)
             for image_ind = 1:size(conn)[3]
                 # only add as neighbor if atom is not current center one AND there is connectivity to image
                 if (atom_ind != image_ind) && (conn[atom_ind, nb_ind, image_ind] != 0)
-                    weight_mat[atom_ind, nb_ind] += conn[atom_ind, nb_ind, image_ind] / maximum(conn[atom_ind, :, :])
+                    weight_mat[atom_ind, nb_ind] +=
+                        conn[atom_ind, nb_ind, image_ind] / maximum(conn[atom_ind, :, :])
                 end
             end
         end

@@ -5,7 +5,8 @@ using Reexport
 
 # define all the abstract types
 export AbstractAtoms, AbstractFeatureDescriptor, AbstractFeaturization
-export AbstractPairFeatureDescriptor, AbstractAtomFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
+export AbstractPairFeatureDescriptor,
+    AbstractAtomFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
 
 abstract type AbstractAtoms end
 abstract type AbstractFeatureDescriptor end

@@ -30,7 +30,7 @@ function ElementFeatureDescriptor(
     lookup_table::DataFrame = atom_data_df;
     nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table)
+    categorical::Bool = default_categorical(feature_name, lookup_table),
 )
     colnames = names(lookup_table)
     @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
@@ -51,7 +51,7 @@ function ElementFeatureDescriptor(
         nbins,
         logspaced,
         categorical,
-        lookup_table
+        lookup_table,
     )
 end
 
@@ -80,20 +80,27 @@ function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
     @assert all([el in encodable_elements(f) for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
     reduce(
         hcat,
-            map(
-                e -> onehot_lookup_encoder(
-                    e,
-                    f.name,
-                    f.lookup_table;
-                    nbins = f.nbins,
-                    logspaced = f.logspaced,
-                    categorical = f.categorical,
+        map(
+            e -> onehot_lookup_encoder(
+                e,
+                f.name,
+                f.lookup_table;
+                nbins = f.nbins,
+                logspaced = f.logspaced,
+                categorical = f.categorical,
             ),
             a.elements,
-        )
+        ),
     )
 end
 
-decode(f::ElementFeatureDescriptor, encoded_feature) =
-    onecold_decoder(encoded_feature, f.name, f.lookup_table;
-                    nbins = f.nbins, logspaced = f.logspaced, categorical = f.categorical)
+# TODO: add option to encode elemental symbol
+
+decode(f::ElementFeatureDescriptor, encoded_feature) = onecold_decoder(
+    encoded_feature,
+    f.name,
+    f.lookup_table;
+    nbins = f.nbins,
+    logspaced = f.logspaced,
+    categorical = f.categorical,
+)
