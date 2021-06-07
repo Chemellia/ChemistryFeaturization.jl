@@ -1,23 +1,38 @@
 # Terminology
 
-There are a lot of seemingly similar terms used for quantities in this package that refer to disparate things. Here, we try to best define these terms.
+There are a lot of seemingly similar terms used for quantities in this package that refer to disparate things (or, are used slightly differently by other people in other places). Here, we try to best define these terms as we intend them.
 
-## Feature
+## General Terms
+
+### Feature
 
 A quality or quantity associated with an atom that we wish to encode, such as atomic mass, row in the periodic table, etc.
 
-## Feature vector
+### Encoding
 
-The encoding (typically one-hot-style) of the values of a set of features associated with a particular atom (or, in the case of Weave featurization, pair of atoms, etc.).
+The process of translating the value of a feature from its human-readable form (such as a float or a string) to whatever form will be ingested by a machine learning model. This could be as simple as an equality operation, but more often is, e.g. building a one-hot vector.
 
-For example, suppose we are encoding the atomic mass (across five possible bins) and periodic table block (s, p, d, or f) of Hydrogen. \
-In this case, the associated feature vector would be `[1 0 0 0 0 1 0 0 0]` - where the first five indexes correspond to atomic mass and the last four correspond to the block in the periodic table.
+### Decoding
 
-## Featurization
+The inverse process to encoding. Note that in many cases (e.g. a continuous-valued feature encoded to a one-hot vector), the process isn't fully invertible, i.e. you can't get back a precise value but rather only a range corresponding to the associated onehot bin.
 
-Either the process of assigning feature vectors to chemical elements, or a description of a scheme for doing so, encoded as a Vector of *AtomFeat* objects (eventually, we plan to implement BondFeat, PairFeat, etc...).
+## Data types in `ChemistryFeaturization`
 
-## Feature matrix
+### Feature Descriptor
 
-A collection of feature vectors associated with the atoms in a structure. \
-The feature matrix must be of dimensions `m x n` - where *m* is the number of features, and *n* is the number of nodes.
+Describes the "features of a feature" – i.e. its name, possible values, instructions for encoding it, etc., but does NOT store an actual instance of its value. 
+
+For more on the available types of feature descriptors, see [Feature Descriptors](@ref).
+
+### Atoms Object
+
+Describes a molecule, crystal, etc. in whatever representation will be ingested by an ML model (e.g. a graph), and can also store encoded features of that structure. 
+
+For more on the available types of atoms objects, see [Atoms Objects](@ref).
+
+### Featurization Object
+
+Stores sets of feature descriptors and instructions for combining the values they encode on an atoms object.
+
+For more on the available types of featurization objects, see [Featurizations](@ref).
+

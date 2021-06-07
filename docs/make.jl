@@ -1,7 +1,6 @@
 using Documenter, ChemistryFeaturization
 
 makedocs(
-
     sitename = "ChemistryFeaturization.jl",
     modules = [ChemistryFeaturization],
     pages = Any[
@@ -24,8 +23,8 @@ makedocs(
     linkcheck = "linkcheck" in ARGS
 )
 deploydocs(
-	repo = "github.com/thazhemadam/ChemistryFeaturization.jl.git",
-        target = "build",
-        devbranch = "main",
-	branch = "gh-pages"
+    repo = "github.com/Chemellia/ChemistryFeaturization.jl.git",
+    target = "build",
+    devbranch = "main",
+    branch = "gh-pages"
 )
