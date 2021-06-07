@@ -4,8 +4,9 @@ I'm generally trying to adhere to [semver](https://semver.org) here. This means 
 
 Categories to include for each release, if relevant: breaking, added, fixed, removed/deprecated
 
-## Upcoming
+## v0.3.0
 * major restructure to make extensibility far easier and allow better sharing of elements between featurization schemes!
+TODO: write this changelog entry
 
 ## v0.2.2 [2021-02-22]
 
