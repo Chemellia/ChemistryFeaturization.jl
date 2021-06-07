@@ -1,13 +1,13 @@
 name: CI
+
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
+  pull_request:
+
 jobs:
-  test:
+  format_test:
     env:
       PYTHON: ""
     runs-on: ${{ matrix.os }}
@@ -25,6 +25,19 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.julia-version }}
+      - name: Format code
+        if: ${{ matrix.os }} == ubuntu-latest
+        run: |
+          using Pkg
+          Pkg.add(; name="JuliaFormatter", uuid="98e50ef6-434e-11e9-1051-2b60c6c9e899")
+          using JuliaFormatter
+          format("."; verbose=true)
+        shell: julia --color=yes {0}
+      - uses: reviewdog/action-suggester@v1
+        if: github.event_name == 'pull_request'
+        with:
+          tool_name: JuliaFormatter
+          fail_on_error: true
       - uses: actions/cache@v1
         env:
           cache-name: cache-artifacts
