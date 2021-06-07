@@ -93,7 +93,7 @@ AtomGraph(
     featurization::AbstractFeaturization,
     id = "",
 ) where {R2<:Real,R1<:Real} =
-    AtomGraph(SimpleWeightedGraph{R}(adj), elements, features, featurization, id)
+    AtomGraph(SimpleWeightedGraph{R1}(adj), elements, features, featurization, id)
 
 
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
