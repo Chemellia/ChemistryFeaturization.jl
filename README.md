@@ -1,5 +1,5 @@
 # ChemistryFeaturization.jl
-![Run tests](https://github.com/aced-differentiate/ChemistryFeaturization.jl/workflows/Run%20tests/badge.svg)[![codecov](https://codecov.io/gh/aced-differentiate/ChemistryFeaturization.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/aced-differentiate/ChemistryFeaturization.jl)
+![Run tests](https://github.com/chemellia/ChemistryFeaturization.jl/workflows/Run%20tests/badge.svg)[![codecov](https://codecov.io/gh/chemellia/ChemistryFeaturization.jl/branch/main/graph/badge.svg?token=C0Fdt8BGnr)](https://codecov.io/gh/chemellia/ChemistryFeaturization.jl)
 
 Flexible, modular, invertible featurization for Chemellia models including AtomicGraphnets.jl and WeaveModel.jl.
 
