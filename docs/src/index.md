@@ -1,6 +1,6 @@
 # ChemistryFeaturization.jl
 
-*Data types and featurization schemes for Alchemy models and beyoond!*
+*Data types and featurization schemes for Chemellia models and beyooond!*
 
 ChemistryFeaturization.jl is meant to be a unified interface for translating atomic structures (molecules, crystals, etc.) into data structures and sets of features to be used in machine learning models provided by the Alchemy suite of packages, such as [AtomicGraphNets.jl](https://github.com/aced-differentiate/AtomicGraphNets.jl).
 
