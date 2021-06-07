@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  format_test:
+  test:
     env:
       PYTHON: ""
     runs-on: ${{ matrix.os }}
@@ -26,7 +26,7 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
       - name: Format code
-        if: ${{ matrix.os }} == ubuntu-latest
+        if: ${{ matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request' }}
         run: |
           using Pkg
           Pkg.add(; name="JuliaFormatter", uuid="98e50ef6-434e-11e9-1051-2b60c6c9e899")
@@ -34,7 +34,7 @@ jobs:
           format("."; verbose=true)
         shell: julia --color=yes {0}
       - uses: reviewdog/action-suggester@v1
-        if: github.event_name == 'pull_request'
+        if: ${{ matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request' }}
         with:
           tool_name: JuliaFormatter
           fail_on_error: true
@@ -48,9 +48,13 @@ jobs:
             ${{ matrix.os }}-test-${{ env.cache-name }}-
             ${{ matrix.os }}-test-
             ${{ matrix.os }}-
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
-      - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - name: Build Package
+        uses: julia-actions/julia-buildpkg@v1
+      - name: Run Tests
+        uses: julia-actions/julia-runtest@v1
+      - name: Process Coverage
+        uses: julia-actions/julia-processcoverage@v1
+      - name: Codecov Coverage
+        uses: codecov/codecov-action@v1
         with:
           file: lcov.info
