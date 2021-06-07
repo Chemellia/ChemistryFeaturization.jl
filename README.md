@@ -3,7 +3,7 @@
 
 Flexible, modular, invertible featurization for Chemellia models including AtomicGraphnets.jl and WeaveModel.jl.
 
-Documentation is starting to be built in the [wiki](https://github.com/aced-differentiate/ChemistryFeaturization.jl/wiki) and will soon have its own page...
+Documentation is starting to be built [here](https://chemellia.github.io/ChemistryFeaturization.jl/dev/), pardon the holes for the moment...
 
 This package is currently focused on bulk systems. We have plans for more support of organic molecules, but at the moment, [MolecularGraph](https://github.com/mojaie/MolecularGraph.jl) is probably your best bet. PubChem stores many molecular features for the compounds they catalog, and their data can be accessed via [PubChemCrawler](https://github.com/JuliaHealth/PubChemCrawler.jl).
 
