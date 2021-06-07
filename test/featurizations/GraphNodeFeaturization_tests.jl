@@ -7,10 +7,10 @@ using CSV
     # custom lookup table...
     test_df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
 
-    @testset "Construct, encode, decode"
+    @testset "Construct, encode, decode" begin
         # make sure both constructors give the same results
         local fnames = ["X", "Block", "Atomic mass"]
-        features = AtomFeature.(fnames)
+        features = ElementFeatureDescriptor.(fnames)
         fzn1 = GraphNodeFeaturization(features)
         fzn2 = GraphNodeFeaturization(fnames)
 
@@ -18,16 +18,17 @@ using CSV
         triangle_C_2 = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
         # (this one also tests broadcasting of featurize!)
         featurize!.([triangle_C_1, triangle_C_2], [fzn1, fzn2])
-        @test triangle_C_1.atom_features == triangle_C_2.atom_features
+        @test triangle_C_1.encoded_features == triangle_C_2.encoded_features
 
         # test that other options work properly
-        fzn3 = GraphNodeFeaturization(fnames, nbins=2)
+        fzn3 = GraphNodeFeaturization(fnames, nbins = 2)
         F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
         featurize!(F2, fzn3)
-        decoded_matrix = decode(fzn3, F2.atom_features)
-        decoded_ag = decode(fzn3, F2)
-        @test all(map(d->d[1]["Block"]==d[2]["Block"]=="p", [decoded_matrix, decoded_ag])
-
+        decoded_matrix = decode(fzn3, F2.encoded_features)
+        decoded_ag = decode(F2)
+        @test all(
+            map(d -> d[1]["Block"] == d[2]["Block"] == "p", [decoded_matrix, decoded_ag]),
+        )
     end
 
     # encodable_elements

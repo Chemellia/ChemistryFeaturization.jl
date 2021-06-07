@@ -79,9 +79,6 @@ end
 
 """
 Build graph using neighbor number cutoff method adapted from original CGCNN. Note that `max_num_nbr` is a "soft" max, in that if there are more of the same distance as the last, all of those will be added.
-
-# TODO
-- option to cut off by nearest, next-nearest, etc. by DISTANCE rather than NUMBER of neighbors
 """
 function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inverse_square)
     # sort by distance
@@ -125,7 +122,8 @@ function weights_voronoi(struc)
             for image_ind = 1:size(conn)[3]
                 # only add as neighbor if atom is not current center one AND there is connectivity to image
                 if (atom_ind != image_ind) && (conn[atom_ind, nb_ind, image_ind] != 0)
-                    weight_mat[atom_ind, nb_ind] += conn[atom_ind, nb_ind, image_ind] / maximum(conn[atom_ind, :, :])
+                    weight_mat[atom_ind, nb_ind] +=
+                        conn[atom_ind, nb_ind, image_ind] / maximum(conn[atom_ind, :, :])
                 end
             end
         end

@@ -5,7 +5,8 @@ using Reexport
 
 # define all the abstract types
 export AbstractAtoms, AbstractFeatureDescriptor, AbstractFeaturization
-export AbstractPairFeatureDescriptor, AbstractAtomFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
+export AbstractPairFeatureDescriptor,
+    AbstractAtomFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
 
 abstract type AbstractAtoms end
 abstract type AbstractFeatureDescriptor end
@@ -106,8 +107,6 @@ end
 
 #= FEATURIZATION OBJECTS
 All such objects should define at least one list of <: AbstractFeatureDescriptor objects and either work according to the generic featurize! defined herein or dispatch featurize! if customized behavior is needed. You should also dispatch the decode function, for which a generic implementation does not currently exist.
-
-TODO: generic decode, maybe
 =#
 
 # export...
@@ -123,21 +122,9 @@ include("featurizations/weavefeaturization.jl")
     featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
 
 Featurize a structure with a given featurization.
-
-Note that this generic dispatch on the abstract types assumes that `a` has fields with names corresponding to each field of `fzn`. If this is not the case for the atoms and featurization objects you are using, it will likely not work and need to be dispatched to that specific case.
 """
 function featurize!(a::AbstractAtoms, fzn::AbstractFeaturization)
-    # TO CONSIDER: maybe add option to exclude field names from iteration over fzn?
-
-    # loop over fields in featurization, each one is a list of features
-    # encode each feature in that list and assign the results to the
-    # field of the same name in `a`
-    for feats_list in fieldnames(typeof(fzn))
-        encoded = reduce(vcat, map((x) -> x(a), getproperty(fzn, feats_list)))
-        setproperty!(a, feats_list, encoded)
-    end
-    a.featurization = fzn
-    return
+    println("Implement me please!")
 end
 
 # dispatch some things so that featurize!.(::Vector{AbstractAtoms}, ::AbstractFeaturization) will work...

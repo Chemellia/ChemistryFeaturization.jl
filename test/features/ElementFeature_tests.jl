@@ -38,7 +38,7 @@ const cf = ChemistryFeaturization
     X = ElementFeatureDescriptor("X", nbins = 8, logspaced = true)
     triangle_C = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
     @test X(triangle_C)[6, :] == ones(3)
-    
+
     block = ElementFeatureDescriptor("Block", nbins = 5)
     @test block(triangle_C)[2, :] == ones(3)
 

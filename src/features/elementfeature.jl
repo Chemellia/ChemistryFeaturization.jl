@@ -23,14 +23,12 @@ struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     lookup_table::DataFrame
 end
 
-# TODO: update this, encoder stuff needs to be broken out as dispatches
-# also, should trim lookup_table to just have the columns it needs before constructing object
 function ElementFeatureDescriptor(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
     nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table)
+    categorical::Bool = default_categorical(feature_name, lookup_table),
 )
     colnames = names(lookup_table)
     @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
@@ -51,7 +49,7 @@ function ElementFeatureDescriptor(
         nbins,
         logspaced,
         categorical,
-        lookup_table
+        lookup_table,
     )
 end
 
@@ -63,8 +61,6 @@ function Base.show(io::IO, ::MIME"text/plain", af::ElementFeatureDescriptor)
     st = "ElementFeature $(af.name):\n   categorical: $(af.categorical)\n   encoded length: $(af.length)"
     print(io, st)
 end
-
-# TODO: add way to get range/list of possible values for feature...
 
 encodable_elements(f::ElementFeatureDescriptor) = f.lookup_table[:, :Symbol]
 
@@ -80,35 +76,25 @@ function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
     @assert all([el in encodable_elements(f) for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
     reduce(
         hcat,
-            map(
-                e -> onehot_lookup_encoder(
-                    e,
-                    f.name,
-                    f.lookup_table;
-                    nbins = f.nbins,
-                    logspaced = f.logspaced,
-                    categorical = f.categorical,
+        map(
+            e -> onehot_lookup_encoder(
+                e,
+                f.name,
+                f.lookup_table;
+                nbins = f.nbins,
+                logspaced = f.logspaced,
+                categorical = f.categorical,
             ),
             a.elements,
-        )
+        ),
     )
 end
 
-#=
-    decode_f =
-        encoded_feature -> onecold_decoder(
-            encoded_feature,
-            feature_name,
-            lookup_table;
-            nbins = nbins,
-            logspaced = logspaced,
-            categorical = categorical,
-        )
-=#
-
-function decode(f::ElementFeatureDescriptor, encoded_feature)
-    onecold_decoder(encoded_feature, f.name, f.lookup_table;
-                    nbins = f.nbins, logspaced = f.logspaced, categorical = f.categorical)
-end
-
-
+decode(f::ElementFeatureDescriptor, encoded_feature) = onecold_decoder(
+    encoded_feature,
+    f.name,
+    f.lookup_table;
+    nbins = f.nbins,
+    logspaced = f.logspaced,
+    categorical = f.categorical,
+)

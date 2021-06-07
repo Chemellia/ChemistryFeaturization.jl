@@ -8,7 +8,12 @@ using Serialization
 @testset "AtomGraph" begin
 
     wm_mp195 = [0.0 1.0 1.0 1.0; 1.0 0.0 1.0 1.0; 1.0 1.0 0.0 1.0; 1.0 1.0 1.0 0.0]
-    lapl_mp195 = [1.0 -0.3333333 -0.3333333 -0.3333333; -0.3333333 1.0 -0.3333333 -0.3333333; -0.3333333 -0.3333333 1.0 -0.3333333; -0.3333333 -0.3333333 -0.3333333 1.0 ]
+    lapl_mp195 = [
+        1.0 -0.3333333 -0.3333333 -0.3333333
+        -0.3333333 1.0 -0.3333333 -0.3333333
+        -0.3333333 -0.3333333 1.0 -0.3333333
+        -0.3333333 -0.3333333 -0.3333333 1.0
+    ]
     els_mp195 = ["Ho", "Pt", "Pt", "Pt"]
 
     @testset "construct object" begin
@@ -28,12 +33,14 @@ using Serialization
         ag = AtomGraph(abspath(@__DIR__, "..", "test_data", "strucs", "mp-195.cif"))
 
         @test weights(ag.graph) == wm_mp195
-        @test all(isapprox.(ag.laplacian, lapl_mp195, atol=1e-7))
+        @test all(isapprox.(ag.laplacian, lapl_mp195, atol = 1e-7))
         @test ag.elements == els_mp195
 
         # test that warning is thrown for NaNs in laplacian
         @test_throws ArgumentError AtomGraph(
-            build_graph(abspath(@__DIR__, "..", "test_data", "strucs",  "nanlaplstruc.cif"))...,
+            build_graph(
+                abspath(@__DIR__, "..", "test_data", "strucs", "nanlaplstruc.cif"),
+            )...,
         )
     end
 
@@ -48,18 +55,18 @@ using Serialization
     end
 
     @testset "batch processing" begin
-        file_list = readdir(abspath(@__DIR__, "..", "test_data", "strucs"), join=true)
+        file_list = readdir(abspath(@__DIR__, "..", "test_data", "strucs"), join = true)
         ags = AtomGraph.(file_list)
         @test length(collect(skipmissing(ags))) == length(ags) - 1
 
-        ids = map(f->splitpath(f)[end], file_list)
+        ids = map(f -> splitpath(f)[end], file_list)
         ags2 = collect(skipmissing(AtomGraph.(file_list, ids)))
         mp195s = [ag for ag in skipmissing(ags2) if contains(ag.id, "mp-195")]
-        
+
         for ag in mp195s
             @test ag.elements == els_mp195
             @test weights(ag.graph) == wm_mp195
-            @test all(isapprox.(ag.laplacian, lapl_mp195, atol=1e-7))
+            @test all(isapprox.(ag.laplacian, lapl_mp195, atol = 1e-7))
         end
 
     end
@@ -87,4 +94,3 @@ using Serialization
     end
 
 end
-
