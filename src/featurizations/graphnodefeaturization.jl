@@ -128,7 +128,7 @@ end
 function decode(ag::AtomGraph)
     @assert !(any(isnothing.([ag.featurization, ag.encoded_features])))
     decoded = decode(ag.featurization, ag.encoded_features)
-    for (k,v) in decoded
+    for (k, v) in decoded
         v["Symbol"] = ag.elements[k]
     end
     return decoded
