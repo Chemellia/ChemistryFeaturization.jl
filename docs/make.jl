@@ -4,12 +4,15 @@ makedocs(
     sitename = "ChemistryFeaturization.jl",
     modules = [ChemistryFeaturization],
     pages = Any[
-    "Home" => "index.md",
-    "Terminology" => "terminology.md",
-    "Types" => Any[
-        "Atoms Objects" => "types/atoms.md",
-        "Feature Descriptors" => "types/feature_descriptors.md",
-        "Featurizations" => "types/featurizations.md"
+        "Home"=>"index.md",
+        "Terminology"=>"terminology.md",
+        "Types"=>Any[
+            "Atoms Objects"=>"types/atoms.md",
+            "Feature Descriptors"=>"types/feature_descriptors.md",
+            "Featurizations"=>"types/featurizations.md",
+        ],
+        "Contributing"=>"contributing.md",
+        "Changelog"=>"changelog.md",
     ],
     "Contributing" => "contributing.md",
     "Changelog" => "changelog.md",    
