@@ -24,7 +24,14 @@ and
 
 More details on each of these types is below, and more types (e.g. environment features) will be implemented in the future!
 
-Note that the function `encodable_elements` should be defined on all feature descriptors, as it will be used to verify that a feature can be encoded for every atom in a structure.
+## Functionality common to all feature descriptors
+
+* they should be callable on atoms objects and return encoded features
+* Similarly, `decode` should work...
+```@docs
+decode(::AbstractFeatureDescriptor, ::Any)
+```
+* the function `encodable_elements` should be defined on all feature descriptors, as it will be used to verify that a feature can be encoded for every atom in a structure.
 
 ## Atom Feature Descriptors
 
@@ -33,6 +40,10 @@ These types encode features for single atoms in a structure. The abstract parent
 ### Element Feature Descriptors
 
 An `ElementFeatureDescriptor`'s encoded values are defined only by the elemental identity of an atom. Examples include atomic mass and block (s, p, d, or f) in the periodic table.
+
+```@docs
+ElementFeatureDescriptor
+```
 
 In the example, below, we encode the block of each atom in a hydrogen molecule. The result is two `hcat`ted vectors [1 0 0 0], indicating hydrogen is _s_-block.
 
