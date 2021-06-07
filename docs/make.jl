@@ -7,10 +7,13 @@ makedocs(
     pages = Any[
     "Home" => "index.md",
     "Terminology" => "terminology.md",
-    "AtomFeat" => "types/atomfeat.md",
-    "AtomGraph" => "types/atomgraph.md",
-    "Building Atomic Graphs" => "build_ag.md",
-        "Changelog" => "changelog.md",    
+    "Types" => Any[
+        "Atoms Objects" => "types/atoms.md",
+        "Feature Descriptors" => "types/feature_descriptors.md",
+        "Featurizations" => "types/featurizations.md"
+    ],
+    "Contributing" => "contributing.md",
+    "Changelog" => "changelog.md",    
     ],
 	format = Documenter.HTML(
         # Use clean URLs, unless built as a "local" build
