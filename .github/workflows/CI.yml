@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  format/test:
+  format_test:
     env:
       PYTHON: ""
     runs-on: ${{ matrix.os }}
