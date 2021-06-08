@@ -1,6 +1,24 @@
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
+
+abstract type EncoderDecoder end
+
+"""
+    DummyED(encode_f, decode_f, nbins, logspaced)
+
+EncoderDecoder type which uses a dummy variable (as defined in statistical literature), i.e., which employs
+one-hot encoding and a one-cold decoding scheme.
+"""
+struct DummyED <: EncoderDecoder
+    encode_f::Function
+    decode_f::Function
+    nbins::Integer
+    logspaced::Bool
+end
+
+# TODO - Create a new constructor for ElementFD that has <: EncoderDecoder as argument toog
+
 # TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
 """
     ElementFeatureDescriptor(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
