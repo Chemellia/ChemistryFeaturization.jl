@@ -45,8 +45,6 @@ end
 function ElementFeatureDescriptor(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
-    encode_f::Function = default_efd_encode,
-    decode_f::Function = default_efd_decode,
     nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
@@ -67,7 +65,7 @@ function ElementFeatureDescriptor(
     ElementFeatureDescriptor(
         feature_name,
         vector_length,
-        DummyED(encode_f, decode_f, nbins, logspaced),
+        DummyED(default_efd_encode, default_efd_decode, nbins, logspaced),
         categorical,
         lookup_table,
     )
