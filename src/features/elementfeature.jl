@@ -17,7 +17,9 @@ struct DummyED <: EncoderDecoder
     logspaced::Bool
 end
 
-# TODO - Create a new constructor for ElementFD that has <: EncoderDecoder as argument toog
+@enum EncodeOrDecode ENCODE DECODE
+
+# TODO - consider edge cases in constructor. add this stuff into modulify.
 
 # TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
 """
@@ -35,8 +37,7 @@ Construct a feature object that encodes features associated with individual atom
 struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
     length::Integer
-    nbins::Integer
-    logspaced::Bool
+    encoder_decoder::EncoderDecoder
     categorical::Bool
     lookup_table::DataFrame
 end
@@ -44,6 +45,8 @@ end
 function ElementFeatureDescriptor(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
+    encode_f::Function = default_efd_encode,
+    decode_f::Function = default_efd_decode,
     nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
@@ -64,8 +67,7 @@ function ElementFeatureDescriptor(
     ElementFeatureDescriptor(
         feature_name,
         vector_length,
-        nbins,
-        logspaced,
+        DummyED(encode_f, decode_f, nbins, logspaced),
         categorical,
         lookup_table,
     )
@@ -92,6 +94,27 @@ end
 
 function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
     @assert all([el in encodable_elements(f) for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
+    f.encoder_decoder(f, a, ENCODE)
+end
+
+
+function (ed::DummyED)(e::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
+    if e_or_d == ENCODE
+        ed.encode_f(e, a, ed.nbins, ed.logspaced)
+    else
+        ed.decode(e, a, ed.nbins, ed.logspaced)
+    end
+end
+
+decode(f::ElementFeatureDescriptor, encoded_feature) =
+    f.encoder_decoder.decode_f(f, encoded_feature)
+
+function default_efd_encode(
+    f::ElementFeatureDescriptor,
+    a::AbstractAtoms,
+    nbins::Integer,
+    logspaced::Bool,
+)
     reduce(
         hcat,
         map(
@@ -99,8 +122,8 @@ function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
                 e,
                 f.name,
                 f.lookup_table;
-                nbins = f.nbins,
-                logspaced = f.logspaced,
+                nbins,
+                logspaced,
                 categorical = f.categorical,
             ),
             a.elements,
@@ -108,11 +131,11 @@ function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
     )
 end
 
-decode(f::ElementFeatureDescriptor, encoded_feature) = onecold_decoder(
+default_efd_decode(e::ElementFeatureDescriptor, encoded_feature) = onecold_decoder(
     encoded_feature,
-    f.name,
-    f.lookup_table;
-    nbins = f.nbins,
-    logspaced = f.logspaced,
-    categorical = f.categorical,
+    e.name,
+    e.lookup_table;
+    e.encoder_decoder.nbins,
+    e.encoder_decoder.logspaced,
+    categorical = e.categorical,
 )
