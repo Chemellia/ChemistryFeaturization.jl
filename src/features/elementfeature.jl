@@ -102,12 +102,12 @@ function (ed::DummyED)(e::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::En
     if e_or_d == ENCODE
         ed.encode_f(e, a, ed.nbins, ed.logspaced)
     else
-        ed.decode(e, a, ed.nbins, ed.logspaced)
+        ed.decode_f(e, a, ed.nbins, ed.logspaced)
     end
 end
 
 function (ed::DummyED)(e::ElementFeatureDescriptor, encoded_feature)
-    ed.decode_f(e, encoded_feature)
+    ed.decode_f(e, encoded_feature, ed.nbins, ed.logspaced)
 end
 
 function default_efd_encode(
@@ -132,11 +132,11 @@ function default_efd_encode(
     )
 end
 
-default_efd_decode(e::ElementFeatureDescriptor, encoded_feature) = onecold_decoder(
+default_efd_decode(e::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) = onecold_decoder(
     encoded_feature,
     e.name,
     e.lookup_table;
-    e.encoder_decoder.nbins,
-    e.encoder_decoder.logspaced,
+    nbins,
+    logspaced,
     categorical = e.categorical,
 )
