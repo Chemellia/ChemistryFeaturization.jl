@@ -104,6 +104,10 @@ function (ed::DummyED)(e::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::En
     end
 end
 
+function (ed::DummyED)(e::ElementFeatureDescriptor, encoded_feature)
+    ed.decode_f(e, encoded_feature)
+end
+
 decode(f::ElementFeatureDescriptor, encoded_feature) =
     f.encoder_decoder.decode_f(f, encoded_feature)
 
