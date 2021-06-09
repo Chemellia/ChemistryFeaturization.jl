@@ -72,15 +72,15 @@ function ElementFeatureDescriptor(
 end
 
 # pretty printing, short version
-Base.show(io::IO, af::ElementFeatureDescriptor) = print(io, "ElementFeature $(af.name)")
+Base.show(io::IO, efd::ElementFeatureDescriptor) = print(io, "ElementFeature $(efd.name)")
 
 # pretty printing, long version
-function Base.show(io::IO, ::MIME"text/plain", af::ElementFeatureDescriptor)
-    st = "ElementFeature $(af.name):\n   categorical: $(af.categorical)\n   encoded length: $(af.length)"
+function Base.show(io::IO, ::MIME"text/plain", efd::ElementFeatureDescriptor)
+    st = "ElementFeature $(efd.name):\n   categorical: $(efd.categorical)\n   encoded length: $(efd.length)"
     print(io, st)
 end
 
-encodable_elements(f::ElementFeatureDescriptor) = f.lookup_table[:, :Symbol]
+encodable_elements(efd::ElementFeatureDescriptor) = efd.lookup_table[:, :Symbol]
 
 function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
     info = lookup_table[:, [Symbol(feature_name), :Symbol]]
@@ -90,28 +90,28 @@ function encodable_elements(feature_name::String, lookup_table::DataFrame = atom
     ]
 end
 
-function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
-    @assert all([el in encodable_elements(f) for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
-    f.encoder_decoder(f, a, ENCODE)
+function (efd::ElementFeatureDescriptor)(a::AbstractAtoms)
+    @assert all([el in encodable_elements(efd) for el in a.elements]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
+    efd.encoder_decoder(efd, a, ENCODE)
 end
 
-encode(f::ElementFeatureDescriptor, a::AbstractAtoms) = f.encoder_decoder(f, a, ENCODE)
-decode(f::ElementFeatureDescriptor, encoded_feature) = f.encoder_decoder(f, encoded_feature)
+encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) = efd.encoder_decoder(efd, a, ENCODE)
+decode(efd::ElementFeatureDescriptor, encoded_feature) = efd.encoder_decoder(efd, encoded_feature)
 
-function (ed::DummyED)(e::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
+function (ed::DummyED)(efd::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
     if e_or_d == ENCODE
-        ed.encode_f(e, a, ed.nbins, ed.logspaced)
+        ed.encode_f(efd, a, ed.nbins, ed.logspaced)
     else
-        ed.decode_f(e, a, ed.nbins, ed.logspaced)
+        ed.decode_f(efd, a, ed.nbins, ed.logspaced)
     end
 end
 
-function (ed::DummyED)(e::ElementFeatureDescriptor, encoded_feature)
-    ed.decode_f(e, encoded_feature, ed.nbins, ed.logspaced)
+function (ed::DummyED)(efd::ElementFeatureDescriptor, encoded_feature)
+    ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
 end
 
 function default_efd_encode(
-    f::ElementFeatureDescriptor,
+    efd::ElementFeatureDescriptor,
     a::AbstractAtoms,
     nbins::Integer,
     logspaced::Bool,
@@ -121,22 +121,22 @@ function default_efd_encode(
         map(
             e -> onehot_lookup_encoder(
                 e,
-                f.name,
-                f.lookup_table;
+                efd.name,
+                efd.lookup_table;
                 nbins,
                 logspaced,
-                categorical = f.categorical,
+                categorical = efd.categorical,
             ),
             a.elements,
         ),
     )
 end
 
-default_efd_decode(e::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) = onecold_decoder(
+default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) = onecold_decoder(
     encoded_feature,
-    e.name,
-    e.lookup_table;
+    efd.name,
+    efd.lookup_table;
     nbins,
     logspaced,
-    categorical = e.categorical,
+    categorical = efd.categorical,
 )
