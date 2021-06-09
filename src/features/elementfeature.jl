@@ -95,6 +95,8 @@ function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
     f.encoder_decoder(f, a, ENCODE)
 end
 
+encode(f::ElementFeatureDescriptor, a::AbstractAtoms) = f.encoder_decoder(f, a, ENCODE)
+decode(f::ElementFeatureDescriptor, encoded_feature) = f.encoder_decoder(f, encoded_feature)
 
 function (ed::DummyED)(e::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
     if e_or_d == ENCODE
@@ -107,9 +109,6 @@ end
 function (ed::DummyED)(e::ElementFeatureDescriptor, encoded_feature)
     ed.decode_f(e, encoded_feature)
 end
-
-decode(f::ElementFeatureDescriptor, encoded_feature) =
-    f.encoder_decoder.decode_f(f, encoded_feature)
 
 function default_efd_encode(
     f::ElementFeatureDescriptor,
