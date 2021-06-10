@@ -5,12 +5,12 @@ using DataFrames
 abstract type EncoderDecoder end
 
 """
-    DummyED(encode_f, decode_f, nbins, logspaced)
+    OneHotOneCold(encode_f, decode_f, nbins, logspaced)
 
 EncoderDecoder type which uses a dummy variable (as defined in statistical literature), i.e., which employs
 one-hot encoding and a one-cold decoding scheme.
 """
-struct DummyED <: EncoderDecoder
+struct OneHotOneCold <: EncoderDecoder
     encode_f::Function
     decode_f::Function
     nbins::Integer
@@ -65,7 +65,7 @@ function ElementFeatureDescriptor(
     ElementFeatureDescriptor(
         feature_name,
         vector_length,
-        DummyED(default_efd_encode, default_efd_decode, nbins, logspaced),
+        OneHotOneCold(default_efd_encode, default_efd_decode, nbins, logspaced),
         categorical,
         lookup_table,
     )
@@ -98,7 +98,7 @@ end
 encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) = efd.encoder_decoder(efd, a, ENCODE)
 decode(efd::ElementFeatureDescriptor, encoded_feature) = efd.encoder_decoder(efd, encoded_feature)
 
-function (ed::DummyED)(efd::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
+function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
     if e_or_d == ENCODE
         ed.encode_f(efd, a, ed.nbins, ed.logspaced)
     else
@@ -106,7 +106,7 @@ function (ed::DummyED)(efd::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::
     end
 end
 
-function (ed::DummyED)(efd::ElementFeatureDescriptor, encoded_feature)
+function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature)
     ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
 end
 
