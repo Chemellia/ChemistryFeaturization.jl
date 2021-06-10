@@ -2,15 +2,15 @@ using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
 
-abstract type EncoderDecoder end
+abstract type Codec end
 
 """
     OneHotOneCold(encode_f, decode_f, nbins, logspaced)
 
-EncoderDecoder type which uses a dummy variable (as defined in statistical literature), i.e., which employs
+Codec type which uses a dummy variable (as defined in statistical literature), i.e., which employs
 one-hot encoding and a one-cold decoding scheme.
 """
-struct OneHotOneCold <: EncoderDecoder
+struct OneHotOneCold <: Codec
     encode_f::Function
     decode_f::Function
     nbins::Integer
@@ -37,7 +37,7 @@ Construct a feature object that encodes features associated with individual atom
 struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
     length::Integer
-    encoder_decoder::EncoderDecoder
+    encoder_decoder::Codec
     categorical::Bool
     lookup_table::DataFrame
 end
