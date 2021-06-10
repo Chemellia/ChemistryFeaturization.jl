@@ -1,6 +1,26 @@
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
+
+abstract type EncoderDecoder end
+
+"""
+    OneHotOneCold(encode_f, decode_f, nbins, logspaced)
+
+EncoderDecoder type which uses a dummy variable (as defined in statistical literature), i.e., which employs
+one-hot encoding and a one-cold decoding scheme.
+"""
+struct OneHotOneCold <: EncoderDecoder
+    encode_f::Function
+    decode_f::Function
+    nbins::Integer
+    logspaced::Bool
+end
+
+@enum EncodeOrDecode ENCODE DECODE
+
+# TODO - consider edge cases in constructor. add this stuff into modulify.
+
 # TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
 """
     ElementFeatureDescriptor(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
@@ -17,8 +37,7 @@ Construct a feature object that encodes features associated with individual atom
 struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
     length::Integer
-    nbins::Integer
-    logspaced::Bool
+    encoder_decoder::EncoderDecoder
     categorical::Bool
     lookup_table::DataFrame
 end
@@ -46,23 +65,22 @@ function ElementFeatureDescriptor(
     ElementFeatureDescriptor(
         feature_name,
         vector_length,
-        nbins,
-        logspaced,
+        OneHotOneCold(default_efd_encode, default_efd_decode, nbins, logspaced),
         categorical,
         lookup_table,
     )
 end
 
 # pretty printing, short version
-Base.show(io::IO, af::ElementFeatureDescriptor) = print(io, "ElementFeature $(af.name)")
+Base.show(io::IO, efd::ElementFeatureDescriptor) = print(io, "ElementFeature $(efd.name)")
 
 # pretty printing, long version
-function Base.show(io::IO, ::MIME"text/plain", af::ElementFeatureDescriptor)
-    st = "ElementFeature $(af.name):\n   categorical: $(af.categorical)\n   encoded length: $(af.length)"
+function Base.show(io::IO, ::MIME"text/plain", efd::ElementFeatureDescriptor)
+    st = "ElementFeature $(efd.name):\n   categorical: $(efd.categorical)\n   encoded length: $(efd.length)"
     print(io, st)
 end
 
-encodable_elements(f::ElementFeatureDescriptor) = f.lookup_table[:, :Symbol]
+encodable_elements(efd::ElementFeatureDescriptor) = efd.lookup_table[:, :Symbol]
 
 function encodable_elements(feature_name::String, lookup_table::DataFrame = atom_data_df)
     info = lookup_table[:, [Symbol(feature_name), :Symbol]]
@@ -72,29 +90,53 @@ function encodable_elements(feature_name::String, lookup_table::DataFrame = atom
     ]
 end
 
-function (f::ElementFeatureDescriptor)(a::AbstractAtoms)
-    @assert all([el in encodable_elements(f) for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
+function (efd::ElementFeatureDescriptor)(a::AbstractAtoms)
+    @assert all([el in encodable_elements(efd) for el in a.elements]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
+    efd.encoder_decoder(efd, a, ENCODE)
+end
+
+encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) = efd.encoder_decoder(efd, a, ENCODE)
+decode(efd::ElementFeatureDescriptor, encoded_feature) = efd.encoder_decoder(efd, encoded_feature)
+
+function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
+    if e_or_d == ENCODE
+        ed.encode_f(efd, a, ed.nbins, ed.logspaced)
+    else
+        ed.decode_f(efd, a, ed.nbins, ed.logspaced)
+    end
+end
+
+function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature)
+    ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
+end
+
+function default_efd_encode(
+    efd::ElementFeatureDescriptor,
+    a::AbstractAtoms,
+    nbins::Integer,
+    logspaced::Bool,
+)
     reduce(
         hcat,
         map(
             e -> onehot_lookup_encoder(
                 e,
-                f.name,
-                f.lookup_table;
-                nbins = f.nbins,
-                logspaced = f.logspaced,
-                categorical = f.categorical,
+                efd.name,
+                efd.lookup_table;
+                nbins,
+                logspaced,
+                categorical = efd.categorical,
             ),
             a.elements,
         ),
     )
 end
 
-decode(f::ElementFeatureDescriptor, encoded_feature) = onecold_decoder(
+default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) = onecold_decoder(
     encoded_feature,
-    f.name,
-    f.lookup_table;
-    nbins = f.nbins,
-    logspaced = f.logspaced,
-    categorical = f.categorical,
+    efd.name,
+    efd.lookup_table;
+    nbins,
+    logspaced,
+    categorical = efd.categorical,
 )
