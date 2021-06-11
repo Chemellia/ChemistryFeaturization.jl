@@ -9,19 +9,19 @@ export Utils
 @reexport using .Utils.GraphBuilding
 
 include("abstracts/abstracttypes.jl")
-export AbstractTypes
+export AbstractType
 include("codecs/codecs.jl")
-export Codecs
+export Codec
 
 encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
 decode(a::Any, encoded_features) = throw(MethodError(decode, a))
 
 include("features/features.jl")
-export FeatureDescriptors
+export FeatureDescriptor
 include("atoms/atoms.jl")
 export Atoms
 include("featurizations/featurizations.jl")
-export Featurizations
+export Featurization
 
 export encodable_elements, decode
 

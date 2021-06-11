@@ -1,8 +1,8 @@
-module AbstractTypes
+module AbstractType
 
 abstract type AbstractAtoms end
 abstract type AbstractFeatureDescriptor end
 abstract type AbstractFeaturization end
-abstract type Codec end
+abstract type AbstractCodec end
 
 end

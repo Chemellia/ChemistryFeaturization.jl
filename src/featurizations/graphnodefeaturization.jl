@@ -1,9 +1,9 @@
 export GraphNodeFeaturization, featurize!
 export encodable_elements, decode, chunk_vec
 
-using ..ChemistryFeaturization.AbstractTypes:
+using ..ChemistryFeaturization.AbstractType:
     AbstractFeatureDescriptor, AbstractFeaturization
-using ..ChemistryFeaturization.FeatureDescriptors
+using ..ChemistryFeaturization.FeatureDescriptor
 using ..ChemistryFeaturization.Atoms: AtomGraph
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 

@@ -1,7 +1,7 @@
 # some commentary
 
-using ..ChemistryFeaturization.AbstractTypes: AbstractFeaturization
-using ..ChemistryFeaturization.FeatureDescriptors:
+using ..ChemistryFeaturization.AbstractType: AbstractFeaturization
+using ..ChemistryFeaturization.FeatureDescriptor:
     AbstractAtomFeatureDescriptor, AbstractPairFeatureDescriptor
 
 struct WeaveFeaturization <: AbstractFeaturization

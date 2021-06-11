@@ -1,8 +1,8 @@
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
-using ..ChemistryFeaturization.AbstractTypes: Codec, AbstractAtoms
-using ..ChemistryFeaturization.Codecs: OneHotOneCold, EncodeOrDecode, ENCODE, DECODE
+using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
+using ..ChemistryFeaturization.Codec: OneHotOneCold, EncodeOrDecode, ENCODE, DECODE
 
 include("abstractfeatures.jl")
 
@@ -25,7 +25,7 @@ Construct a feature object that encodes features associated with individual atom
 struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
     length::Integer
-    encoder_decoder::Codec
+    encoder_decoder::AbstractCodec
 
     categorical::Bool
     lookup_table::DataFrame

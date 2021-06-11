@@ -1,4 +1,4 @@
-module Codecs
+module Codec
 
 @enum EncodeOrDecode ENCODE DECODE
 export EncodeOrDecode

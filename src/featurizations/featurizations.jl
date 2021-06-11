@@ -1,6 +1,6 @@
-module Featurizations
+module Featurization
 
-using ..ChemistryFeaturization.AbstractTypes: AbstractFeaturization
+using ..ChemistryFeaturization.AbstractType: AbstractFeaturization
 
 import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fzn::AbstractFeaturization) = throw(MethodError(encodable_elements, fzn))

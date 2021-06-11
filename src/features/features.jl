@@ -1,6 +1,6 @@
-module FeatureDescriptors
+module FeatureDescriptor
 
-using ..ChemistryFeaturization.AbstractTypes: AbstractFeatureDescriptor
+using ..ChemistryFeaturization.AbstractType: AbstractFeatureDescriptor
 
 import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fd::AbstractFeatureDescriptor) =

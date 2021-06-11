@@ -1,5 +1,5 @@
 
-using ..ChemistryFeaturization.AbstractTypes: AbstractFeatureDescriptor
+using ..ChemistryFeaturization.AbstractType: AbstractFeatureDescriptor
 export AbstractAtomFeatureDescriptor,
     AbstractPairFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
 

@@ -29,7 +29,7 @@ Describes the "features of a feature" – i.e. its name, possible values, instru
 
 For more on the available types of feature descriptors, see [Feature Descriptors](@ref).
 
-### Codec
+### AbstractCodec
 
 Component of a feature descriptor that stores the actual encoding/decoding functions. 
 
@@ -43,7 +43,7 @@ For more on the available types of atoms objects, see [Atoms Objects](@ref).
 
 Stores sets of feature descriptors and instructions for combining the values they encode on an atoms object.
 
-For more on the available types of featurization objects, see [Featurizations](@ref).
+For more on the available types of featurization objects, see [Featurization](@ref).
 
 ## Design Philosophy
 
