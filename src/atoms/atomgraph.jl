@@ -6,6 +6,8 @@ using Colors
 using Serialization
 using ..ChemistryFeaturization.Utils.GraphBuilding
 
+using ..ChemistryFeaturization.AbstractTypes: AbstractAtoms, AbstractFeaturization
+
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 """
     AtomGraph

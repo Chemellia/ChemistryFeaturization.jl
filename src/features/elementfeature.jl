@@ -1,23 +1,10 @@
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
+using ..ChemistryFeaturization.AbstractTypes: Codec, AbstractAtoms
+using ..ChemistryFeaturization.Codecs: OneHotOneCold, EncodeOrDecode
 
-abstract type Codec end
-
-"""
-    OneHotOneCold(encode_f, decode_f, nbins, logspaced)
-
-Codec type which uses a dummy variable (as defined in statistical literature), i.e., which employs
-one-hot encoding and a one-cold decoding scheme.
-"""
-struct OneHotOneCold <: Codec
-    encode_f::Function
-    decode_f::Function
-    nbins::Integer
-    logspaced::Bool
-end
-
-@enum EncodeOrDecode ENCODE DECODE
+include("abstractfeatures.jl")
 
 # TODO - consider edge cases in constructor. add this stuff into modulify.
 

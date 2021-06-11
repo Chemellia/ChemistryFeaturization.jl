@@ -1,11 +1,17 @@
 export GraphNodeFeaturization, featurize!
 export encodable_elements, decode, chunk_vec
 
+using ..ChemistryFeaturization.AbstractTypes: AbstractFeatureDescriptor, AbstractFeaturization
+using ..ChemistryFeaturization.FeatureDescriptors
+using ..ChemistryFeaturization.Atoms: AtomGraph
+
+using DataFrames
+
 """
     GraphNodeFeaturization(encoded_atom_features::Vector{AtomFeatureDescriptor})
     GraphNodeFeaturization(feature_names, lookup_table, nbins, logspaced, categorical)
 
-A featurization for AtomGraph objects that encodes features associated with each node. Contains a collection of `AtomFeatureDescriptor` objects, and can be initialized by passing those, or by passing parameters for constructing them.
+A featurization for AtomGraph objects that encodes features associated with each node. Contains a collection of `AbstractAtomFeatureDescriptor` objects, and can be initialized by passing those, or by passing parameters for constructing them.
 
 ## Notes
 
@@ -22,6 +28,7 @@ struct GraphNodeFeaturization <: AbstractFeaturization
     features::Vector{<:AbstractAtomFeatureDescriptor} # TODO: this might need another name
 end
 
+# NB: this constructor only works if every feature is an ElementFeature
 function GraphNodeFeaturization(
     feature_names::Vector{String},
     lookup_table::Union{DataFrame,Nothing} = nothing;

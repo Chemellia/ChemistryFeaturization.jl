@@ -1,5 +1,7 @@
 using DataFrames
 
+include("abstractfeatures.jl")
+
 """
     SpeciesFeatureDescriptor(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
 
