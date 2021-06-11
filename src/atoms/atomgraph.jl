@@ -32,7 +32,7 @@ mutable struct AtomGraph <: AbstractAtoms
     graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
     laplacian::Matrix{<:Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
-    encoded_features::Union{Matrix{<:Real},Nothing} # if we add edge features this type will have to relax
+    encoded_features::Any # to accommodate any format of encoding, or Nothing
     featurization::Union{AbstractFeaturization,Nothing}
     id::String # or maybe we let it be a number too?
 end
