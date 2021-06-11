@@ -82,10 +82,16 @@ function (efd::ElementFeatureDescriptor)(a::AbstractAtoms)
     efd.encoder_decoder(efd, a, ENCODE)
 end
 
-encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) = efd.encoder_decoder(efd, a, ENCODE)
-decode(efd::ElementFeatureDescriptor, encoded_feature) = efd.encoder_decoder(efd, encoded_feature)
+encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) =
+    efd.encoder_decoder(efd, a, ENCODE)
+decode(efd::ElementFeatureDescriptor, encoded_feature) =
+    efd.encoder_decoder(efd, encoded_feature)
 
-function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
+function (ed::OneHotOneCold)(
+    efd::ElementFeatureDescriptor,
+    a::AbstractAtoms,
+    e_or_d::EncodeOrDecode,
+)
     if e_or_d == ENCODE
         ed.encode_f(efd, a, ed.nbins, ed.logspaced)
     else
@@ -119,11 +125,12 @@ function default_efd_encode(
     )
 end
 
-default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) = onecold_decoder(
-    encoded_feature,
-    efd.name,
-    efd.lookup_table;
-    nbins,
-    logspaced,
-    categorical = efd.categorical,
-)
+default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) =
+    onecold_decoder(
+        encoded_feature,
+        efd.name,
+        efd.lookup_table;
+        nbins,
+        logspaced,
+        categorical = efd.categorical,
+    )

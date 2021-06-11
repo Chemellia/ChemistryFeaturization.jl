@@ -3,7 +3,8 @@ module FeatureDescriptors
 using ..ChemistryFeaturization.AbstractTypes: AbstractFeatureDescriptor
 
 import ..ChemistryFeaturization.encodable_elements
-encodable_elements(fd::AbstractFeatureDescriptor) = throw(MethodError(encodable_elements, fd))
+encodable_elements(fd::AbstractFeatureDescriptor) =
+    throw(MethodError(encodable_elements, fd))
 export encodable_elements
 
 import ..ChemistryFeaturization.decode

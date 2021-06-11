@@ -12,4 +12,3 @@ struct OneHotOneCold <: Codec
     nbins::Integer
     logspaced::Bool
 end
-
