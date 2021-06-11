@@ -17,10 +17,9 @@ Construct a feature object that encodes features associated with individual atom
 """
 struct SpeciesFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
-    encode_f::Function
-    decode_f::Function
-    categorical::Bool
     length::Integer
+    encoder_decoder::Codec
+    categorical::Bool
     encodable_elements::Vector{String}
 end
 
