@@ -10,7 +10,7 @@ Pages = ["contributing.md"]
 
 For some high-level general guidance, please see [CONTRIBUTING.md](https://github.com/Chemellia/ChemistryFeaturization.jl/blob/main/CONTRIBUTING.md) on the GitHub repo.
 
-The remainder of this page includes some pointers about package structure, etc. that could be helpful depending on what sorts of functionality you're interested in adding to the package. An understanding of "what goes where" will help in making sure you put your code in the right place!
+The remainder of this page includes some pointers about package structure, etc. that could be helpful depending on what sorts of functionality you're interested in adding to the package. An understanding of "what goes where" will help in making sure you put your code in the right place! We also strongly encourage you to read the [Terminology/Philosophy](@ref) page, as it will help to understand the best ways to add different types of functionality.
 
 TODO: flesh out everything below
 
