@@ -1,10 +1,15 @@
 module Featurizations
 
-# basically export everything but `chunk_vec`
+using ..ChemistryFeaturization.AbstractTypes: AbstractFeaturization
+
+import ..ChemistryFeaturization.encodable_elements
+encodable_elements(fzn::AbstractFeaturization) = throw(MethodError(encodable_elements, fzn))
+export encodable_elements
+
 include("graphnodefeaturization.jl")
-export GraphNodeFeaturization, encodable_elements, featurize!, decode
+export GraphNodeFeaturization, featurize!, decode
 
 include("weavefeaturization.jl")
-export WeaveFeaturization, encodable_elements
+export WeaveFeaturization
 
 end
