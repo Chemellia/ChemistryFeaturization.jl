@@ -4,6 +4,7 @@ export encodable_elements, decode, chunk_vec
 using ..ChemistryFeaturization.AbstractTypes: AbstractFeatureDescriptor, AbstractFeaturization
 using ..ChemistryFeaturization.FeatureDescriptors
 using ..ChemistryFeaturization.Atoms: AtomGraph
+using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 
 using DataFrames
 

@@ -1,6 +1,7 @@
 using Test
 using DataFrames
 using CSV
+using ..ChemistryFeaturization.FeatureDescriptors
 const cf = ChemistryFeaturization
 
 @testset "ElementFeatureDescriptor" begin
