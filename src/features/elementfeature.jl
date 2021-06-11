@@ -2,7 +2,7 @@ using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
 using ..ChemistryFeaturization.AbstractTypes: Codec, AbstractAtoms
-using ..ChemistryFeaturization.Codecs: OneHotOneCold, EncodeOrDecode
+using ..ChemistryFeaturization.Codecs: OneHotOneCold, EncodeOrDecode, ENCODE, DECODE
 
 include("abstractfeatures.jl")
 
