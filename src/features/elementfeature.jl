@@ -6,6 +6,7 @@ using ..ChemistryFeaturization.Codecs: OneHotOneCold, EncodeOrDecode, ENCODE, DE
 
 include("abstractfeatures.jl")
 
+
 # TODO - consider edge cases in constructor. add this stuff into modulify.
 
 # TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
@@ -25,6 +26,7 @@ struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
     length::Integer
     encoder_decoder::Codec
+
     categorical::Bool
     lookup_table::DataFrame
 end
@@ -124,6 +126,7 @@ function default_efd_encode(
         ),
     )
 end
+
 
 default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) =
     onecold_decoder(
