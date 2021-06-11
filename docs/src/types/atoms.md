@@ -6,7 +6,7 @@ Atoms objects (terminology borrowed from [ASE](https://wiki.fysik.dtu.dk/ase/)) 
 The `AtomGraph` type is used to store atomic graph representations.
 
 ```@docs
-AtomGraph
+Atoms.AtomGraph
 ```
 
 ## WeaveMol

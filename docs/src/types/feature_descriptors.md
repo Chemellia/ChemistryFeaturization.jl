@@ -29,7 +29,7 @@ More details on each of these types is below, and more types (e.g. environment f
 * they should be callable on atoms objects and return encoded features
 * Similarly, `decode` should work...
 ```@docs
-decode(::AbstractFeatureDescriptor, ::Any)
+decode(::FeatureDescriptor.AbstractFeatureDescriptor, ::Any)
 ```
 * the function `encodable_elements` should be defined on all feature descriptors, as it will be used to verify that a feature can be encoded for every atom in a structure.
 
@@ -48,7 +48,7 @@ ElementFeatureDescriptor
 In the example, below, we encode the block of each atom in a hydrogen molecule. The result is two `hcat`ted vectors [1 0 0 0], indicating hydrogen is _s_-block.
 
 TODO: check that this test passes once new version is tagged
-```jldoctest; setup = :(using ChemistryFeaturization)
+```jldoctest; setup = :(using ChemistryFeaturization.Atoms, ChemistryFeaturization.FeatureDescriptor)
 H2 = AtomGraph([0. 1.; 1. 0.], ["H", "H"])
 block = ElementFeatureDescriptor("Block")
 block(H2)
