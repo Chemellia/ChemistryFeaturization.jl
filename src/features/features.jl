@@ -6,6 +6,10 @@ import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fd::AbstractFeatureDescriptor) = throw(MethodError(encodable_elements, fd))
 export encodable_elements
 
+import ..ChemistryFeaturization.decode
+decode(fd::AbstractFeatureDescriptor, encoded_feature) = throw(MethodError(decode, fd))
+export decode
+
 include("abstractfeatures.jl")
 
 include("bondfeatures.jl")
