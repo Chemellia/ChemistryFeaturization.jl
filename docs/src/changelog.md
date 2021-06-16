@@ -5,8 +5,12 @@ I'm generally trying to adhere to [semver](https://semver.org) here. This means 
 Categories to include for each release, if relevant: breaking, added, fixed, removed/deprecated
 
 ## v0.3.0
-* major restructure to make extensibility far easier and allow better sharing of elements between featurization schemes!
-TODO: write this changelog entry
+Major restructure to make extensibility far easier and allow better sharing of elements between featurization schemes! Also streamlined the codebase a lot by organizing things into sensible modules, so technically basically everything is a breaking change because all of the imports are from the submodules now.
+
+### Breaking/Added
+* create modules for different functionalities: `Atoms`, `Features`, `Featurization`, `Utils`, etc.
+* separate out encoding/decoding functionality into a new `AbstractCodec` type and associated `Codec` module
+* merged functionality of `AtomGraph` and `WeaveMol` into `AtomGraph` object, with a more generic `encoded_features` field
 
 ## v0.2.2 [2021-02-22]
 

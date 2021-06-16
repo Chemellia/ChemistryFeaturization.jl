@@ -1,6 +1,11 @@
-# Terminology
+# Terminology/Philosophy
 
-There are a lot of seemingly similar terms used for quantities in this package that refer to disparate things (or, are used slightly differently by other people in other places). Here, we try to best define these terms as we intend them.
+There are a lot of seemingly similar terms used for quantities in this package that refer to disparate things (or, are used slightly differently by other people in other places). Here, we try to best define these terms as we intend them. Further down, once the terms are defined, we elaborate on why the package is designed the way it is.
+
+```@contents
+Pages = ["terminology.md"]
+Depth = 3
+```
 
 ## General Terms
 
@@ -20,9 +25,13 @@ The inverse process to encoding. Note that in many cases (e.g. a continuous-valu
 
 ### Feature Descriptor
 
-Describes the "features of a feature" – i.e. its name, possible values, instructions for encoding it, etc., but does NOT store an actual instance of its value. 
+Describes the "features of a feature" – i.e. its name, possible values, instructions for encoding it, etc., but does NOT store an actual instance of its value.
 
 For more on the available types of feature descriptors, see [Feature Descriptors](@ref).
+
+### AbstractCodec
+
+Component of a feature descriptor that stores the actual encoding/decoding functions. 
 
 ### Atoms Object
 
@@ -34,5 +43,12 @@ For more on the available types of atoms objects, see [Atoms Objects](@ref).
 
 Stores sets of feature descriptors and instructions for combining the values they encode on an atoms object.
 
-For more on the available types of featurization objects, see [Featurizations](@ref).
+For more on the available types of featurization objects, see [Featurization](@ref).
 
+## Design Philosophy
+
+Points to elaborate on here...
+
+* maintaining transparency/decodability, as well as user's choice to include (or not) particular features, and choose how they are encoded, as opposed to a "black-box" scheme with little to no customizability
+* separation of concerns/modularity...as many things should be "plug-and-play" with each other as possible (e.g. swapping in different codecs to FD's, different FD's to featurizations, different featurizations to atoms objects)
+* FD's and atoms objects are generic and fairly reusable across models, featurizations are less so (closer to one-to-one relationship between a featurization type and a model type, but still have flexibility to easily include/exclude different features)

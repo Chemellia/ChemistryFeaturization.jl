@@ -1,5 +1,7 @@
 using DataFrames
 
+include("abstractfeatures.jl")
+
 """
     SpeciesFeatureDescriptor(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
 
@@ -15,10 +17,9 @@ Construct a feature object that encodes features associated with individual atom
 """
 struct SpeciesFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
-    encode_f::Function
-    decode_f::Function
-    categorical::Bool
     length::Integer
+    encoder_decoder::AbstractCodec
+    categorical::Bool
     encodable_elements::Vector{String}
 end
 

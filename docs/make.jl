@@ -9,7 +9,7 @@ makedocs(
         "Types"=>Any[
             "Atoms Objects"=>"types/atoms.md",
             "Feature Descriptors"=>"types/feature_descriptors.md",
-            "Featurizations"=>"types/featurizations.md",
+            "Featurization"=>"types/featurizations.md",
         ],
         "Contributing"=>"contributing.md",
         "Changelog"=>"changelog.md",

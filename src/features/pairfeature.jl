@@ -1,3 +1,4 @@
+include("abstractfeatures.jl")
 
 struct PairFeatureDescriptor <: AbstractPairFeatureDescriptor
     name::String

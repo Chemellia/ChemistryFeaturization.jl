@@ -1,3 +1,4 @@
+include("abstractfeatures.jl")
 
 struct OrbitalFieldMatrix <: AbstractEnvironmentFeatureDescriptor
     # stuff

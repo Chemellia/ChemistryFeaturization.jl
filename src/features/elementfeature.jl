@@ -1,23 +1,11 @@
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
+using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
+using ..ChemistryFeaturization.Codec: OneHotOneCold, EncodeOrDecode, ENCODE, DECODE
 
-abstract type EncoderDecoder end
+include("abstractfeatures.jl")
 
-"""
-    OneHotOneCold(encode_f, decode_f, nbins, logspaced)
-
-EncoderDecoder type which uses a dummy variable (as defined in statistical literature), i.e., which employs
-one-hot encoding and a one-cold decoding scheme.
-"""
-struct OneHotOneCold <: EncoderDecoder
-    encode_f::Function
-    decode_f::Function
-    nbins::Integer
-    logspaced::Bool
-end
-
-@enum EncodeOrDecode ENCODE DECODE
 
 # TODO - consider edge cases in constructor. add this stuff into modulify.
 
@@ -36,8 +24,7 @@ Construct a feature object that encodes features associated with individual atom
 """
 struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
-    length::Integer
-    encoder_decoder::EncoderDecoder
+    encoder_decoder::AbstractCodec
     categorical::Bool
     lookup_table::DataFrame
 end
@@ -52,19 +39,11 @@ function ElementFeatureDescriptor(
     colnames = names(lookup_table)
     @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
 
-    local vector_length
-    if categorical
-        vector_length = length(unique(skipmissing(lookup_table[:, Symbol(feature_name)])))
-    else
-        vector_length = nbins
-    end
-
     lookup_table = lookup_table[:, ["Symbol", feature_name]]
     dropmissing!(lookup_table)
 
     ElementFeatureDescriptor(
         feature_name,
-        vector_length,
         OneHotOneCold(default_efd_encode, default_efd_decode, nbins, logspaced),
         categorical,
         lookup_table,
@@ -76,7 +55,7 @@ Base.show(io::IO, efd::ElementFeatureDescriptor) = print(io, "ElementFeature $(e
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", efd::ElementFeatureDescriptor)
-    st = "ElementFeature $(efd.name):\n   categorical: $(efd.categorical)\n   encoded length: $(efd.length)"
+    st = "ElementFeature $(efd.name):\n   categorical: $(efd.categorical)\n   encoded length: $(output_shape(efd))"
     print(io, st)
 end
 
@@ -95,15 +74,28 @@ function (efd::ElementFeatureDescriptor)(a::AbstractAtoms)
     efd.encoder_decoder(efd, a, ENCODE)
 end
 
-encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) = efd.encoder_decoder(efd, a, ENCODE)
-decode(efd::ElementFeatureDescriptor, encoded_feature) = efd.encoder_decoder(efd, encoded_feature)
+encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) =
+    efd.encoder_decoder(efd, a, ENCODE)
+decode(efd::ElementFeatureDescriptor, encoded_feature) =
+    efd.encoder_decoder(efd, encoded_feature)
 
-function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, a::AbstractAtoms, e_or_d::EncodeOrDecode)
+function (ed::OneHotOneCold)(
+    efd::ElementFeatureDescriptor,
+    a::AbstractAtoms,
+    e_or_d::EncodeOrDecode,
+)
     if e_or_d == ENCODE
         ed.encode_f(efd, a, ed.nbins, ed.logspaced)
     else
         ed.decode_f(efd, a, ed.nbins, ed.logspaced)
     end
+end
+
+output_shape(efd::ElementFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
+
+function output_shape(efd::ElementFeatureDescriptor, ed::OneHotOneCold)
+    return efd.categorical ? length(unique(efd.lookup_table[:, Symbol(efd.name)])) :
+           ed.nbins
 end
 
 function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature)
@@ -132,11 +124,13 @@ function default_efd_encode(
     )
 end
 
-default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) = onecold_decoder(
-    encoded_feature,
-    efd.name,
-    efd.lookup_table;
-    nbins,
-    logspaced,
-    categorical = efd.categorical,
-)
+
+default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) =
+    onecold_decoder(
+        encoded_feature,
+        efd.name,
+        efd.lookup_table;
+        nbins,
+        logspaced,
+        categorical = efd.categorical,
+    )

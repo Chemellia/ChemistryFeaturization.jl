@@ -1,6 +1,8 @@
 using Test
 using DataFrames
 using CSV
+using ChemistryFeaturization.FeatureDescriptor
+using ChemistryFeaturization.Featurization
 
 @testset "GraphNodeFeaturization" begin
 
