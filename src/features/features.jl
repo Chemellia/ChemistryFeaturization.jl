@@ -16,7 +16,7 @@ include("abstractfeatures.jl")
 include("bondfeatures.jl")
 
 include("elementfeature.jl")
-export ElementFeatureDescriptor, encode, decode
+export ElementFeatureDescriptor, encode, decode, output_shape
 
 include("ofm.jl")
 export OrbitalFieldMatrix

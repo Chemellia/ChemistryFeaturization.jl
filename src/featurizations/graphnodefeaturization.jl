@@ -120,7 +120,7 @@ end
 
 function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
     num_atoms = size(encoded, 2)
-    nbins = [f.length for f in fzn.features]
+    nbins = [output_shape(f) for f in fzn.features]
     local decoded = Dict{Integer,Dict{String,Any}}()
     for i = 1:num_atoms
         #println("atom $i")
