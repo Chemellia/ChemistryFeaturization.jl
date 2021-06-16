@@ -16,7 +16,7 @@ const cf = ChemistryFeaturization
 
     for i = 1:3
         f = ElementFeatureDescriptor(fnames[i])
-        @test f.length == lengths[i]
+        @test output_shape(f) == lengths[i]
         @test f.categorical == cats[i]
     end
 
