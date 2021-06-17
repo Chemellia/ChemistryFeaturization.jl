@@ -1,10 +1,9 @@
 module Utils
 
-using Reexport
 include("elementfeature_utils.jl")
-@reexport using .ElementFeatureUtils
+export ElementFeatureUtils
 
 include("graph_building.jl")
-@reexport using .GraphBuilding
+export GraphBuilding
 
 end

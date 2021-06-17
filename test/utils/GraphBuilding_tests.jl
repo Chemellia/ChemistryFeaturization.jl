@@ -1,4 +1,5 @@
 using Test
+using ChemistryFeaturization.Utils.GraphBuilding
 
 @testset "GraphBuilding" begin
     adj, els = build_graph(
