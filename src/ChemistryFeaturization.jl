@@ -11,21 +11,23 @@ export AbstractType
 include("codecs/codecs.jl")
 export Codec
 
-encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
-decode(a::Any, encoded_features) = throw(MethodError(decode, a))
-
 include("features/features.jl")
 export FeatureDescriptor
+using .FeatureDescriptor: ElementFeatureDescriptor
 export ElementFeatureDescriptor
 
 include("atoms/atoms.jl")
 export Atoms
+using .Atoms: AtomGraph
 export AtomGraph
 
 include("featurizations/featurizations.jl")
 export Featurization
-export GraphNodeFeaturization
+using .Featurization: GraphNodeFeaturization, featurize!
+export GraphNodeFeaturization, featurize!
 
+encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
+decode(a::Any, encoded_features) = throw(MethodError(decode, a))
 export encodable_elements, decode
 
 end
