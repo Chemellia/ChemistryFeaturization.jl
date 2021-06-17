@@ -115,8 +115,8 @@ function default_efd_encode(
                 e,
                 efd.name,
                 efd.lookup_table;
-                nbins,
-                logspaced,
+                nbins = nbins,
+                logspaced = logspaced,
                 categorical = efd.categorical,
             ),
             a.elements,
@@ -130,7 +130,7 @@ default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspa
         encoded_feature,
         efd.name,
         efd.lookup_table;
-        nbins,
-        logspaced,
+        nbins = nbins,
+        logspaced = logspaced,
         categorical = efd.categorical,
     )
