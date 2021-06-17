@@ -2,6 +2,9 @@ module ChemistryFeaturization
 
 using SimpleWeightedGraphs
 
+encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
+decode(a::Any, encoded_features) = throw(MethodError(decode, a))
+
 include("utils/Utils.jl")
 export Utils
 
@@ -26,8 +29,6 @@ export Featurization
 using .Featurization: GraphNodeFeaturization, featurize!
 export GraphNodeFeaturization, featurize!
 
-encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
-decode(a::Any, encoded_features) = throw(MethodError(decode, a))
 export encodable_elements, decode
 
 end
