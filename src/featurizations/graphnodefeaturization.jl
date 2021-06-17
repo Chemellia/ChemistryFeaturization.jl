@@ -34,7 +34,7 @@ end
 function GraphNodeFeaturization(
     feature_names::Vector{String},
     lookup_table::Union{DataFrame,Nothing} = nothing;
-    nbins::Union{Vector{Integer},Integer,Nothing} = nothing,
+    nbins::Union{Vector{<:Integer},Integer,Nothing} = nothing,
     logspaced::Union{Vector{Bool},Bool,Nothing} = nothing,
     categorical::Union{Vector{Bool},Bool,Nothing} = nothing,
 )
