@@ -62,6 +62,9 @@ function AtomGraph(
     num_atoms = size(graph)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
 
+    # TO CONSIDER: add `validate_features` function or something like that for when this constructor is used
+    # that we can then dispatch on different featurization types. Alternatively, remove this constructor?
+
     # check that features is the right dimensions (# features x # nodes) -> commented out because doesn't work with generic fzn
     # expected_feature_length = sum(f.num_bins for f in featurization)
     # @assert size(features) == (expected_feature_length, num_atoms) "Feature matrix is of wrong dimension! It should be of size (# features, # nodes)"
@@ -70,7 +73,6 @@ function AtomGraph(
     laplacian = normalized_laplacian(graph)
     AtomGraph(graph, elements, laplacian, features, featurization, id)
 end
-
 
 # one without features or featurization initialized yet
 function AtomGraph(
