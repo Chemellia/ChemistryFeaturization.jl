@@ -1,12 +1,9 @@
 module ChemistryFeaturization
 
 using SimpleWeightedGraphs
-using Reexport
 
 include("utils/Utils.jl")
 export Utils
-@reexport using .Utils.ElementFeatureUtils
-@reexport using .Utils.GraphBuilding
 
 include("abstracts/abstracttypes.jl")
 export AbstractType

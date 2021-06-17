@@ -1,8 +1,7 @@
 using Test
 using DataFrames
 using CSV
-const cf = ChemistryFeaturization
-const afu = ChemistryFeaturization.Utils.ElementFeatureUtils
+using ChemistryFeaturization.Utils.ElementFeatureUtils
 
 @testset "ElementFeatureUtils" begin
     df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
@@ -27,19 +26,19 @@ const afu = ChemistryFeaturization.Utils.ElementFeatureUtils
 
     # default_categorical
     @test default_categorical("Block") == true
-    @test afu.get_param_vec(false, 2) == [false, false]
-    @test afu.get_param_vec([false, false], 2) == [false, false]
-    @test afu.get_param_vec([false, false], 3) == [false, false, false]
-    @test afu.get_param_vec([false, false, false], 2) == [false, false]
-    @test afu.get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
-    @test afu.get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
-    @test afu.get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
+    @test get_param_vec(false, 2) == [false, false]
+    @test get_param_vec([false, false], 2) == [false, false]
+    @test get_param_vec([false, false], 3) == [false, false, false]
+    @test get_param_vec([false, false, false], 2) == [false, false]
+    @test get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
+    @test get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
+    @test get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
 
-    @test afu.get_param_vec([false, false], 3) == [false, false, false]
-    @test afu.get_param_vec([false, false, false], 2) == [false, false]
-    @test afu.get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
-    @test afu.get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
-    @test afu.get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
+    @test get_param_vec([false, false], 3) == [false, false, false]
+    @test get_param_vec([false, false, false], 2) == [false, false]
+    @test get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
+    @test get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
+    @test get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
 
     # get_bins
     @test get_bins("Block") == ["s", "p", "d", "f"]
