@@ -32,7 +32,6 @@ using ChemistryFeaturization.Featurization
         @test all(
             map(d -> d[1]["Block"] == d[2]["Block"] == "p", [decoded_matrix, decoded_ag]),
         )
-        
         fzn4 = GraphNodeFeaturization(fnames, nbins = [2, 4, 2])
         F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
         featurize!(F2, fzn4)
