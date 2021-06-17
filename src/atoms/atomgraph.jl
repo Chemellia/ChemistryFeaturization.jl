@@ -62,9 +62,9 @@ function AtomGraph(
     num_atoms = size(graph)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
 
-    # check that features is the right dimensions (# features x # nodes)
-    expected_feature_length = sum(f.num_bins for f in featurization)
-    @assert size(features) == (expected_feature_length, num_atoms) "Feature matrix is of wrong dimension! It should be of size (# features, # nodes)"
+    # check that features is the right dimensions (# features x # nodes) -> commented out because doesn't work with generic fzn
+    # expected_feature_length = sum(f.num_bins for f in featurization)
+    # @assert size(features) == (expected_feature_length, num_atoms) "Feature matrix is of wrong dimension! It should be of size (# features, # nodes)"
 
     # if all these are good, calculate laplacian and build the thing
     laplacian = normalized_laplacian(graph)
