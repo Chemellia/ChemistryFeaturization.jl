@@ -17,12 +17,6 @@ using ChemistryFeaturization.Utils.ElementFeatureUtils
     @test default_log("Valence") == false # extremal value 0
     @test default_log("Atomic mass") == true
     @test default_log("Atomic mass", threshold = 3) == false
-    # default_log
-    @test default_log("Block") == false # not numbers
-    @test default_log("MeaningOfLife", df) == false # values span 0
-    @test default_log("Valence") == false # extremal value 0
-    @test default_log("Atomic mass") == true
-    @test default_log("Atomic mass", threshold = 3) == false
 
     # default_categorical
     @test default_categorical("Block") == true
