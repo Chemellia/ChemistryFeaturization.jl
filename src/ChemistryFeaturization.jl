@@ -26,7 +26,7 @@ export AtomGraph
 
 include("featurizations/featurizations.jl")
 export Featurization
-using .Featurization: GraphNodeFeaturization, featurize!
+using .Featurization: GraphNodeFeaturization, DummyFeaturization, featurize!
 export GraphNodeFeaturization, featurize!
 
 export encodable_elements, decode
