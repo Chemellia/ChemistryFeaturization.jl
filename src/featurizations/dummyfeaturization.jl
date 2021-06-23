@@ -12,6 +12,14 @@ struct DummyFeaturization <: AbstractFeaturization end
 
 encodable_elements(df::DummyFeaturization) = []
 
-decode(fzn::DummyFeaturization, encoded_feature) = throw(ArgumentError("This featurization is just a dummy, likely created by a model layer such as `AGNConv`, and cannot actually decode encoded features."))
+decode(fzn::DummyFeaturization, encoded_feature) = throw(
+    ArgumentError(
+        "This featurization is just a dummy, likely created by a model layer such as `AGNConv`, and cannot actually decode encoded features.",
+    ),
+)
 
-featurize!(a::AbstractAtoms, df::DummyFeaturization) = throw(ArgumentError("This featurization is just a dummy, likely created by a model layer such as `AGNConv`, and cannot actually encode features."))
+featurize!(a::AbstractAtoms, df::DummyFeaturization) = throw(
+    ArgumentError(
+        "This featurization is just a dummy, likely created by a model layer such as `AGNConv`, and cannot actually encode features.",
+    ),
+)
