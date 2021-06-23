@@ -14,4 +14,7 @@ export GraphNodeFeaturization, featurize!, decode
 include("weavefeaturization.jl")
 export WeaveFeaturization
 
+include("dummyfeaturization.jl")
+export DummyFeaturization
+
 end
