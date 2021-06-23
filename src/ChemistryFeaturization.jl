@@ -5,7 +5,6 @@ using SimpleWeightedGraphs
 # some functions that will get extended in various places
 encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
 decode(a::Any, encoded_features) = throw(MethodError(decode, a))
-decode(a::AbstractAtoms) = decode(a.featurization, a.encoded_features)
 
 include("utils/Utils.jl")
 export Utils
