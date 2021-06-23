@@ -41,4 +41,5 @@ function (f::SpeciesFeatureDescriptor)(a::AbstractAtoms)
     f.encode_f(a)
 end
 
-# TODO: some Weave stuff needed here?
+# TODO: some Weave stuff needed here
+# also output_shape dispatch
