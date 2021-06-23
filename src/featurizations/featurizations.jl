@@ -1,6 +1,7 @@
 module Featurization
 
-using ..ChemistryFeaturization.AbstractType: AbstractFeaturization, AbstractAtoms, AbstractCodec
+using ..ChemistryFeaturization.AbstractType:
+    AbstractFeaturization, AbstractAtoms, AbstractCodec
 
 import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fzn::AbstractFeaturization) = throw(MethodError(encodable_elements, fzn))
@@ -15,7 +16,8 @@ decode(fzn::AbstractFeaturization, encoded_feature) =
 include("graphnodefeaturization.jl")
 export GraphNodeFeaturization, featurize!, decode
 
-validate_features(fzn::AbstractFeaturization, ed::AbstractCodec, encoded) = throw(MethodError(validate_features, (fzn, ed, encoded)))
+validate_features(fzn::AbstractFeaturization, ed::AbstractCodec, encoded) =
+    throw(MethodError(validate_features, (fzn, ed, encoded)))
 export validate_features
 
 include("weavefeaturization.jl")

@@ -11,7 +11,7 @@ tests = [
     "features/ElementFeature_tests",
     "featurizations/GraphNodeFeaturization_tests",
     "featurizations/DummyFeaturization_tests",
-    "module_tests"
+    "module_tests",
     # TODO: add Weave stuff
 ]
 

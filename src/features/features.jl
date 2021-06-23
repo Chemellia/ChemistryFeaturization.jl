@@ -11,7 +11,8 @@ import ..ChemistryFeaturization.decode
 decode(fd::AbstractFeatureDescriptor, encoded_feature) = throw(MethodError(decode, fd))
 export decode
 
-output_shape(fd::AbstractFeatureDescriptor, ed::AbstractCodec) = throw(MethodError(output_shape, (fd, ed)))
+output_shape(fd::AbstractFeatureDescriptor, ed::AbstractCodec) =
+    throw(MethodError(output_shape, (fd, ed)))
 output_shape(fd::AbstractFeatureDescriptor) = output_shape(fd, fd.encoder_decoder)
 export output_shape
 
