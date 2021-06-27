@@ -11,15 +11,14 @@ include("abstractfeatures.jl")
 
 # TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
 """
-    ElementFeatureDescriptor(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
+    ElementFeatureDescriptor
 
-Construct a feature object that encodes features associated with individual atoms that depend only upon their elemental identity (if you want to encode a feature that depends upon an atom's environment, you shold use SpeciesFeatureDescriptor!)
+Describe features associated with individual atoms that depend only upon their elemental identity
 
-## Arguments
-- `name::String`: the name of the feature
+## Fields
+- `name::String`: Name of the feature
+- `encoder_decoder::AbstractCodec`: Codec defined which handles the feature's encoding and decoding logic
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
-- `length::Int`: length of encoded vector
-- `logspaced::Bool`: whether onehot-style bins should be logarithmically spaced or not
 - `lookup_table::DataFrame`: table containing values of feature for every encodable element
 """
 struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
@@ -29,6 +28,21 @@ struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     lookup_table::DataFrame
 end
 
+
+"""
+    ElementFeatureDescriptor(feature_name, lookup_table, categorical, contextual, length, encodable_elements)
+
+Construct a feature object that encodes features associated with individual atoms that depend only upon their elemental identity.
+If a Codec isn't explicity specified, [OneHotOneCold](@ref) with [default_efd_encode](@ref) and [default_efd_decode](@ref)
+as the encoding and decoding functions respectively is the default choice.
+
+## Arguments
+- `name::String`: the name of the feature
+- `lookup_table::DataFrame`: table containing values of feature for every encodable element
+- `nbins::Integer`: Number of bins to use for one-cold decoding of continuous-valued features
+- `logspaced::Bool`: whether onehot-style bins should be logarithmically spaced or not
+- `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
+"""
 function ElementFeatureDescriptor(
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
