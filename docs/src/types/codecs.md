@@ -1,0 +1,5 @@
+# Codecs
+
+```@docs
+Codec.OneHotOneCold
+```
