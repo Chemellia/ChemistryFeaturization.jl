@@ -266,7 +266,7 @@ end
 "Visualize a given graph."
 function visualize(ag::AtomGraph)
     # gplot doesn't work on weighted graphs
-    sg = SimpleGraph(adjacency_matrix(ag))
+    sg = SimpleGraph(adjacency_matrix(ag.graph))
     plt = gplot(
         sg,
         nodefillc = graph_colors(ag.elements),
