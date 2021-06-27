@@ -105,6 +105,12 @@ function (ed::OneHotOneCold)(
     end
 end
 
+"""
+    output_shape(efd::ElementFeatureDescriptor)
+
+Get the output-shape for an ElementFeatureDescriptor object using the logic assoicated with its
+Codec.
+"""
 output_shape(efd::ElementFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
 
 function output_shape(efd::ElementFeatureDescriptor, ed::OneHotOneCold)
