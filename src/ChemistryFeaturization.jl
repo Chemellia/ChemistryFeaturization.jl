@@ -22,7 +22,7 @@ export ElementFeatureDescriptor
 include("atoms/atoms.jl")
 export Atoms
 using .Atoms: AtomGraph
-export AtomGraph
+export AtomGraph, visualize
 
 include("featurizations/featurizations.jl")
 export Featurization
