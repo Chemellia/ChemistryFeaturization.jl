@@ -116,6 +116,11 @@ function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature)
     ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
 end
 
+"""
+    default_efd_encode(efd::ElementFeatureDescriptor, a::AbstractAtoms, nbins::Integer, logspaced::Bool)
+
+Default one-hot encoding function for an ElementFeatureDescriptor object.
+"""
 function default_efd_encode(
     efd::ElementFeatureDescriptor,
     a::AbstractAtoms,
@@ -138,7 +143,11 @@ function default_efd_encode(
     )
 end
 
+"""
+    default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins::Integer, logspaced::Bool)
 
+Default one-cold decoding logic for an ElementFeatureDescriptor object.
+"""
 default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) =
     onecold_decoder(
         encoded_feature,
