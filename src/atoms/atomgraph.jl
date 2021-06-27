@@ -103,6 +103,28 @@ AtomGraph(
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
+"""
+    AtomGraph(input_file_path; id="", output_file_path=nothing, featurization=nothing, overwrite_file=false, use_voronoi=false, cutoff_radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize_weights=true)
+
+Construct an AtomGraph object from a structure file.
+
+# Required Arguments
+- `input_file_path::String`: path to file containing structure (must be readable by ASE.io.read)
+
+# Optional Arguments
+- `id::String=""`: ID associated with structure (e.g. identifier from online database)
+- `output_file_path=nothing`: If provided, structure will be serialized to file at this location
+- `featurization`: If provided, features will be encoded using it
+- `overwrite_file::Bool=false`: whether to overwrite an existing file at `output_file_path`
+- `use_voronoi::Bool=false`: Whether to build neighbor lists using Voronoi decompositions
+- `cutoff_radius::Real=8.0`: If not using Voronoi neighbor lists, longest allowable distance to a neighbor, in Angstroms
+- `max_num_nbr::Integer=12`: If not using Voronoi neighbor lists, largest allowable number of neighbors
+- `dist_decay_func=inverse_square`: Function by which to assign edge weights according to distance between neighbors
+- `normalize_weights::Bool=true`: Whether to normalize weights such that the largest is 1.0
+
+# Note
+`max_num_nbr` is a "soft" limit – if multiple neighbors are at the same distance, the full neighbor list may be longer.
+"""
 function AtomGraph(
     input_file_path::String,
     id::String = "",
