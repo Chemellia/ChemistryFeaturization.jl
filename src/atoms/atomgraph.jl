@@ -74,6 +74,11 @@ function AtomGraph(
 
     local ag
 
+    if !isfile(input_file_path)
+        @warn "$input_file_path does not exist. Cannot build graph from a non-existent file."
+        return missing
+    end
+
     if splitext(input_file_path)[end] == ".jls" # deserialize
         ag = deserialize(input_file_path)
         if isempty(id)   # if an id is specified, use that instead of whatever id is got from deserializing
