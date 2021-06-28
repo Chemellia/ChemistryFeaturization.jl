@@ -16,3 +16,12 @@ struct SerializableEncodedFeature
     # inner constructor - generates `encoded_features`
     SerializableEncodedFeature(atoms::AbstractAtoms, featurization::AbstractFeaturization) = new(atoms, featurization, featurize!(atoms, featurization))
 end
+
+function decode(sef::SerializableEncodedFeature)
+    decoded = decode(sef.featurization, sef.encoded_features)
+    # is this loop universally applicable?
+    # for (k, v) in decoded
+    #     v["Symbol"] = sef.atoms.elements[k]
+    # end
+    return decoded
+end
