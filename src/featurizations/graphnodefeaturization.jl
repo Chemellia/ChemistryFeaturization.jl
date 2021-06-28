@@ -116,6 +116,7 @@ function featurize!(ag::AtomGraph, fzn::GraphNodeFeaturization)
     encoded = reduce(vcat, map((x) -> x(ag), fzn.features))
     ag.encoded_features = encoded
     ag.featurization = fzn
+    return encoded
 end
 
 function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
