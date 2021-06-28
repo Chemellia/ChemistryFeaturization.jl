@@ -64,7 +64,6 @@ function AtomGraph(
     input_file_path::String,
     id::String = "",
     output_file_path::Union{String,Nothing} = nothing,
-    featurization::Union{AbstractFeaturization,Nothing} = nothing;
     overwrite_file::Bool = false,
     use_voronoi::Bool = false,
     cutoff_radius::Real = 8.0,
@@ -74,49 +73,39 @@ function AtomGraph(
 )
 
     local ag
-    local to_build_graph = true
-    to_serialize = !isnothing(output_file_path)
 
-    if to_serialize
-        if isfile(output_file_path)
-            if overwrite_file
-                @info "Output file already exists and `overwrite_file` is set to false; returning deserialized AtomGraph at $output_file_path. If you wanted to rebuild the graph, set `overwrite=true`."
-                to_build_graph = false
-                ag = deserialize(output_file_path)
-            end
-        end
-    end
-
-    if to_build_graph
-        if splitext(input_file_path)[end] == ".jls"
-            ag = deserialize(input_file_path)
+    if splitext(input_file_path)[end] == ".jls" # deserialize
+        ag = deserialize(input_file_path)
+        if isempty(id)   # if an id is specified, use that instead of whatever id is got from deserializing
             ag.id = id
-        else
-            try
-                ag = AtomGraph(
-                    build_graph(
-                        input_file_path,
-                        use_voronoi = use_voronoi,
-                        cutoff_radius = cutoff_radius,
-                        max_num_nbr = max_num_nbr,
-                        dist_decay_func = dist_decay_func,
-                        normalize_weights = normalize_weights,
-                    )...,
-                    id,
-                )
-            catch
-                @warn "Unable to build graph for $input_file_path"
-                return missing
-            end
+        end
+
+    else # try actually building the graph
+        try
+            ag = AtomGraph(
+                build_graph(
+                    input_file_path,
+                    use_voronoi = use_voronoi,
+                    cutoff_radius = cutoff_radius,
+                    max_num_nbr = max_num_nbr,
+                    dist_decay_func = dist_decay_func,
+                    normalize_weights = normalize_weights,
+                )...,
+                id,
+            )
+        catch
+            @warn "Unable to build graph for $input_file_path"
+            return missing
         end
     end
 
-    if !isnothing(featurization)
-        featurize!(ag, featurization)
-    end
-
+    to_serialize = !isnothing(output_file_path)
     if to_serialize
-        serialize(output_file_path, ag)
+        if isfile(output_file_path) && !(overwrite_file)
+            @info "Output file already exists, and `overwrite_file` is set to false.\nIf you want to overwrite the existing graph, set `overwrite=true`, or remove the existing file and retry."
+        else
+            serialize(output_file_path, ag)
+        end
     end
 
     return ag
