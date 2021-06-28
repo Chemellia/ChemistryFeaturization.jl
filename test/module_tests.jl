@@ -15,7 +15,7 @@ using ChemistryFeaturization.AbstractType: AbstractFeaturization, AbstractFeatur
         F2_atom = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
 
         @test_throws MethodError encodable_elements(ff)
-        @test_throws MethodError featurize!(F2_atom, ff)
+        @test_throws MethodError featurize(F2_atom, ff)
         @test_throws MethodError decode(ff, nothing)
     end
 

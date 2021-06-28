@@ -27,7 +27,7 @@ using ..ChemistryFeaturization: SerializableEncodedFeature
         fzn = GraphNodeFeaturization(fnames, nbins = 2)
         F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
         sef = SerializableEncodedFeature(F2, fzn)
-    
+
         decoded_matrix = decode(fzn, sef.encoded_features)
 
         decoded_ag = decode(sef)

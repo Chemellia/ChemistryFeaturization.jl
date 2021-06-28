@@ -14,7 +14,8 @@ struct SerializableEncodedFeature
     encoded_features::Any
 
     # inner constructor - generates `encoded_features`
-    SerializableEncodedFeature(atoms::AbstractAtoms, featurization::AbstractFeaturization) = new(atoms, featurization, featurize(atoms, featurization))
+    SerializableEncodedFeature(atoms::AbstractAtoms, featurization::AbstractFeaturization) =
+        new(atoms, featurization, featurize(atoms, featurization))
 end
 
 function decode(sef::SerializableEncodedFeature)
