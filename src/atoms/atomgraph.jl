@@ -32,42 +32,6 @@ mutable struct AtomGraph <: AbstractAtoms
 end
 
 
-# first, the basic constructor
-"""
-    AtomGraph(gr, elements, features, featurization, id="")
-    AtomGraph(gr, elements, id="")
-    AtomGraph(adj, elements, features, featurization, id="")
-    AtomGraph(adj, elements, id="")
-
-Construct an AtomGraph object, either directly from a SimpleWeightedGraph `gr` or from an
-adjacency matrix `adj`, along with, at minimum, the list of elemental symbols `elements`
-representing each node. Note that the object can be initialized without features, but if
-features are provided, so too must be the featurization scheme, in order to maintain
-"decodability" of features.
-"""
-function AtomGraph(
-    graph::SimpleWeightedGraph{A,B},
-    elements::Vector{String},
-    features::Matrix{<:Real},
-    featurization::AbstractFeaturization,
-    id = "",
-) where {B<:Real,A<:Integer}
-    # check that elements is the right length
-    num_atoms = size(graph)[1]
-    @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
-
-    # TO CONSIDER: add `validate_features` function or something like that for when this constructor is used
-    # that we can then dispatch on different featurization types. Alternatively, remove this constructor?
-
-    # check that features is the right dimensions (# features x # nodes) -> commented out because doesn't work with generic fzn
-    # expected_feature_length = sum(f.num_bins for f in featurization)
-    # @assert size(features) == (expected_feature_length, num_atoms) "Feature matrix is of wrong dimension! It should be of size (# features, # nodes)"
-
-    # if all these are good, calculate laplacian and build the thing
-    laplacian = normalized_laplacian(graph)
-    AtomGraph(graph, elements, laplacian, features, featurization, id)
-end
-
 # one without features or featurization initialized yet
 function AtomGraph(
     graph::SimpleWeightedGraph{A,B},
@@ -78,20 +42,19 @@ function AtomGraph(
     num_atoms = size(graph)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
 
-    laplacian = B.(normalized_laplacian(graph))
-    AtomGraph(graph, elements, laplacian, nothing, nothing, id)
+    # this was previously B.(normalized_laplacian(graph)) - won't that potentially give rise to compatibility issues if B is a custom type?
+    laplacian = normalized_laplacian(graph)
+    AtomGraph(graph, elements, laplacian, id)
 end
 
 
 # initialize directly from adjacency matrix
 AtomGraph(
-    adj::Array{R1},
+    adj::Array{R},
     elements::Vector{String},
-    features::Matrix{R2},
-    featurization::AbstractFeaturization,
     id = "",
-) where {R2<:Real,R1<:Real} =
-    AtomGraph(SimpleWeightedGraph{R1}(adj), elements, features, featurization, id)
+) where {R<:Real} =
+    AtomGraph(SimpleWeightedGraph{R}(adj), elements, id)
 
 
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
