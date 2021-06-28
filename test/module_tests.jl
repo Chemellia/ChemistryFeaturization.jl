@@ -29,4 +29,4 @@ using ChemistryFeaturization.AbstractType: AbstractFeaturization, AbstractFeatur
         @test_throws MethodError encodable_elements(fd)
         @test_throws MethodError decode(fd, nothing)
     end
-end 
+end
