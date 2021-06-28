@@ -6,7 +6,7 @@ using Colors
 using Serialization
 using ..ChemistryFeaturization.Utils.GraphBuilding
 
-using ..ChemistryFeaturization.AbstractType: AbstractAtoms, AbstractFeaturization
+using ..ChemistryFeaturization.AbstractType: AbstractAtoms
 
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 """
@@ -21,10 +21,6 @@ A type representing an atomic structure as a graph (`gr`).
   graph
 - `laplacian::Matrix{<:Real}`: Normalized graph Laplacian matrix, stored to speed up
   convolution operations by avoiding recomputing it every pass.
-- `encoded_atom_features::Union{Matrix{<:Real},Nothing}`: Feature matrix of size (# features, # nodes). AtomGraph can
-  be initialized without defining this field, but if it is defined, the subsequent field must be also.
-- `featurization::Union{AbstractFeaturization,Nothing}`: Featurization scheme specification to maintain 
-  "decodability" of features.
 - `id::String`: Optional, an identifier, e.g. to correspond with tags/labels of an imported
   dataset.
 """
@@ -32,8 +28,6 @@ mutable struct AtomGraph <: AbstractAtoms
     graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
     laplacian::Matrix{<:Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
-    encoded_features::Any # to accommodate any format of encoding, or Nothing
-    featurization::Union{AbstractFeaturization,Nothing}
     id::String # or maybe we let it be a number too?
 end
 
