@@ -119,26 +119,13 @@ end
 # pretty printing, short version
 function Base.show(io::IO, ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges"
-    if !isnothing(ag.featurization)
-        st = string(st, ", feature vector length $(size(ag.encoded_features)[1])")
-    end
     print(io, st)
 end
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
-    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n   feature vector length: "
-    if isnothing(ag.featurization)
-        st = string(st, "uninitialized\n   featurization: uninitialized")
-    else
-        st = string(
-            st,
-            "$(size(ag.encoded_features)[1])\n   featurization: ",
-            ag.featurization,
-        )
-    end
+    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n"
     print(io, st)
-
 end
 
 
