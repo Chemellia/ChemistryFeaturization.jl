@@ -79,7 +79,7 @@ Construct an AtomGraph object from a structure file.
 """
 function AtomGraph(
     input_file_path::String,
-    id::String = "",
+    id::String = input_file_path,
     output_file_path::Union{String,Nothing} = nothing,
     overwrite_file::Bool = false,
     use_voronoi::Bool = false,
@@ -98,9 +98,7 @@ function AtomGraph(
 
     if splitext(input_file_path)[end] == ".jls" # deserialize
         ag = deserialize(input_file_path)
-        if isempty(id)   # if an id is specified, use that instead of whatever id is got from deserializing
-            ag.id = id
-        end
+        ag.id = id
 
     else # try actually building the graph
         try
