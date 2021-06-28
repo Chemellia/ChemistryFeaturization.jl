@@ -2,7 +2,6 @@ using Test
 using ChemistryFeaturization.AbstractType: AbstractFeaturization, AbstractFeatureDescriptor
 
 @testset "Modules and Abstract methods" begin
-    
     @testset "top-level module" begin
         # testing on `nothing` as example of ::Any
         @test_throws MethodError encodable_elements(nothing)
