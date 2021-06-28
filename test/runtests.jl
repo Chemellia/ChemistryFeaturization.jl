@@ -4,7 +4,7 @@ using Test
 const testdir = dirname(@__FILE__)
 
 tests = [
-    "module_tests.jl",
+    "module_tests",
     "utils/ElementFeatureUtils_tests",
     "utils/GraphBuilding_tests",
     "atoms/AtomGraph_tests",
