@@ -10,6 +10,7 @@ makedocs(
             "Atoms Objects"=>"types/atoms.md",
             "Feature Descriptors"=>"types/feature_descriptors.md",
             "Featurization"=>"types/featurizations.md",
+            "Codec"=>"types/codecs.md",
         ],
         "Contributing"=>"contributing.md",
         "Changelog"=>"changelog.md",
