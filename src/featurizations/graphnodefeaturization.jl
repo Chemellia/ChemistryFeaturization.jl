@@ -1,4 +1,4 @@
-export GraphNodeFeaturization, featurize!
+export GraphNodeFeaturization, featurize
 export encodable_elements, decode, chunk_vec
 
 using ..ChemistryFeaturization.AbstractType:
@@ -112,10 +112,8 @@ function chunk_vec(vec::Vector{<:Real}, nbins::Vector{<:Integer})
     return chunks
 end
 
-function featurize!(ag::AtomGraph, fzn::GraphNodeFeaturization)
-    encoded = reduce(vcat, map((x) -> x(ag), fzn.features))
-    ag.encoded_features = encoded
-    ag.featurization = fzn
+function featurize(ag::AtomGraph, fzn::GraphNodeFeaturization)
+    encoded =reduce(vcat, map((x) -> x(ag), fzn.features))
     return encoded
 end
 

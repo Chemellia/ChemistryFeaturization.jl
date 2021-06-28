@@ -9,7 +9,7 @@ export encodable_elements
 import ..ChemistryFeaturization.decode
 decode(fzn::AbstractFeaturization, encoded_feature) = throw(MethodError(decode, fzn))
 include("graphnodefeaturization.jl")
-export GraphNodeFeaturization, featurize!, decode
+export GraphNodeFeaturization, featurize, decode
 
 include("weavefeaturization.jl")
 export WeaveFeaturization

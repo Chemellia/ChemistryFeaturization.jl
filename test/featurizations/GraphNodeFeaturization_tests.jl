@@ -18,14 +18,14 @@ using ChemistryFeaturization.Featurization
 
         triangle_C_1 = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
         triangle_C_2 = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
-        # (this one also tests broadcasting of featurize!)
-        featurize!.([triangle_C_1, triangle_C_2], [fzn1, fzn2])
+        # (this one also tests broadcasting of featurize)
+        featurize.([triangle_C_1, triangle_C_2], [fzn1, fzn2])
         @test triangle_C_1.encoded_features == triangle_C_2.encoded_features
 
         # test that other options work properly
         fzn3 = GraphNodeFeaturization(fnames, nbins = 2)
         F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
-        featurize!(F2, fzn3)
+        featurize(F2, fzn3)
         decoded_matrix = decode(fzn3, F2.encoded_features)
         decoded_ag = decode(F2)
         enc1 = F2.encoded_features
@@ -34,7 +34,7 @@ using ChemistryFeaturization.Featurization
         )
         fzn4 = GraphNodeFeaturization(fnames, nbins = [2, 4, 2])
         F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
-        featurize!(F2, fzn4)
+        featurize(F2, fzn4)
         @test all(F2.encoded_features .== enc1)
     end
 
