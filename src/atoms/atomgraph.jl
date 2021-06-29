@@ -79,7 +79,7 @@ Construct an AtomGraph object from a structure file.
 """
 function AtomGraph(
     input_file_path::String,
-    id::String = input_file_path,
+    id::String = splitext(input_file_path)[begin],
     output_file_path::Union{String,Nothing} = nothing,
     overwrite_file::Bool = false,
     use_voronoi::Bool = false,
