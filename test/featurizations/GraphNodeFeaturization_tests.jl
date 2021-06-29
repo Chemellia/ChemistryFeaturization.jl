@@ -21,6 +21,9 @@ using ChemistryFeaturization.Featurization
         triangle_C_2 = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
         # @test fzn1 == fzn2
 
+        featurized_1, featurized_2 = featurize.([triangle_C_1, triangle_C_2], [fzn1]) # featurize can be broadcasted
+        @test featurized_1 == featurized_2
+
         featurized_1, featurized_2 = featurize.([triangle_C_1, triangle_C_2], [fzn1, fzn2]) # featurize can be broadcasted
         @test featurized_1 == featurized_2
     end
