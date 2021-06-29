@@ -10,7 +10,7 @@ tests = [
     "atoms/AtomGraph_tests",
     "features/ElementFeature_tests",
     "featurizations/GraphNodeFeaturization_tests",
-    "serialize_test",
+    "featurizedatoms_tests",
     # TODO: add Weave stuff
     # TODO: add SpeciesFeature tests
 ]

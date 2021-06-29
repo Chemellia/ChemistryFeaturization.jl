@@ -32,7 +32,7 @@ export GraphNodeFeaturization, featurize
 
 export encodable_elements, decode
 
-include("serialize.jl")
+include("featurizedatoms.jl")
 export FeaturizedAtoms
 
 end
