@@ -6,7 +6,7 @@ using Colors
 using Serialization
 using ..ChemistryFeaturization.Utils.GraphBuilding
 
-using ..ChemistryFeaturization.AbstractType: AbstractAtoms, AbstractFeaturization
+using ..ChemistryFeaturization.AbstractType: AbstractAtoms
 
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 """
@@ -21,10 +21,6 @@ A type representing an atomic structure as a graph (`gr`).
   graph
 - `laplacian::Matrix{<:Real}`: Normalized graph Laplacian matrix, stored to speed up
   convolution operations by avoiding recomputing it every pass.
-- `encoded_atom_features::Union{Matrix{<:Real},Nothing}`: Feature matrix of size (# features, # nodes). AtomGraph can
-  be initialized without defining this field, but if it is defined, the subsequent field must be also.
-- `featurization::Union{AbstractFeaturization,Nothing}`: Featurization scheme specification to maintain 
-  "decodability" of features.
 - `id::String`: Optional, an identifier, e.g. to correspond with tags/labels of an imported
   dataset.
 """
@@ -32,46 +28,7 @@ mutable struct AtomGraph <: AbstractAtoms
     graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
     laplacian::Matrix{<:Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
-    encoded_features::Any # to accommodate any format of encoding, or Nothing
-    featurization::Union{AbstractFeaturization,Nothing}
     id::String # or maybe we let it be a number too?
-end
-
-
-# first, the basic constructor
-"""
-    AtomGraph(gr, elements, features, featurization, id="")
-    AtomGraph(gr, elements, id="")
-    AtomGraph(adj, elements, features, featurization, id="")
-    AtomGraph(adj, elements, id="")
-
-Construct an AtomGraph object, either directly from a SimpleWeightedGraph `gr` or from an
-adjacency matrix `adj`, along with, at minimum, the list of elemental symbols `elements`
-representing each node. Note that the object can be initialized without features, but if
-features are provided, so too must be the featurization scheme, in order to maintain
-"decodability" of features.
-"""
-function AtomGraph(
-    graph::SimpleWeightedGraph{A,B},
-    elements::Vector{String},
-    features::Matrix{<:Real},
-    featurization::AbstractFeaturization,
-    id = "",
-) where {B<:Real,A<:Integer}
-    # check that elements is the right length
-    num_atoms = size(graph)[1]
-    @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
-
-    # TO CONSIDER: add `validate_features` function or something like that for when this constructor is used
-    # that we can then dispatch on different featurization types. Alternatively, remove this constructor?
-
-    # check that features is the right dimensions (# features x # nodes) -> commented out because doesn't work with generic fzn
-    # expected_feature_length = sum(f.num_bins for f in featurization)
-    # @assert size(features) == (expected_feature_length, num_atoms) "Feature matrix is of wrong dimension! It should be of size (# features, # nodes)"
-
-    # if all these are good, calculate laplacian and build the thing
-    laplacian = normalized_laplacian(graph)
-    AtomGraph(graph, elements, laplacian, features, featurization, id)
 end
 
 # one without features or featurization initialized yet
@@ -84,20 +41,15 @@ function AtomGraph(
     num_atoms = size(graph)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
 
-    laplacian = B.(normalized_laplacian(graph))
-    AtomGraph(graph, elements, laplacian, nothing, nothing, id)
+    # this was previously B.(normalized_laplacian(graph)) - won't that potentially give rise to compatibility issues if B is a custom type?
+    laplacian = normalized_laplacian(graph)
+    AtomGraph(graph, elements, laplacian, id)
 end
 
 
 # initialize directly from adjacency matrix
-AtomGraph(
-    adj::Array{R1},
-    elements::Vector{String},
-    features::Matrix{R2},
-    featurization::AbstractFeaturization,
-    id = "",
-) where {R2<:Real,R1<:Real} =
-    AtomGraph(SimpleWeightedGraph{R1}(adj), elements, features, featurization, id)
+AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
+    AtomGraph(SimpleWeightedGraph{R}(adj), elements, id)
 
 
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
@@ -127,9 +79,8 @@ Construct an AtomGraph object from a structure file.
 """
 function AtomGraph(
     input_file_path::String,
-    id::String = "",
+    id::String = splitext(input_file_path)[begin],
     output_file_path::Union{String,Nothing} = nothing,
-    featurization::Union{AbstractFeaturization,Nothing} = nothing;
     overwrite_file::Bool = false,
     use_voronoi::Bool = false,
     cutoff_radius::Real = 8.0,
@@ -139,49 +90,42 @@ function AtomGraph(
 )
 
     local ag
-    local to_build_graph = true
+
+    if !isfile(input_file_path)
+        @warn "$input_file_path does not exist. Cannot build graph from a non-existent file."
+        return missing
+    end
+
+    if splitext(input_file_path)[end] == ".jls" # deserialize
+        ag = deserialize(input_file_path)
+        ag.id = id
+
+    else # try actually building the graph
+        try
+            ag = AtomGraph(
+                build_graph(
+                    input_file_path,
+                    use_voronoi = use_voronoi,
+                    cutoff_radius = cutoff_radius,
+                    max_num_nbr = max_num_nbr,
+                    dist_decay_func = dist_decay_func,
+                    normalize_weights = normalize_weights,
+                )...,
+                id,
+            )
+        catch
+            @warn "Unable to build graph for $input_file_path"
+            return missing
+        end
+    end
+
     to_serialize = !isnothing(output_file_path)
-
     if to_serialize
-        if isfile(output_file_path)
-            if overwrite_file
-                @info "Output file already exists and `overwrite_file` is set to false; returning deserialized AtomGraph at $output_file_path. If you wanted to rebuild the graph, set `overwrite=true`."
-                to_build_graph = false
-                ag = deserialize(output_file_path)
-            end
-        end
-    end
-
-    if to_build_graph
-        if splitext(input_file_path)[end] == ".jls"
-            ag = deserialize(input_file_path)
-            ag.id = id
+        if isfile(output_file_path) && !(overwrite_file)
+            @info "Output file already exists, and `overwrite_file` is set to false.\nIf you want to overwrite the existing graph, set `overwrite=true`, or remove the existing file and retry."
         else
-            try
-                ag = AtomGraph(
-                    build_graph(
-                        input_file_path,
-                        use_voronoi = use_voronoi,
-                        cutoff_radius = cutoff_radius,
-                        max_num_nbr = max_num_nbr,
-                        dist_decay_func = dist_decay_func,
-                        normalize_weights = normalize_weights,
-                    )...,
-                    id,
-                )
-            catch
-                @warn "Unable to build graph for $input_file_path"
-                return missing
-            end
+            serialize(output_file_path, ag)
         end
-    end
-
-    if !isnothing(featurization)
-        featurize!(ag, featurization)
-    end
-
-    if to_serialize
-        serialize(output_file_path, ag)
     end
 
     return ag
@@ -190,26 +134,13 @@ end
 # pretty printing, short version
 function Base.show(io::IO, ag::AtomGraph)
     st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges"
-    if !isnothing(ag.featurization)
-        st = string(st, ", feature vector length $(size(ag.encoded_features)[1])")
-    end
     print(io, st)
 end
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
-    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n   feature vector length: "
-    if isnothing(ag.featurization)
-        st = string(st, "uninitialized\n   featurization: uninitialized")
-    else
-        st = string(
-            st,
-            "$(size(ag.encoded_features)[1])\n   featurization: ",
-            ag.featurization,
-        )
-    end
+    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n"
     print(io, st)
-
 end
 
 
