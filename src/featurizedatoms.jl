@@ -25,6 +25,11 @@ FeaturizedAtoms(
 ) where {A<:AbstractAtoms,F<:AbstractFeaturization} =
     FeaturizedAtoms{A,F}(atoms, featurization)
 
+"""
+    decode(featurized_atoms::FeaturizedAtoms)
+
+Decode a [FeaturizedAtoms](@ref) object, and return the decoded value.
+"""
 function decode(featurized_atoms::FeaturizedAtoms)
     decoded = decode(featurized_atoms.featurization, featurized_atoms.encoded_features)
     # is this loop universally applicable?
@@ -34,5 +39,12 @@ function decode(featurized_atoms::FeaturizedAtoms)
     return decoded
 end
 
+
+"""
+    featurize(atoms::AbstractAtoms, featurization::AbstractFeaturization)
+
+Featurize an `atoms` object using a `featurization` and return the
+[FeaturizedAtoms](@ref) object created.
+"""
 featurize(atoms::AbstractAtoms, featurization::AbstractFeaturization) =
     FeaturizedAtoms(atoms, featurization)
