@@ -33,3 +33,6 @@ function decode(featurized_atoms::FeaturizedAtoms)
     # end
     return decoded
 end
+
+featurize(atoms::AbstractAtoms, featurization::AbstractFeaturization) =
+    FeaturizedAtoms(atoms, featurization)
