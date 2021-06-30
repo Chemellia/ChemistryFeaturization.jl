@@ -11,7 +11,7 @@ using ..ChemistryFeaturization: FeaturizedAtoms
     local fnames = ["X", "Block", "Atomic mass"]
 
     # TODO - Actually test the `featurized_atoms.encoded_features` value. Probably define a custom type for this?
-    @testset "Construct and featurize" begin
+    @testset "Construct and encode" begin
 
         efds = ElementFeatureDescriptor.(fnames)
         fzn = GraphNodeFeaturization(efds)
@@ -35,9 +35,9 @@ using ..ChemistryFeaturization: FeaturizedAtoms
             map(d -> d[1]["Block"] == d[2]["Block"] == "p", [decoded_matrix, decoded_ag]),
         )
 
-        # check if `encoded_features` are generated correctly using featurize itself
+        # check if `encoded_features` are generated correctly using encode itself
         fzn2 = GraphNodeFeaturization(fnames, nbins = [2, 4, 2])
-        @test all(featurize(F2, fzn2) .== featurized_atoms.encoded_features)
+        @test all(encode(fzn2, F2) .== featurized_atoms.encoded_features)
 
     end
 

@@ -16,7 +16,7 @@ struct FeaturizedAtoms{A<:AbstractAtoms,F<:AbstractFeaturization}
         atoms,
         featurization,
     ) where {A<:AbstractAtoms,F<:AbstractFeaturization} =
-        new(atoms, featurization, featurize(atoms, featurization))
+        new(atoms, featurization, encode(featurization, atoms))
 end
 
 FeaturizedAtoms(

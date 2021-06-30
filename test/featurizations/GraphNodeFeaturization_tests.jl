@@ -21,10 +21,10 @@ using ChemistryFeaturization.Featurization
         triangle_C_2 = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
         # @test fzn1 == fzn2
 
-        featurized_1, featurized_2 = featurize.([triangle_C_1, triangle_C_2], [fzn1]) # featurize can be broadcasted
+        featurized_1, featurized_2 = encode.([fzn1], [triangle_C_1, triangle_C_2]) # encode can be broadcasted
         @test featurized_1 == featurized_2
 
-        featurized_1, featurized_2 = featurize.([triangle_C_1, triangle_C_2], [fzn1, fzn2]) # featurize can be broadcasted
+        featurized_1, featurized_2 = encode.([fzn1, fzn2], [triangle_C_1, triangle_C_2]) # encode can be broadcasted
         @test featurized_1 == featurized_2
     end
 
@@ -35,7 +35,7 @@ using ChemistryFeaturization.Featurization
         # fzn3 = GraphNodeFeaturization(fnames, nbins = 2)
         # F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
 
-        # featurize(F2, fzn3)
+        # encode(F2, fzn3)
         # decoded_matrix = decode(fzn3, F2.encoded_features)
         # decoded_ag = decode(F2)
         # enc1 = F2.encoded_features
@@ -44,7 +44,7 @@ using ChemistryFeaturization.Featurization
         # )
         # fzn4 = GraphNodeFeaturization(fnames, nbins = [2, 4, 2])
         # F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
-        # featurize(F2, fzn4)
+        # encode(F2, fzn4)
         # @test all(F2.encoded_features .== enc1)
     end
 
