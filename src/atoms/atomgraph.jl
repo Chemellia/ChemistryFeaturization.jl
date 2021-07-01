@@ -49,7 +49,7 @@ end
 
 # initialize directly from adjacency matrix
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
-    AtomGraph(SimpleWeightedGraph{R}(adj), elements, id)
+    AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
 
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
@@ -79,7 +79,7 @@ Construct an AtomGraph object from a structure file.
 """
 function AtomGraph(
     input_file_path::String,
-    id::String = splitext(input_file_path)[begin],
+    id::String = splitext(input_file_path)[begin];
     output_file_path::Union{String,Nothing} = nothing,
     overwrite_file::Bool = false,
     use_voronoi::Bool = false,
