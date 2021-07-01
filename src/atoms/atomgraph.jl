@@ -49,10 +49,6 @@ end
 
 # initialize directly from adjacency matrix
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
-    AtomGraph(SimpleWeightedGraph{R}(adj), elements, id)
-
-
-AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
 """
