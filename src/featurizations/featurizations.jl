@@ -1,3 +1,11 @@
+"""
+    Featurization
+
+A Featurization collectively stores a set of FeatureDescriptors (and any other
+supporting attributes that it may further require), and defines how to featurize
+an Atoms object by using the encoding schemes defined by the FeatureDescriptors
+stored.
+"""
 module Featurization
 
 using ..ChemistryFeaturization.AbstractType: AbstractFeaturization
