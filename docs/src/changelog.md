@@ -4,7 +4,26 @@ I'm generally trying to adhere to [semver](https://semver.org) here. This means 
 
 Categories to include for each release, if relevant: breaking, added, fixed, removed/deprecated
 
-## v0.3.0
+## v0.4.1 [2021-07-01]
+
+### Fixed
+* `AtomGraph` construction from file works with keyword arguments again.
+
+## v0.4.0 [2021-06-30]
+
+### Breaking/Added
+* Introduce FeaturizedAtoms type, remove `featurization`, `encoded_features` fields from Atoms objects
+
+### Fixed
+* Docs for stable/tagged versions now build properly
+* MacOS CI passes again, but possibly through a non-optimal solution of removing `mkl` entirely...
+
+## v0.3.1 [2021-06-18]
+
+### Fixed
+* Top-level exports work
+
+## v0.3.0 [2021-06-17]
 Major restructure to make extensibility far easier and allow better sharing of elements between featurization schemes! Also streamlined the codebase a lot by organizing things into sensible modules, so technically basically everything is a breaking change because all of the imports are from the submodules now.
 
 ### Breaking/Added
