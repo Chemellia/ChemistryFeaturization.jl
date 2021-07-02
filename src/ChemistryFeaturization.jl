@@ -34,6 +34,6 @@ export GraphNodeFeaturization, encode
 export encodable_elements, decode
 
 include("featurizedatoms.jl")
-export FeaturizedAtoms
+export FeaturizedAtoms, featurize, decode
 
 end
