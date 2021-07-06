@@ -25,6 +25,21 @@ FeaturizedAtoms(
 ) where {A<:AbstractAtoms,F<:AbstractFeaturization} =
     FeaturizedAtoms{A,F}(atoms, featurization)
 
+# pretty printing, short
+function Base.show(io::IO, fa::FeaturizedAtoms)
+    a, b = size(fa.encoded_features)
+    st = string(typeof(fa), " with $a x $b encoded features")
+    print(io, st)
+end
+
+# pretty printing, long
+function Base.show(io::IO, ::MIME"text/plain", fa::FeaturizedAtoms)
+    a, b = size(fa.encoded_features)
+    st = string(typeof(fa), " with $a x $b encoded features:\n")
+    st = string(st, "   Atoms: $(fa.atoms)\n   Featurization: $(fa.featurization)")
+    print(io, st)
+end
+
 """
     decode(featurized_atoms::FeaturizedAtoms)
 
