@@ -3,7 +3,7 @@ module Codec
 @enum EncodeOrDecode ENCODE DECODE
 export EncodeOrDecode
 
-include("OneHotOneCold.jl")
+include("onehotonecold.jl")
 export OneHotOneCold
 
 end
