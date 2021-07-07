@@ -4,6 +4,8 @@ Feature descriptors store all necessary information to encode **and decode** fea
 
 For example, if an `ElementFeatureDescriptor` encodes a vector for each atom in an object, they could be concatenated together into a matrix with a column for each atom to describe a structure.
 
+Feature Descriptors must be designed with interoperability in mind. A `FeatureDescriptor` object must work deterministically with different datasets.
+
 The type hierarchy of these objects is currently:
 ```
 |---- AbstractFeatureDescriptor
