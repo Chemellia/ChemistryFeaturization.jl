@@ -88,7 +88,7 @@ end
 function Base.show(io::IO, ::MIME"text/plain", fzn::GraphNodeFeaturization)
     st = "GraphNodeFeaturization encoding $(length(fzn.features)) features:\n"
     for feature in fzn.features
-        st = string(st, "   ", feature, "\n")
+        st = string(st, "\t", feature, "\n")
     end
     st = st[1:end-1]
     print(io, st)

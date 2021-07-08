@@ -36,7 +36,7 @@ end
 function Base.show(io::IO, ::MIME"text/plain", fa::FeaturizedAtoms)
     a, b = size(fa.encoded_features)
     st = string(typeof(fa), " with $a x $b encoded features:\n")
-    st = string(st, "   Atoms: $(fa.atoms)\n   Featurization: $(fa.featurization)")
+    st = string(st, "\tAtoms: $(fa.atoms)\n\tFeaturization: $(fa.featurization)")
     print(io, st)
 end
 
