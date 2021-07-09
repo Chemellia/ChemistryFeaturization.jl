@@ -23,9 +23,9 @@ const default_nbins = 10
 const oom_threshold_log = 2
 
 # read in features...
-atom_data_path = joinpath(@__DIR__, "data", "pymatgen_atom_data.csv")
+atom_data_path = joinpath(@__DIR__, "..", "..", "data", "pymatgen_atom_data.csv")
 const atom_data_df = DataFrame(CSV.File(atom_data_path))
-feature_info_path = joinpath(@__DIR__, "data", "feature_info.json")
+feature_info_path = joinpath(@__DIR__, "..", "..", "data", "feature_info.json")
 const feature_info = JSON.parsefile(feature_info_path)
 
 const categorical_feature_names = feature_info["categorical"]
