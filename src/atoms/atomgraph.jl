@@ -132,7 +132,7 @@ end
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
-    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n"
+    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n\tatoms: $(ag.elements)"
     print(io, st)
 end
 
