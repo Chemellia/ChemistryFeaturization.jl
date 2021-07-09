@@ -2,7 +2,7 @@ using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
 
 using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
-using ..ChemistryFeaturization.Codec: OneHotOneCold, EncodeOrDecode, ENCODE, DECODE
+using ..ChemistryFeaturization.Codec: OneHotOneCold
 
 include("abstractfeatures.jl")
 
@@ -101,25 +101,14 @@ end
 
 function (efd::ElementFeatureDescriptor)(a::AbstractAtoms)
     @assert all([el in encodable_elements(efd) for el in a.elements]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
-    efd.encoder_decoder(efd, a, ENCODE)
+    efd.encoder_decoder(efd, a)
 end
 
-encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) =
-    efd.encoder_decoder(efd, a, ENCODE)
-decode(efd::ElementFeatureDescriptor, encoded_feature) =
-    efd.encoder_decoder(efd, encoded_feature)
+(ed::OneHotOneCold)(efd::ElementFeatureDescriptor, a::AbstractAtoms) =
+    ed.encode_f(efd, a, ed.nbins, ed.logspaced)
 
-function (ed::OneHotOneCold)(
-    efd::ElementFeatureDescriptor,
-    a::AbstractAtoms,
-    e_or_d::EncodeOrDecode,
-)
-    if e_or_d == ENCODE
-        ed.encode_f(efd, a, ed.nbins, ed.logspaced)
-    else
-        ed.decode_f(efd, a, ed.nbins, ed.logspaced)
-    end
-end
+(ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature) =
+    ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
 
 """
     output_shape(efd::ElementFeatureDescriptor)
@@ -134,9 +123,6 @@ function output_shape(efd::ElementFeatureDescriptor, ed::OneHotOneCold)
            ed.nbins
 end
 
-function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature)
-    ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
-end
 
 """
     default_efd_encode(efd::ElementFeatureDescriptor, a::AbstractAtoms, nbins::Integer, logspaced::Bool)

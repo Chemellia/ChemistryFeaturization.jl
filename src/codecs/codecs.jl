@@ -1,8 +1,5 @@
 module Codec
 
-@enum EncodeOrDecode ENCODE DECODE
-export EncodeOrDecode
-
 include("simplecodec.jl")
 export SimpleCodec
 

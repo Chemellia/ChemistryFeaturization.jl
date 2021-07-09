@@ -27,6 +27,6 @@ using ChemistryFeaturization.AbstractType: AbstractFeaturization, AbstractFeatur
         struct FakeFD <: AbstractFeatureDescriptor end
         fd = FakeFD()
         @test_throws MethodError encodable_elements(fd)
-        @test_throws MethodError decode(fd, nothing)
+        @test_throws ErrorException decode(fd, nothing)
     end
 end
