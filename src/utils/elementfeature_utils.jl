@@ -7,13 +7,14 @@ using DataFrames
 using CSV
 using JSON
 using Flux: onecold
+using ...ChemistryFeaturization.Codec: build_onehot_vec
 
 # export things
 export default_nbins, oom_threshold_log
 export atom_data_df, avail_feature_names
 export categorical_feature_names, categorical_feature_vals, continuous_feature_names
 export default_log, fea_minmax, default_categorical
-export get_bins, build_onehot_vec, get_param_vec
+export get_bins, get_param_vec
 export onehot_lookup_encoder, onecold_decoder, encodable_elements
 
 # default number of bins for continuous features, if unspecified
@@ -159,27 +160,6 @@ function get_bins(
         end
     end
     return bins
-end
-
-"A flexible version of Flux.onehot that can handle both categorical and continuous-valued encoding."
-function build_onehot_vec(val, bins, categorical)
-    local bin_index , onehot_vec
-    if categorical
-        onehot_vec = [0.0 for i = 1:length(bins)]
-        bin_index = findfirst(isequal(val), bins)
-    else
-        @assert eltype(bins) <: Number "Your bins aren't numbers...are you sure you didn't mean for this feature to be categorical?"
-        @assert bins[1] <= val <= bins[end] "The value $val is outside the range of bins $bins"
-        onehot_vec = [0.0 for i = 1:(length(bins)-1)]
-        bin_index = searchsorted(bins, val).stop
-        if bin_index == length(bins) # got the max value
-            bin_index = bin_index - 1
-        elseif isapprox(val, bins[1]) # sometimes will get 0 if this doesn't get checked
-            bin_index = 1
-        end
-    end
-    onehot_vec[bin_index] = 1.0
-    return onehot_vec
 end
 
 "Function for encoding onehot-style vectors based on values in a lookup table. Intended to be used as an `encode_f` for `ElementFeatureDescriptor` objects. See source code of convenience constructor for `ElementFeatureDescriptor` for more details."
