@@ -7,6 +7,8 @@ Categories to include for each release, if relevant: breaking, added, fixed, rem
 ## Upcoming
 ### Added
 * add pretty printing for `GraphNodeFeaturization`, `FeaturizedAtoms`, uniformize spacing via `\t` across these and `AtomGraph`
+* [logic] move `data/` directory to root of repo
+* [logic] move `build_onehot_vec` to `OneHotOneCold`
 
 ### Fixed
 * export `featurize` and `decode` properly for `FeaturizedAtoms`
