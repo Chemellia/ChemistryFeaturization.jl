@@ -11,18 +11,18 @@ Categories to include for each release, if relevant: breaking, added, fixed, rem
 ### Fixed
 * export `featurize` and `decode` properly for `FeaturizedAtoms`
 
-## v0.4.2
+## v0.4.2 [2021-07-02]
 ### Added
 * export `featurize` and `decode` functions at top-level module
 
 ### Fixed
 * `id` is positional rather than keyword argument in `AtomGraph` constructor so that broadcast works properly, also it defaults to filename sans extension when constructing from file
 
-## v0.4.1
+## v0.4.1 [2021-07-01]
 ### Fixed
 * add back wayward semicolon so that keyword arguments work in `AtomGraph` constructor from file
 
-## v0.4.0
+## v0.4.0 [2021-06-30]
 ### Added
 * create `FeaturizedAtoms` type
 * add docstrings for various things, add section of docs for Codecs
@@ -33,7 +33,13 @@ Categories to include for each release, if relevant: breaking, added, fixed, rem
 ### Removed/Deprecated
 * remove encoded features field from `AtomGraph` type
 
-## v0.3.0
+## v0.3.1 [2021-06-18]
+### Fixed
+* import from submodules before top-level export so that exports actually work, d'oh
+* remove broken dimension check in `AtomGraph` constructor (doesn't work with generic featurization)
+* fix type assertion of `nbins` in `GraphNodeFeaturization` constructor (`Vector{<:Integer}`, NOT `Vector{Integer}`)
+
+## v0.3.0 [2021-06-17]
 Major restructure to make extensibility far easier and allow better sharing of elements between featurization schemes! Also streamlined the codebase a lot by organizing things into sensible modules, so technically basically everything is a breaking change because all of the imports are from the submodules now.
 
 ### Breaking/Added
