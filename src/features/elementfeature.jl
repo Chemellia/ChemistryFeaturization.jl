@@ -28,6 +28,22 @@ struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     lookup_table::DataFrame
 end
 
+function ElementFeatureDescriptor(feature_name::String, encoder_decoder::AbstractCodec)
+    lookup_table = atom_data_df
+
+    colnames = names(lookup_table)
+    @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
+
+    lookup_table = lookup_table[:, ["Symbol", feature_name]]
+    dropmissing!(lookup_table)
+
+    ElementFeatureDescriptor(
+        feature_name,
+        encoder_decoder,
+        default_categorical(feature_name, lookup_table),
+        lookup_table,
+    )
+end
 
 """
     ElementFeatureDescriptor(feature_name, lookup_table, categorical, contextual, length, encodable_elements)
