@@ -4,6 +4,6 @@ include("simplecodec.jl")
 export SimpleCodec
 
 include("onehotonecold.jl")
-export OneHotOneCold
+export OneHotOneCold, build_onehot_vec
 
 end
