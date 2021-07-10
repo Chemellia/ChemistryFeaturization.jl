@@ -71,14 +71,16 @@ rows = []
 groups = []
 valences = []
 blocks = []
+electronic_structure = []
 for row in df.iterrows():
     sym = row[1]['Symbol']
     el = pt.Element(sym)
     rows.append(el.row)
     groups.append(el.group)
     blocks.append(el.block)
+    electronic_structure.append(el.electronic_structure)
     try:
-        v = valence(el)[1]
+        v = el.valence[1]
     except ValueError: #ambiguous valence
         v = np.nan
     valences.append(v)
@@ -87,6 +89,7 @@ df['Row'] = rows
 df['Group'] = groups
 df['Valence'] = valences
 df['Block'] = blocks
+df['Electronic Structure'] = electronic_structure
 
 df.to_csv("pymatgen_atom_data.csv")
 
