@@ -4,6 +4,6 @@ module Codec
 export EncodeOrDecode
 
 include("OneHotOneCold.jl")
-export OneHotOneCold
+export OneHotOneCold, build_onehot_vec
 
 end
