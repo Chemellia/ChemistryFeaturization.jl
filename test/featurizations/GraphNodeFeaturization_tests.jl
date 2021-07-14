@@ -17,6 +17,8 @@ using ChemistryFeaturization.Featurization
         fzn1 = GraphNodeFeaturization(features)
         fzn2 = GraphNodeFeaturization(fnames)
 
+        @test output_shape(fzn1) == 24
+        
         triangle_C_1 = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
         triangle_C_2 = AtomGraph(Float32.([0 1 1; 1 0 1; 1 1 0]), ["C", "C", "C"])
         # @test fzn1 == fzn2

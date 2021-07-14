@@ -1,11 +1,12 @@
-export GraphNodeFeaturization, encode
-export encodable_elements, decode, chunk_vec
-
 using ..ChemistryFeaturization.AbstractType:
     AbstractFeatureDescriptor, AbstractFeaturization
 using ..ChemistryFeaturization.FeatureDescriptor
+import ..ChemistryFeaturization.FeatureDescriptor: output_shape
 using ..ChemistryFeaturization.Atoms: AtomGraph
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
+
+export GraphNodeFeaturization, encode
+export encodable_elements, decode, chunk_vec, output_shape
 
 using DataFrames
 
@@ -78,7 +79,7 @@ function GraphNodeFeaturization(
     GraphNodeFeaturization(afs)
 end
 
-# TODO: function to compute total vector length?
+output_shape(fzn::GraphNodeFeaturization) = sum(output_shape.(fzn.features))
 
 encodable_elements(fzn::GraphNodeFeaturization) =
     intersect([encodable_elements(f) for f in fzn.features]...)
