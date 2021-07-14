@@ -2,6 +2,7 @@ using Test
 using DataFrames
 using CSV
 using ChemistryFeaturization.Utils.ElementFeatureUtils
+using ..ChemistryFeaturization.Codec: build_onehot_vec
 
 @testset "ElementFeatureUtils" begin
     df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)

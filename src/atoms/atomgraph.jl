@@ -49,14 +49,10 @@ end
 
 # initialize directly from adjacency matrix
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
-    AtomGraph(SimpleWeightedGraph{R}(adj), elements, id)
-
-
-AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
 """
-    AtomGraph(input_file_path; id="", output_file_path=nothing, featurization=nothing, overwrite_file=false, use_voronoi=false, cutoff_radius=8.0, max_num_nbr=12, dist_decay_func=inverse_square, normalize_weights=true)
+    AtomGraph(input_file_path, id = splitext(input_file_path)[begin]; output_file_path = nothing, featurization = nothing, overwrite_file = false, use_voronoi = false, cutoff_radius = 8.0, max_num_nbr = 12, dist_decay_func = inverse_square, normalize_weights = true)
 
 Construct an AtomGraph object from a structure file.
 
@@ -64,22 +60,21 @@ Construct an AtomGraph object from a structure file.
 - `input_file_path::String`: path to file containing structure (must be readable by ASE.io.read)
 
 # Optional Arguments
-- `id::String=""`: ID associated with structure (e.g. identifier from online database)
-- `output_file_path=nothing`: If provided, structure will be serialized to file at this location
-- `featurization`: If provided, features will be encoded using it
-- `overwrite_file::Bool=false`: whether to overwrite an existing file at `output_file_path`
-- `use_voronoi::Bool=false`: Whether to build neighbor lists using Voronoi decompositions
-- `cutoff_radius::Real=8.0`: If not using Voronoi neighbor lists, longest allowable distance to a neighbor, in Angstroms
-- `max_num_nbr::Integer=12`: If not using Voronoi neighbor lists, largest allowable number of neighbors
-- `dist_decay_func=inverse_square`: Function by which to assign edge weights according to distance between neighbors
-- `normalize_weights::Bool=true`: Whether to normalize weights such that the largest is 1.0
+- `id::String`: ID associated with structure (e.g. identifier from online database). Defaults to name of input file if undefined.
+- `output_file_path = nothing`: If provided, structure will be serialized to file at this location
+- `overwrite_file::Bool = false`: whether to overwrite an existing file at `output_file_path`
+- `use_voronoi::Bool = false`: Whether to build neighbor lists using Voronoi decompositions
+- `cutoff_radius::Real = 8.0`: If not using Voronoi neighbor lists, longest allowable distance to a neighbor, in Angstroms
+- `max_num_nbr::Integer = 12`: If not using Voronoi neighbor lists, largest allowable number of neighbors
+- `dist_decay_func = inverse_square`: Function by which to assign edge weights according to distance between neighbors
+- `normalize_weights::Bool = true`: Whether to normalize weights such that the largest is 1.0
 
 # Note
 `max_num_nbr` is a "soft" limit – if multiple neighbors are at the same distance, the full neighbor list may be longer.
 """
 function AtomGraph(
     input_file_path::String,
-    id::String = splitext(input_file_path)[begin],
+    id::String = splitext(input_file_path)[begin];
     output_file_path::Union{String,Nothing} = nothing,
     overwrite_file::Bool = false,
     use_voronoi::Bool = false,
@@ -102,17 +97,15 @@ function AtomGraph(
 
     else # try actually building the graph
         try
-            ag = AtomGraph(
-                build_graph(
-                    input_file_path,
-                    use_voronoi = use_voronoi,
-                    cutoff_radius = cutoff_radius,
-                    max_num_nbr = max_num_nbr,
-                    dist_decay_func = dist_decay_func,
-                    normalize_weights = normalize_weights,
-                )...,
-                id,
+            adj_mat, elements = build_graph(
+                input_file_path,
+                use_voronoi = use_voronoi,
+                cutoff_radius = cutoff_radius,
+                max_num_nbr = max_num_nbr,
+                dist_decay_func = dist_decay_func,
+                normalize_weights = normalize_weights,
             )
+            ag = AtomGraph(adj_mat, elements, id)
         catch
             @warn "Unable to build graph for $input_file_path"
             return missing
@@ -139,7 +132,7 @@ end
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
-    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n   atoms: $(ag.elements)\n"
+    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n\tatoms: $(ag.elements)"
     print(io, st)
 end
 

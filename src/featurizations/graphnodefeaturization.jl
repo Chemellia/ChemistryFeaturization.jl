@@ -79,6 +79,22 @@ function GraphNodeFeaturization(
     GraphNodeFeaturization(afs)
 end
 
+# pretty printing, short
+function Base.show(io::IO, fzn::GraphNodeFeaturization)
+    st = "GraphNodeFeaturization encoding $(length(fzn.features)) features"
+    print(io, st)
+end
+
+# pretty printing, long
+function Base.show(io::IO, ::MIME"text/plain", fzn::GraphNodeFeaturization)
+    st = "GraphNodeFeaturization encoding $(length(fzn.features)) features:\n"
+    for feature in fzn.features
+        st = string(st, "\t", feature, "\n")
+    end
+    st = st[1:end-1]
+    print(io, st)
+end
+
 output_shape(fzn::GraphNodeFeaturization) = sum(output_shape.(fzn.features))
 
 encodable_elements(fzn::GraphNodeFeaturization) =
