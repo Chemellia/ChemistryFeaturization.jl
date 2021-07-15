@@ -162,6 +162,7 @@ end
 
 normalized_laplacian(ag::AtomGraph) = ag.laplacian
 
+elements(ag::AtomGraph) = ag.elements
 
 # now visualization stuff...
 

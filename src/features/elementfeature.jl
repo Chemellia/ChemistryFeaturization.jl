@@ -1,6 +1,6 @@
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
-
+using ..ChemistryFeaturization: elements
 using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
 using ..ChemistryFeaturization.Codec: OneHotOneCold
 
@@ -100,7 +100,7 @@ function encodable_elements(feature_name::String, lookup_table::DataFrame = atom
 end
 
 function (efd::ElementFeatureDescriptor)(a::AbstractAtoms)
-    @assert all([el in encodable_elements(efd) for el in a.elements]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
+    @assert all([el in encodable_elements(efd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
     efd.encoder_decoder(efd, a)
 end
 
@@ -146,7 +146,7 @@ function default_efd_encode(
                 logspaced = logspaced,
                 categorical = efd.categorical,
             ),
-            a.elements,
+            elements(a),
         ),
     )
 end
