@@ -1,5 +1,6 @@
 module FeatureDescriptor
 
+using Base: Int16
 using ..ChemistryFeaturization.AbstractType:
     AbstractAtoms, AbstractFeatureDescriptor, AbstractCodec
 
