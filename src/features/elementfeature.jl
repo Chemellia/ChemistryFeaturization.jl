@@ -116,8 +116,6 @@ end
 Get the output-shape for an ElementFeatureDescriptor object using the logic assoicated with its
 Codec.
 """
-output_shape(efd::ElementFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
-
 function output_shape(efd::ElementFeatureDescriptor, ed::OneHotOneCold)
     return efd.categorical ? length(unique(efd.lookup_table[:, Symbol(efd.name)])) :
            ed.nbins

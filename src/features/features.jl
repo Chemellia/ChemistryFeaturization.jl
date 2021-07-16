@@ -8,8 +8,6 @@ encodable_elements(fd::AbstractFeatureDescriptor) =
     throw(MethodError(encodable_elements, fd))
 export encodable_elements
 
-
-
 import ..ChemistryFeaturization.encode
 """
     encode(fd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms)
@@ -33,6 +31,9 @@ export decode
 (codec::AbstractCodec)(fd::AbstractFeatureDescriptor, encoded_feature) = error(
     "Logic specifying how $(typeof(codec))'s decoding mechanism actually decodes $(typeof(fd)) is undefined.",
 )
+
+output_shape(efd::AbstractFeatureDescriptor) = output_shape(fd, fd.encoder_decoder)
+export output_shape
 
 include("abstractfeatures.jl")
 
