@@ -26,7 +26,7 @@ using ..ChemistryFeaturization: FeaturizedAtoms
     @testset "Decode" begin
         fzn = GraphNodeFeaturization(fnames, nbins = 2)
         F2 = AtomGraph(Float32.([0 1; 1 0]), ["F", "F"])
-        featurized_atoms = FeaturizedAtoms(F2, fzn)
+        featurized_atoms = featurize(F2, fzn)
 
         decoded_matrix = decode(fzn, featurized_atoms.encoded_features)
 

@@ -38,11 +38,17 @@ const cf = ChemistryFeaturization
 
         block = ElementFeatureDescriptor("Block", nbins = 5)
         @test block(triangle_C)[2, :] == ones(3)
+
+        @testset "Explicitly specify Codec" begin
+            ohoc_codec = amass.encoder_decoder
+            amass_v2 = ElementFeatureDescriptor("Atomic mass", ohoc_codec)
+            @test amass_v2(He_mol) == amass(He_mol)
+        end
     end
-    
+
     @testset "Decode" begin
         @test decode(block, block(He_mol)) == ["p", "p"]
-        
+
         true_He_amass = atom_data_df[2, Symbol("Atomic mass")]
         He_amass_min, He_amass_max = decode(amass, amass(He_mol)[:, 1])
         @test He_amass_min < true_He_amass < He_amass_max
@@ -60,9 +66,8 @@ const cf = ChemistryFeaturization
         @test meaning(triangle_C)[10, :] == ones(3)
 
         @testset "Encodable Elements" begin
-        @test encodable_elements(meaning) == ["C", "As", "Tc"]
-        @test encodable_elements("MeaningOfLife", df) == ["C", "As", "Tc"]
+            @test encodable_elements(meaning) == ["C", "As", "Tc"]
+            @test encodable_elements("MeaningOfLife", df) == ["C", "As", "Tc"]
         end
-
     end
 end
