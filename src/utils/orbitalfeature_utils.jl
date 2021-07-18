@@ -71,16 +71,13 @@ end
 
 # using regex, get the valence shell configuration
 function _orbitalregex(df::DataFrame, element)
-    config_df_row = filter(:Symbol => x -> x == element, df; view = true)[
-        !,
-        "Valence Shell Configuration",
-    ][1]
+    config_df_row =
+        filter(:Symbol => x -> x == element, df; view = true)[!, "Electronic Structure"][1]
     orbital_regex = r"[1-9][s|p|d|f|g][1-9]" # regex which will match individual orbitals
     orbital_config = map(o -> o.match, collect(eachmatch(orbital_regex, config_df_row)))
     return orbital_config
 end
 
-# should this be moved into something like utils/orbitalfeatureutils.jl?
 function valence_shell_config(df::DataFrame, element)
     valence_shell_config = _orbitalregex(df, element)
     return _orbitalsparse(valence_shell_config)
