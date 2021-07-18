@@ -24,7 +24,7 @@ export ElementFeatureDescriptor, output_shape
 include("atoms/atoms.jl")
 export Atoms
 
-using .Atoms: AtomGraph, visualize
+using .Atoms: AtomGraph, visualize, elements
 export AtomGraph, visualize
 
 include("featurizations/featurizations.jl")
