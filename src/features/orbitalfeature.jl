@@ -34,6 +34,13 @@ function output_shape(ofd::OrbitalFeatureDescriptor, sc::SimpleCodec)
     # return the number
 end
 
+Base.show(io::IO, efd::OrbitalFeatureDescriptor) = print(io, "OrbitalFeatureDescriptor created.")
+
+function Base.show(io::IO, ::MIME"text/plain", efd::OrbitalFeatureDescriptor)
+    st = "OrbitalFeatureDescriptor created."
+    print(io, st)
+end
+
 function default_ofd_encode(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms)
     I = Vector{Int16}()
     J = Vector{Int16}()
