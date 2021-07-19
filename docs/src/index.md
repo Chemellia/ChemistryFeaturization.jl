@@ -12,6 +12,6 @@ This is intended to serve as a "helper package" of sorts for other packages that
 
 It provides flexible, modular data types and functions for starting from a "bare" atomic structure of a molecule or crystal, featurizing it with various tabulated or computed properties of its constituent atoms, bonds, etc., and encoding those features into a format appropriate to ingest into a machine learning model. Critically, it also provides functions for _inverting_ this process, i.e. decoding the featurization, as all necessary metadata is retained.
 
-![CF_flowchart](img/flowchart.png)
+![CF_flowchart](files/flowchart.png)
 
 To learn more about the package, it would be good to start with the [Terminology/Philosophy](@ref) section to get a handle on the vocabulary as we use it, and also some insights about the design philosophy behind the package. Then go ahead and browse the sidebar for more!

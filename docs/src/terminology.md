@@ -27,7 +27,7 @@ The inverse process to encoding. Note that in many cases (e.g. a continuous-valu
 
 Describes the "features of a feature" – i.e. its name, possible values, instructions for encoding it, etc., but does NOT store an actual instance of its value.
 
-For more on the available types of feature descriptors, see [Feature Descriptors](@ref).
+For more on the available types of feature descriptors, see [Feature Descriptors](@ref fd).
 
 ### AbstractCodec
 
@@ -37,7 +37,7 @@ Component of a feature descriptor that stores the actual encoding/decoding funct
 
 Describes a molecule, crystal, etc. in whatever representation will be ingested by an ML model (e.g. a graph), and can also store encoded features of that structure. 
 
-For more on the available types of atoms objects, see [Atoms Objects](@ref).
+For more on the available types of atoms objects, see [Atoms Objects](@ref atoms).
 
 ### Featurization Object
 

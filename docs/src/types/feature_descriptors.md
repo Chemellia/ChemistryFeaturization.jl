@@ -1,4 +1,4 @@
-# Feature Descriptors
+# [Feature Descriptors](@id fd)
 
 ```@docs
 FeatureDescriptor
@@ -59,7 +59,7 @@ block = ElementFeatureDescriptor("Block")
 block(H2)
 
 # output
-4×2 Array{Float64,2}:
+4×2 Matrix{Float64}:
  1.0  1.0
  0.0  0.0
  0.0  0.0
@@ -73,6 +73,10 @@ TODO: add remark about encoding options once that PR is merged
 ### Species Feature Descriptor
 
 A `SpeciesFeatureDescriptor`'s encoded values depend on its local environment. Examples are an atom's format oxidation state, or whether it is part of an aromatic ring.
+
+```@docs
+FeatureDescriptor.SpeciesFeatureDescriptor
+```
 
 TODO: more details once we have better examples
 

@@ -1,4 +1,4 @@
-# Atoms Objects
+# [Atoms Objects](@id atoms)
 
 ```@docs
 Atoms
@@ -11,5 +11,6 @@ The `AtomGraph` type is used to store atomic graph representations. It can also 
 
 ```@docs
 Atoms.AtomGraph
+Atoms.AtomGraph(::String, ::String)
 Atoms.visualize
 ```
