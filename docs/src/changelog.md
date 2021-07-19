@@ -4,24 +4,43 @@ I'm generally trying to adhere to [semver](https://semver.org) here. This means 
 
 Categories to include for each release, if relevant: breaking, added, fixed, removed/deprecated
 
-## v0.4.1 [2021-07-01]
+## Upcoming
+### Added
+* add pretty printing for `GraphNodeFeaturization`, `FeaturizedAtoms`, uniformize spacing via `\t` across these and `AtomGraph`
+* [logic] move `data/` directory to root of repo
+* [logic] move `build_onehot_vec` to `OneHotOneCold`
 
 ### Fixed
-* `AtomGraph` construction from file works with keyword arguments again.
+* export `featurize` and `decode` properly for `FeaturizedAtoms`
+
+## v0.4.2 [2021-07-02]
+### Added
+* export `featurize` and `decode` functions at top-level module
+
+### Fixed
+* `id` is positional rather than keyword argument in `AtomGraph` constructor so that broadcast works properly, also it defaults to filename sans extension when constructing from file
+
+## v0.4.1 [2021-07-01]
+### Fixed
+* add back wayward semicolon so that keyword arguments work in `AtomGraph` constructor from file
 
 ## v0.4.0 [2021-06-30]
-
-### Breaking/Added
-* Introduce FeaturizedAtoms type, remove `featurization`, `encoded_features` fields from Atoms objects
+### Added
+* create `FeaturizedAtoms` type, remove `featurization`, `encoded_features` fields from Atoms objects
+* add docstrings for various things, add section of docs for Codecs
 
 ### Fixed
+* macOS CI fixed, but possibly not in an ideal way because it seems to result in occasional precompile warnings upon update
 * Docs for stable/tagged versions now build properly
-* MacOS CI passes again, but possibly through a non-optimal solution of removing `mkl` entirely...
+
+### Removed/Deprecated
+* remove encoded features field from `AtomGraph` type
 
 ## v0.3.1 [2021-06-18]
-
 ### Fixed
-* Top-level exports work
+* import from submodules before top-level export so that exports actually work, d'oh
+* remove broken dimension check in `AtomGraph` constructor (doesn't work with generic featurization)
+* fix type assertion of `nbins` in `GraphNodeFeaturization` constructor (`Vector{<:Integer}`, NOT `Vector{Integer}`)
 
 ## v0.3.0 [2021-06-17]
 Major restructure to make extensibility far easier and allow better sharing of elements between featurization schemes! Also streamlined the codebase a lot by organizing things into sensible modules, so technically basically everything is a breaking change because all of the imports are from the submodules now.
