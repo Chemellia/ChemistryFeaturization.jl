@@ -7,6 +7,9 @@ encode(a::Any, object_to_be_encoded) = throw(MethodError(encode, a))
 decode(a::Any, encoded_features) = throw(MethodError(decode, a))
 elements(a::Any) = throw(MethodError(elements, a))
 
+include("data.jl")
+export Data
+
 include("abstracts/abstracttypes.jl")
 export AbstractType
 
