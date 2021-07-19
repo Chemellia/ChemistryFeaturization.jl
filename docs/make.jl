@@ -6,11 +6,13 @@ makedocs(
     pages = Any[
         "Home"=>"index.md",
         "Terminology"=>"terminology.md",
+        "Tutorial"=>"tutorial.md",
         "Types"=>Any[
             "Abstract Types"=>"types/abstracttypes.md",
             "Atoms Objects"=>"types/atoms.md",
             "Feature Descriptors"=>"types/feature_descriptors.md",
             "Featurization"=>"types/featurizations.md",
+            "Featurized Atoms"=>"types/featurizedatoms.md",
             "Codec"=>"types/codecs.md",
         ],
         "Contributing"=>"contributing.md",

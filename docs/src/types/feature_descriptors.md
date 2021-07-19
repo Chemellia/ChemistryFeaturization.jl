@@ -49,7 +49,6 @@ ElementFeatureDescriptor
 
 In the example, below, we encode the block of each atom in a hydrogen molecule. The result is two `hcat`ted vectors [1 0 0 0], indicating hydrogen is _s_-block.
 
-TODO: check that this test passes once new version is tagged
 ```jldoctest; setup = :(using ChemistryFeaturization.Atoms, ChemistryFeaturization.FeatureDescriptor)
 H2 = AtomGraph([0. 1.; 1. 0.], ["H", "H"])
 block = ElementFeatureDescriptor("Block")
