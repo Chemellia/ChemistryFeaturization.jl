@@ -15,3 +15,5 @@ Depth = 3
 ## Building a featurization
 
 ## Featurizing structures
+
+## Decoding encoded features

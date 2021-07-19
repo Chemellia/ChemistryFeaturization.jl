@@ -1,5 +1,9 @@
 # Feature Descriptors
 
+```@docs
+FeatureDescriptor
+```
+
 Feature descriptors store all necessary information to encode **and decode** feature values on various parts of an atoms object and appropriately combine them into a single object (vector, matrix, etc.) describing the value/values of the feature for the entire object.
 
 For example, if an `ElementFeatureDescriptor` encodes a vector for each atom in an object, they could be concatenated together into a matrix with a column for each atom to describe a structure.
@@ -55,7 +59,7 @@ block = ElementFeatureDescriptor("Block")
 block(H2)
 
 # output
-4×2 Matrix{Float64}:
+4×2 Array{Float64,2}:
  1.0  1.0
  0.0  0.0
  0.0  0.0
