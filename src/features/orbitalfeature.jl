@@ -5,26 +5,19 @@ using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
 using ..ChemistryFeaturization.Codec: SimpleCodec
 using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
     valence_shell_config, _indexorbital
+using ..ChemistryFeaturization.Data: valenceshell_conf_df
 using SparseArrays
 
 struct OrbitalFeatureDescriptor <: AbstractEnvironmentFeatureDescriptor
-    lookup_table::DataFrame
     encoder_decoder::AbstractCodec
     function OrbitalFeatureDescriptor()
         # trim down the DataFrame to have only the Symbol, and valence shell configuration (extracted from "Electronic Structure")
-        df = select(
-            atom_data_df,
-            :Symbol,
-            "Electronic Structure" =>
-                (x -> replace.(x, r"\[(.+)\]\.(?<valence>\w+)" => s"\g<valence>")) =>
-                    "Electronic Structure",
-        )
-        new(df, SimpleCodec(default_ofd_encode, default_ofd_decode))
+        new(SimpleCodec(default_ofd_encode, default_ofd_decode))
     end
 end
 
 function (ofd::OrbitalFeatureDescriptor)(a::AbstractAtoms)
-    @assert all([el in ofd.lookup_table[:, :Symbol] for el in elements(a)]) "All elements must be valid and accounted for in the periodic table!"
+    @assert all([el in valenceshell_conf_df[:, :Symbol] for el in elements(a)]) "All elements must be valid and accounted for in the periodic table!"
     ofd.encoder_decoder(ofd, a)
 end
 
@@ -48,7 +41,7 @@ function default_ofd_encode(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms)
     col = 0
     for i in elements(a)
         # X, Y are equivalent to I, V for a SparseVector
-        X, Y = valence_shell_config(ofd.lookup_table, i)
+        X, Y = valence_shell_config(valenceshell_conf_df, i)
         col += 1    # column number
 
         for i = 1:length(X)
@@ -77,13 +70,13 @@ function default_ofd_decode(
             # find the configuration for each shell and concatenate it to the `shell_conf`
             shell_conf = shell_conf * _indexorbital(row) * string(val) * "."
         end
-        # `chop` the trailing '.', and rearrange order of the shells to match the format followed in the default `lookup_table`
+        # `chop` the trailing '.', and rearrange order of the shells to match format present in `valenceshell_conf_df`
         shell_conf = join(sort(split(chop(shell_conf), '.'), by = first), '.')
 
         # find the DataFrame that has the matching `shell_conf` as its Valence Shell Configuration, and get its `Symbol`
         element = (filter(
             "Electronic Structure" => x -> x == shell_conf,
-            ofd.lookup_table;
+            valenceshell_conf_df;
             view = true,
         )[
             !,
