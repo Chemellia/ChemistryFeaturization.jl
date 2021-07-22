@@ -22,9 +22,8 @@ We can build an `AtomGraph` "manually," by specifying an adjacency matrix and di
 julia> adj_mat = Float32.([0 1 1; 1 0 1; 1 1 0]);
 
 julia> triangle_C = AtomGraph(adj_mat, ["C", "C", "C"])
- AtomGraph  with 3 nodes, 3 edges 
-       atoms: ["C", "C", "C"]
-
+AtomGraph  with 3 nodes, 3 edges
+	atoms: ["C", "C", "C"]
 ```
 If you're working in an IDE that supports graphics output, you can also call `visualize(triangle_C)` to see the "ball-and-stick" graph.
 
@@ -33,9 +32,8 @@ In a "real" application, you'll likely be reading structures from files such as 
 
 ```jldoctest WS2; setup=:(cd("./src/files/"))
 julia> WS2 = AtomGraph("mp-224.cif")
-
- AtomGraph mp-224 with 6 nodes, 9 edges 
-       atoms: ["W", "W", "S", "S", "S", "S"]
+AtomGraph mp-224 with 6 nodes, 9 edges
+	atoms: ["W", "W", "S", "S", "S", "S"]
 
 ```
 The graph is automatically assigned an `id` based on the filename it was read from, but you can pass a value to override this and name it something else.
@@ -46,14 +44,14 @@ It's a two-dimensional material with two formula units per unit cell! Another wa
 
 ```jldoctest WS2
 julia> WS2.graph[[1,4,6,2,3,5]].weights
-
 6×6 SparseArrays.SparseMatrixCSC{Float64, Int64} with 18 stored entries:
- 1.0     0.9732   0.9732    ⋅       ⋅        ⋅
- 0.9732  1.0      0.17143   ⋅       ⋅        ⋅
- 0.9732  0.17143  1.0       ⋅       ⋅        ⋅
+ 1.0     0.9732   0.9732    ⋅       ⋅        ⋅ 
+ 0.9732  1.0      0.17143   ⋅       ⋅        ⋅ 
+ 0.9732  0.17143  1.0       ⋅       ⋅        ⋅ 
   ⋅       ⋅        ⋅       1.0     0.9732   0.9732
   ⋅       ⋅        ⋅       0.9732  1.0      0.17143
   ⋅       ⋅        ⋅       0.9732  0.17143  1.0
+
 ```
 
 However, we have options in how we actually construct the graph. The default option is based on the scheme from [the original cgcnn.py implementation](https://github.com/txie-93/cgcnn), which essentially involves setting a maximum neighbor distance and a maximum number of neighbors. However, in contrast to that implementation, we construct weighted graphs (with the user having an ability to specify the weight decay function with separation distance; it defaults to inverse-square).
@@ -87,9 +85,9 @@ What types of features of our structure do we want to encode in our graph? Let's
 We'll do a demonstration with a couple of built-in element features, and one custom one...
 ```jldoctest fzn; setup=:(cd("../../"))
 julia> block = ElementFeatureDescriptor("Block") # categorical feature denoting s-, p-, d-, or f-block elements
- ElementFeature Block:
-    categorical: true
-    encoded length: 4
+ElementFeature Block:
+   categorical: true
+   encoded length: 4
 ```
 
 ## Building a featurization
