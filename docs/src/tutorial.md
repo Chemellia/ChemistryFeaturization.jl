@@ -18,7 +18,7 @@ end
 ### Create "from scratch"
 We can build an `AtomGraph` "manually," by specifying an adjacency matrix and directly building the graph from that. Here I'll build a fictitious graph that's just an equiweighted triangle of carbon atoms:
 
-```jldoctest
+```jldoctest fzn
 julia> adj_mat = Float32.([0 1 1; 1 0 1; 1 1 0]);
 
 julia> triangle_C = AtomGraph(adj_mat, ["C", "C", "C"])
@@ -82,16 +82,112 @@ ags = AtomGraph.(readdir("strucs/", join=true))
 ## Building feature descriptors
 What types of features of our structure do we want to encode in our graph? Let's keep things simple for now and consider features that can be encoded only by knowing the elemental identity of a given atom (node in our graph). The package includes a bunch of built-in data, and you can also provide your own for features we haven't included!
 
-We'll do a demonstration with a couple of built-in element features, and one custom one...
+We can easily construct these for built-in features...
 ```jldoctest fzn; setup=:(cd("../../"))
 julia> block = ElementFeatureDescriptor("Block") # categorical feature denoting s-, p-, d-, or f-block elements
 ElementFeature Block:
    categorical: true
    encoded length: 4
+
+julia> amass = ElementFeatureDescriptor("Atomic mass") # continuous-valued feature
+ElementFeature Atomic mass:
+   categorical: false
+   encoded length: 10
+```
+But suppose you have another feature that's not included. You can easily provide a lookup table (or even an entire custom encoding function!) yourself, like so...
+
+```jldoctest fzn
+julia> using DataFrames;
+
+julia> lookup_table = DataFrame(["C" 42; "As" 0], [:Symbol, :MeaningOfLife]); # make a custom lookup table for another feature
+
+julia> meaning = ElementFeatureDescriptor("MeaningOfLife", lookup_table)
+ElementFeature MeaningOfLife:
+   categorical: true
+   encoded length: 2
+```
+Note that by default, because there are a small number of possible values, ChemistryFeaturization assumes that we'd like to encode this feature categorically, i.e. one "bin" in a one-hot vector for every possible value. Suppose we instead wanted to encode it continuously and specify a number of bins to divide the range into. We can do that like this (here I also show how to change the number of bins for continuous-valued features, which defaults to 10):
+
+```jldoctest fzn
+julia> meaning = ElementFeatureDescriptor("MeaningOfLife", lookup_table, categorical=false, nbins=3)
+ElementFeature MeaningOfLife:
+   categorical: false
+   encoded length: 3
 ```
 
 ## Building a featurization
+Next, we can combine these feature descriptors into a _featurization object_, which allows convenient encoding of multiple features on a structure, and also combining of those encoded features in a manner appropriate for feeding into a model. In the case of `GraphNodeFeaturization`, we construct a column vector for each node in an `AtomGraph` by concatenating encoded features together, and then stack these vectors horizontally to form a feature matrix that we could feed into an AtomicGraphNets model.
+
+This featurization has a convenience constructor that will build the `ElementFeatureDescriptor`s if you just pass in names of features, but with our custom lookup table feature, we will construct it by directly passing the feature descriptors:
+
+```jldoctest fzn
+julia> fzn = GraphNodeFeaturization([block, amass, meaning])
+GraphNodeFeaturization encoding 3 features:
+   ElementFeature Block
+   ElementFeature Atomic mass
+   ElementFeature MeaningOfLife
+```
 
 ## Featurizing structures
+Okay, now we're ready to encode the values of our features! Note that we can encode feature descriptors individually with two different syntax options (we'll use the same `triangle_C` graph we built above)...
+
+```jldoctest fzn
+julia> encode(block, triangle_C) # calling the encode fcn
+4×3 Matrix{Float64}:
+ 0.0  0.0  0.0
+ 1.0  1.0  1.0
+ 0.0  0.0  0.0
+ 0.0  0.0  0.0
+
+julia> block(triangle_C) # object itself is callable
+4×3 Matrix{Float64}:
+ 0.0  0.0  0.0
+ 1.0  1.0  1.0
+ 0.0  0.0  0.0
+ 0.0  0.0  0.0
+```
+
+Let's encode the whole featurization!
+
+```jldoctest fzn
+julia> encode(fzn, triangle_C)
+│ 17×3 Matrix{Float64}:
+│  0.0  0.0  0.0
+│  1.0  1.0  1.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  1.0  1.0  1.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  0.0  0.0  0.0
+│  1.0  1.0  1.0
+```
+
+If we want to attach the encoded features to the graph, we can use the `featurize` function, which returns a `FeaturizedAtoms` object...
+
+```jldoctest fzn
+julia> featurized = featurize(triangle_C, fzn)
+FeaturizedAtoms{AtomGraph, GraphNodeFeaturization} with 17 x 3 encoded features:
+   Atoms: AtomGraph  with 3 nodes, 3 edges
+   Featurization: GraphNodeFeaturization encoding 3 features
+```
 
 ## Decoding encoded features
+If we have a `FeaturizedAtoms` object, we can decode it directly:
+```jldoctest fzn
+julia> decode(featurized)
+Dict{Integer, Dict{String, Any}} with 3 entries:
+  2 => Dict("MeaningOfLife"=>(28.0, 42.0), "Block"=>"p", "Atomic mass"=>(9.31926, 16.2505))
+  3 => Dict("MeaningOfLife"=>(28.0, 42.0), "Block"=>"p", "Atomic mass"=>(9.31926, 16.2505))
+  1 => Dict("MeaningOfLife"=>(28.0, 42.0), "Block"=>"p", "Atomic mass"=>(9.31926, 16.2505))
+```
+
+The `decode` function also works with encoded features and a feature descriptor or featurization passed in separately.
