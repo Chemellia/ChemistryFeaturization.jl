@@ -108,10 +108,23 @@ function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inver
     # iterate over list of tuples to build edge weights...
     # note that neighbor list double counts so we only have to increment one counter per pair
     weight_mat = zeros(Float32, num_atoms, num_atoms)
+    weight_mat, longest_dists = _cutoff!(weight_mat,
+                                         dist_decay_func,
+                                         ijd,
+                                         nb_counts,
+                                         longest_dists)
+
+    weight_mat
+end
+
+
+function _cutoff!(weight_mat, f, ijd,
+                  nb_counts, longest_dists; max_num_nbr = 12)
+
     for (i, j, d) in ijd
         # if we're under the max OR if it's at the same distance as the previous one
         if nb_counts[i] < max_num_nbr || isapprox(longest_dists[i], d)
-            weight_mat[i, j] += dist_decay_func(d)
+            weight_mat[i, j] += f(d)
             longest_dists[i] = d
             nb_counts[i] += 1
         end
@@ -122,7 +135,9 @@ function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inver
 
     # normalize weights
     weight_mat = weight_mat ./ maximum(weight_mat)
+    weight_mat, longest_dists
 end
+
 
 """
 Build graph using neighbors from faces of Voronoi polyedra and weights from areas. Based on the approach from https://github.com/ulissigroup/uncertainty_benchmarking/blob/aabb407807e35b5fd6ad06b14b440609ae09e6ef/BNN/data_pyro.py#L268
@@ -203,5 +218,7 @@ function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0)
 end
 
 # TODO: graphs from SMILES via OpenSMILES.jl
+
+include("adjoints.jl")
 
 end
