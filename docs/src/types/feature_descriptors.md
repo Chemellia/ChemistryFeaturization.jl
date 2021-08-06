@@ -1,8 +1,14 @@
-# Feature Descriptors
+# [Feature Descriptors](@id fd)
+
+```@docs
+FeatureDescriptor
+```
 
 Feature descriptors store all necessary information to encode **and decode** feature values on various parts of an atoms object and appropriately combine them into a single object (vector, matrix, etc.) describing the value/values of the feature for the entire object.
 
 For example, if an `ElementFeatureDescriptor` encodes a vector for each atom in an object, they could be concatenated together into a matrix with a column for each atom to describe a structure.
+
+Feature Descriptors must be designed with interoperability in mind. A `FeatureDescriptor` object must work deterministically with different datasets.
 
 The type hierarchy of these objects is currently:
 ```
@@ -47,7 +53,6 @@ ElementFeatureDescriptor
 
 In the example, below, we encode the block of each atom in a hydrogen molecule. The result is two `hcat`ted vectors [1 0 0 0], indicating hydrogen is _s_-block.
 
-TODO: check that this test passes once new version is tagged
 ```jldoctest; setup = :(using ChemistryFeaturization.Atoms, ChemistryFeaturization.FeatureDescriptor)
 H2 = AtomGraph([0. 1.; 1. 0.], ["H", "H"])
 block = ElementFeatureDescriptor("Block")
@@ -68,6 +73,10 @@ TODO: add remark about encoding options once that PR is merged
 ### Species Feature Descriptor
 
 A `SpeciesFeatureDescriptor`'s encoded values depend on its local environment. Examples are an atom's format oxidation state, or whether it is part of an aromatic ring.
+
+```@docs
+FeatureDescriptor.SpeciesFeatureDescriptor
+```
 
 TODO: more details once we have better examples
 
