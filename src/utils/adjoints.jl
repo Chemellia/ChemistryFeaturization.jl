@@ -54,8 +54,8 @@ _zero(::Nothing) = nothing
       end
     end
     (Δ, nothing,
-    collect(zip(fill(nothing, 10),
-                fill(nothing, 10),
+    collect(zip(fill(nothing, size(Δ,1)),
+                fill(nothing, size(Δ,1)),
                 diag(Δ))),
     nothing,
     nothing)
