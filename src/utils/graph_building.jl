@@ -7,6 +7,9 @@ export inverse_square, exp_decay
 using PyCall
 using ChemistryFeaturization
 using Serialization
+using Zygote
+using Zygote.ForwardDiff
+using Zygote.ForwardDiff: Dual
 
 # options for decay of bond weights with distance...
 # user can of course write their own as well
@@ -91,7 +94,7 @@ function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inver
 
     # iterate over list of tuples to build edge weights...
     # note that neighbor list double counts so we only have to increment one counter per pair
-    weight_mat = zeros(Float32, num_atoms, num_atoms)
+    weight_mat = zeros(Float64, round(Int,num_atoms), round(Int,num_atoms))
     weight_mat, longest_dists = _cutoff!(weight_mat,
                                          dist_decay_func,
                                          ijd,
@@ -108,10 +111,10 @@ function _cutoff!(weight_mat, f, ijd,
 
     for (i, j, d) in ijd
         # if we're under the max OR if it's at the same distance as the previous one
-        if nb_counts[i] < max_num_nbr || isapprox(longest_dists[i], d)
-            weight_mat[i, j] += f(d)
-            longest_dists[i] = d
-            nb_counts[i] += 1
+        if nb_counts[round(Int,i)] < max_num_nbr || isapprox(longest_dists[i], d)
+            weight_mat[round(Int,i), round(Int,j)] += f(d)
+            longest_dists[round(Int,i)] = d
+            nb_counts[round(Int,i)] += 1
         end
     end
     weight_mat, longest_dists
