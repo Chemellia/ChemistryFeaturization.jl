@@ -1,6 +1,7 @@
 using Test
 using ChemistryFeaturization.Utils.GraphBuilding
 using Xtals
+using Zygote, FiniteDifferences
 
 @testset "GraphBuilding" begin
     path1 = abspath(@__DIR__, "..", "test_data", "strucs", "mp-195.cif")
@@ -19,4 +20,21 @@ using Xtals
     adjc, elsc = build_graph(Crystal(path1))
     @test adjc == wm_true
     @test elsc == els_true
+end
+
+@testset "Graph Building AD tests" begin
+  i, j = collect(1:10), collect(1:10)
+  dists = Float64.(collect(1:10))
+
+  fd = grad(forward_fdm(2,1),
+            (i,j,dist) -> sum(GraphBuilding.weights_cutoff(i,j,dist)),
+            i, j, dists)
+
+  gs = gradient(i, j, dists) do i, j, dist
+      sum(GraphBuilding.weights_cutoff(i, j, dist))
+  end
+
+  @test gs[1] === nothing
+  @test gs[2] === nothing
+  @test gs[3] ≈ fd[3]
 end
