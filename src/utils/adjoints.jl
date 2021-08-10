@@ -48,8 +48,8 @@ _zero(::Nothing) = nothing
     for (i,j,d) in ijd
       if nc[i] < max_num_nbr || isapprox(longest_dists[i], d)
         y_, back_ = Zygote.pullback(f, d)# weight_mat[i,j])
-        Δ[i,j] += back_(Δ[i,j])[1]
-        ld2[i] += one(d)
+        Δ[i,j] *= back_(Δ[i,j])[1]
+        ld2[i] += zero(d) # one(d)
         nc[i] += 0
       end
     end
