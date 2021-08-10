@@ -1,5 +1,6 @@
 using Test
 using ChemistryFeaturization.Utils.GraphBuilding
+using Zygote, FiniteDifferences
 
 @testset "GraphBuilding" begin
     adj, els = build_graph(
@@ -38,4 +39,21 @@ using ChemistryFeaturization.Utils.GraphBuilding
     adj, els = build_graph(abspath(@__DIR__, "..", "test_data", "strucs", "methane.xyz"))
     @test all(isapprox.(adj[2:5, 1], 1.0, atol = 1e-4))
     @test all(isapprox.(adj[3:2, 2], 0.375, atol = 1e-5))
+end
+
+@testset "Graph Building AD tests" begin
+  i, j = collect(1:10), collect(1:10)
+  dists = Float64.(collect(1:10))
+
+  fd = grad(forward_fdm(2,1),
+            (i,j,dist) -> sum(GraphBuilding.weights_cutoff(i,j,dist)),
+            i, j, dists)
+
+  gs = gradient(i, j, dists) do i, j, dist
+      sum(GraphBuilding.weights_cutoff(i, j, dist))
+  end
+
+  @test gs[1] === nothing
+  @test gs[2] === nothing
+  @test gs[3] ≈ fd[3]
 end
