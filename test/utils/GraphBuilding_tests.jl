@@ -34,7 +34,7 @@ end
       sum(GraphBuilding.weights_cutoff(i, j, dist))
   end
 
-  @test gs[1] === fill(nothing, 10)
-  @test gs[2] === fill(nothing, 10)
+  @test gs[1] == fill(nothing, 10)
+  @test gs[2] == fill(nothing, 10)
   @test gs[3] ≈ fd[3]
 end
