@@ -133,6 +133,42 @@ function weights_voronoi(struc)
     weight_mat = 0.5 .* (weight_mat .+ weight_mat')
 end
 
+using Xtals
+rc[:paths][:crystals] = @__DIR__
+function dists_xtals(fpath::String)
+    c = Crystal(fpath)
+    # ...
+end
+
+"""
+Find all lists of pairs of atoms in `crys` that are within a distance of `cutoff_radius` of each other, respecting periodic boundary conditions.
+
+Returns as is, js, dists to be compatible with ASE's output format for the analogous function.
+"""
+function neighbor_list(crys::Crystal, 
+    cutoff_radius::Real = 8.0,
+    max_num_nbr::Int = 12,
+    )
+    n_atoms = c.atoms.n
+
+    local is = Int[]
+    local js = Int[]
+    local dists = Float64[]
+
+    # make 3 x 3 x 3 supercell and figure out index mapping
+    sc = replicate(c, (3,3,3))
+    # ...
+
+    # iterate over each "center" atom in the supercell and each potential neighbor
+    for i = 1:sc.atoms.n, j = 1:sc.atoms.n
+        # compute distance from i to j,
+        # check for cutoffs,
+        # map back to primitive cell indices and store
+    end
+
+    return is, js, dists
+end
+
 # TODO: graphs from SMILES via OpenSMILES.jl
 
 end
