@@ -155,16 +155,18 @@ function neighbor_list(crys::Crystal,
     local js = Int[]
     local dists = Float64[]
 
-    # make 3 x 3 x 3 supercell and figure out index mapping
+    # make 3 x 3 x 3 supercell and find indices of "middle" atoms
+    # as well as index mapping from outer -> inner
     sc = replicate(c, (3,3,3))
     # ...
 
-    # iterate over each "center" atom in the supercell and each potential neighbor
-    for i = 1:sc.atoms.n, j = 1:sc.atoms.n
-        # compute distance from i to j,
-        # check for cutoffs,
-        # map back to primitive cell indices and store
-    end
+    # convert these coords to a "tree" with a Euclidean metric
+    # TODO: figure out what leafsize needs to be and which type of tree is fastest
+
+    # is_raw = those indices
+    js_raw = inrange(tree, points, cutoff_radius)
+
+    # process into is, (mapped) js, dists, impose number cutoffs
 
     return is, js, dists
 end
