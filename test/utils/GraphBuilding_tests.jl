@@ -52,8 +52,8 @@ end
           sum(GraphBuilding.weights_cutoff(i, j, dist))
       end
 
-      @test gs[1] == fill(nothing, 10)
-      @test gs[2] == fill(nothing, 10)
+      @test gs[1] == fill(nothing, length(i))
+      @test gs[2] == fill(nothing, length(j))
       @test gs[3] ≈ fd[3]
   end
 
