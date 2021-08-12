@@ -11,8 +11,6 @@ using Xtals
 using NearestNeighbors
 #rc[:paths][:crystals] = @__DIR__ # so that Xtals.jl knows where things are
 using Zygote
-using Zygote.ForwardDiff
-using Zygote.ForwardDiff: Dual
 
 # options for decay of bond weights with distance...
 # user can of course write their own as well
@@ -116,7 +114,6 @@ function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inver
                                          ijd,
                                          nb_counts,
                                          longest_dists)
-
     weight_mat
 end
 
@@ -126,7 +123,7 @@ function _cutoff!(weight_mat, f, ijd,
 
     for (i, j, d) in ijd
         # if we're under the max OR if it's at the same distance as the previous one
-        if nb_counts[round(Int,i)] < max_num_nbr || isapprox(longest_dists[i], d)
+        if nb_counts[round(Int,i)] < max_num_nbr || isapprox(longest_dists[round(Int,i)], d)
             weight_mat[round(Int,i), round(Int,j)] += f(d)
             longest_dists[round(Int,i)] = d
             nb_counts[round(Int,i)] += 1
