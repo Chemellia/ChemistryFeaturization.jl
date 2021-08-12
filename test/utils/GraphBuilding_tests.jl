@@ -27,7 +27,7 @@ end
   function test_fd(i, j, dist)
       fd = grad(forward_fdm(2,1),
                 (i,j,dist) -> sum(GraphBuilding.weights_cutoff(i,j,dist)),
-                i, j, dists)
+                i, j, dist)
 
       gs = gradient(i, j, dists) do i, j, dist
           sum(GraphBuilding.weights_cutoff(i, j, dist))
