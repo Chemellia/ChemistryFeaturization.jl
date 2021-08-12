@@ -122,11 +122,15 @@ function _cutoff!(weight_mat, f, ijd,
                   nb_counts, longest_dists; max_num_nbr = 12)
 
     for (i, j, d) in ijd
+        # FiniteDifferences doesn't like non integers as indices
+        # and is used to test
+        i, j = round.(Int, (i,j))
+
         # if we're under the max OR if it's at the same distance as the previous one
-        if nb_counts[round(Int,i)] < max_num_nbr || isapprox(longest_dists[round(Int,i)], d)
-            weight_mat[round(Int,i), round(Int,j)] += f(d)
-            longest_dists[round(Int,i)] = d
-            nb_counts[round(Int,i)] += 1
+        if nb_counts[i] < max_num_nbr || isapprox(longest_dists[i], d)
+            weight_mat[i, j] += f(d)
+            longest_dists[i] = d
+            nb_counts[i] += 1
         end
     end
 
