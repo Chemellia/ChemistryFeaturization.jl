@@ -35,7 +35,8 @@ end
 
       @test gs[1] == fill(nothing, length(i))
       @test gs[2] == fill(nothing, length(j))
-      @test gs[3] ≈ fd[3]
+      t = gs[3] ≈ fd[3]
+      @test t
   end
 
   # test with non-overlapping indices
