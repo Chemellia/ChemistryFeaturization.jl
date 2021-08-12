@@ -48,7 +48,7 @@ end
                 (i,j,dist) -> sum(GraphBuilding.weights_cutoff(i,j,dist)),
                 i, j, dist)
 
-      gs = gradient(i, j, dists) do i, j, dist
+      gs = gradient(i, j, dist) do i, j, dist
           sum(GraphBuilding.weights_cutoff(i, j, dist))
       end
 
