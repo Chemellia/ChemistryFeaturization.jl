@@ -42,21 +42,16 @@ _zero(::Nothing) = nothing
                nb_counts, longest_dists;
                max_num_nbr = max_num_nbr)
   function cutoff_pb((Δ,nt))
-    Δ = collect(Δ)
-    ld2 = Dict(keys(longest_dists) .=> zero.(values(longest_dists)))
-    nc = Dict(keys(nb_counts) .=> zero.(values(nb_counts)))
-    for (i,j,d) in ijd
-      if nc[i] < max_num_nbr || isapprox(longest_dists[i], d)
-        y_, back_ = Zygote.pullback(f, d)# weight_mat[i,j])
-        Δ[i,j] *= back_(Δ[i,j])[1]
-        ld2[i] += zero(d) # one(d)
-        nc[i] += 0
-      end
+    s = size(Δ)
+    Δ = vec(collect(Δ))
+    for (ix,(_,_,d)) in zip(eachindex(Δ), ijd)
+      y_, back_ = Zygote.pullback(f, d)
+      Δ[ix] *= back_(Δ[ix])[1]
     end
-    (Δ, nothing,
+    (reshape(Δ, s), nothing,
     collect(zip(fill(nothing, size(Δ,1)),
                 fill(nothing, size(Δ,1)),
-                diag(Δ))),
+                Δ)),
     nothing,
     nothing)
   end
