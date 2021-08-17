@@ -41,10 +41,10 @@ jobs:
         env:
           LD_LIBRARY_PATH: "$HOME/.julia/conda/3/lib"
       - run: |
-          julia -e """
+          julia -e '
             using Conda
             ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
-          """
+          '
       - name: Run Tests
         uses: julia-actions/julia-runtest@v1
         env:
