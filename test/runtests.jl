@@ -3,6 +3,8 @@ using Test
 
 const testdir = dirname(@__FILE__)
 
+@show ENV["LD_LIBRARY_PATH"]
+
 tests = [
     "module_tests",
     "utils/ElementFeatureUtils_tests",
