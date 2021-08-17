@@ -10,6 +10,7 @@ jobs:
   test:
     env:
       PYTHON: ""
+      LD_LIBRARY_PATH: "$HOME/.julia/conda/3/lib"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
