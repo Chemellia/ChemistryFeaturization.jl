@@ -41,7 +41,7 @@ jobs:
         env:
           LD_LIBRARY_PATH: "$HOME/.julia/conda/3/lib"
       - run: |
-          julia -e '
+          julia --project -e '
             using Conda
             ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
           '
