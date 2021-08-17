@@ -38,6 +38,11 @@ jobs:
             ${{ matrix.os }}-
       - name: Build Package
         uses: julia-actions/julia-buildpkg@v1
+      - run: |
+          julia -e """
+            using Conda
+            ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
+          """
       - name: Run Tests
         uses: julia-actions/julia-runtest@v1
       - name: Process Coverage

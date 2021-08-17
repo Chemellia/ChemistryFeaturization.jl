@@ -1,3 +1,8 @@
+using Conda
+
+# hackaround conda's path woes
+ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
+
 using ChemistryFeaturization
 using Test
 
