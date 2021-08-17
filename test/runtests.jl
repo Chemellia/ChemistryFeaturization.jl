@@ -2,6 +2,7 @@ using Conda
 
 # hackaround conda's path woes
 ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
+ENV["LD_LIBRARY_PATH"] = "$(ENV["HOME"])/.julia/conda/3/lib"
 
 using ChemistryFeaturization
 using Test
