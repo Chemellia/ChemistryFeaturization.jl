@@ -35,7 +35,8 @@ end
 
       @test gs[1] == fill(nothing, length(i))
       @test gs[2] == fill(nothing, length(j))
-      t = gs[3] ≈ fd[3]
+      t = isapprox(gs[3], fd[3])
+      @show t
       @test t
   end
 

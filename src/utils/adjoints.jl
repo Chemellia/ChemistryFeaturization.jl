@@ -44,7 +44,7 @@ _zero(::Nothing) = nothing
   function cutoff_pb((Δ,nt))
     s = size(Δ)
     Δ = vec(collect(Δ))
-    for (ix,(_,_,d)) in zip(eachindex(Δ), ijd)
+    for (ix, (_,_,d)) in zip(eachindex(Δ), ijd)
       y_, back_ = Zygote.pullback(f, d)
       Δ[ix] *= back_(Δ[ix])[1]
     end
