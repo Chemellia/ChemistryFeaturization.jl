@@ -43,7 +43,7 @@ jobs:
       - run: |
           julia --project -e '
             using Conda
-            ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
+            ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * \";\" * ENV["PATH"]
           '
       - name: Run Tests
         uses: julia-actions/julia-runtest@v1
