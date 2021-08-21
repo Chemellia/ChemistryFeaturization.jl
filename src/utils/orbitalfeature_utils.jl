@@ -1,5 +1,6 @@
 module OrbitalFeatureUtils
 
+using SparseArrays
 using DataFrames
 
 # Helper functions used for encoding
@@ -78,11 +79,31 @@ function _orbitalregex(df::DataFrame, element)
     return orbital_config
 end
 
-function valence_shell_config(df::DataFrame, element)
+# Get the electronic configuration of `element` (equivalent to the findnz() result if the configuration was a SparseVector)
+function _name_to_econf(df::DataFrame, element)
     valence_shell_config = _orbitalregex(df, element)
     return _orbitalsparse(valence_shell_config)
 end
 
+# Get the name of the element which has the electronic configuration `shell_conf_sparse` (as a SparseVector).
+function _econf_to_name(df::DataFrame, shell_conf_sparse::SparseVector{Tv,Ti}) where {Tv,Ti}
+    rows, vals = findnz(shell_conf_sparse)
+    shell_conf = ""
+
+    # find the configuration for each shell and concatenate it to the `shell_conf`
+    for i = 1:length(rows)
+        shell_conf = shell_conf * _indexorbital(rows[i]) * string(vals[i]) * "."
+    end
+
+    # `chop` the trailing '.', and rearrange order of the shells to match format present in `valenceshell_conf_df`
+    shell_conf = join(sort(split(chop(shell_conf), '.'), by = first), '.')
+
+    # find the DataFrame that has the matching `shell_conf` as its Valence Shell Configuration, and get its `Symbol`
+    return (filter("Electronic Structure" => x -> x == shell_conf, df; view = true)[
+        !,
+        :Symbol,
+    ])[1]
+end
 
 # Helper functions used for decoding
 

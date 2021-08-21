@@ -4,7 +4,7 @@ using ..ChemistryFeaturization: elements
 using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
 using ..ChemistryFeaturization.Codec: SimpleCodec
 using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
-    valence_shell_config, _indexorbital
+    _name_to_econf, _indexorbital, _econf_to_name
 using ..ChemistryFeaturization.Data: valenceshell_conf_df
 using SparseArrays
 
@@ -34,7 +34,8 @@ function output_shape(ofd::OrbitalFeatureDescriptor, sc::SimpleCodec)
     # return the number
 end
 
-Base.show(io::IO, efd::OrbitalFeatureDescriptor) = print(io, "OrbitalFeatureDescriptor created.")
+Base.show(io::IO, efd::OrbitalFeatureDescriptor) =
+    print(io, "OrbitalFeatureDescriptor created.")
 
 function Base.show(io::IO, ::MIME"text/plain", efd::OrbitalFeatureDescriptor)
     st = "OrbitalFeatureDescriptor created."
@@ -48,7 +49,7 @@ function default_ofd_encode(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms)
     col = 0
     for i in elements(a)
         # X, Y are equivalent to I, V for a SparseVector
-        X, Y = valence_shell_config(valenceshell_conf_df, i)
+        X, Y = _name_to_econf(valenceshell_conf_df, i)
         col += 1    # column number
 
         for i = 1:length(X)
@@ -65,32 +66,8 @@ function default_ofd_decode(
     encoded_features::SparseArrays.AbstractSparseMatrixCSC{Tv,Ti},
 ) where {Tv,Ti}
     elements = String[]
-    rows = rowvals(encoded_features)  # the rows of the sparse matrix
-    vals = nonzeros(encoded_features) # the values in the sparse matrix
-    m, n = size(encoded_features) # 'dimensions' of the sparse matrix
-    # for each column vector (remember, a column vector is representative of an element's valence shell configuration)
-    for j = 1:n
-        shell_conf = "" # the shell configuration for an element
-        for i in nzrange(encoded_features, j)   # for each valid value in a column
-            row = rows[i]
-            val = vals[i]
-            # find the configuration for each shell and concatenate it to the `shell_conf`
-            shell_conf = shell_conf * _indexorbital(row) * string(val) * "."
-        end
-        # `chop` the trailing '.', and rearrange order of the shells to match format present in `valenceshell_conf_df`
-        shell_conf = join(sort(split(chop(shell_conf), '.'), by = first), '.')
-
-        # find the DataFrame that has the matching `shell_conf` as its Valence Shell Configuration, and get its `Symbol`
-        element = (filter(
-            "Electronic Structure" => x -> x == shell_conf,
-            valenceshell_conf_df;
-            view = true,
-        )[
-            !,
-            :Symbol,
-        ])[1]
-        # append the `Symbol` that was just extracted to the container meant for storing all the elements in the encoded Atoms object
-        append!(elements, (element,))
+    for i = 1:size(encoded_features)[2]
+        push!(elements, _econf_to_name(valenceshell_conf_df, encoded_features[:, i]))
     end
     return elements
 end

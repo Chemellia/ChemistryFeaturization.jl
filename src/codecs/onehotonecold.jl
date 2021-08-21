@@ -15,7 +15,7 @@ end
 
 "A flexible version of Flux.onehot that can handle both categorical and continuous-valued encoding."
 function build_onehot_vec(val, bins, categorical)
-    local bin_index , onehot_vec
+    local bin_index, onehot_vec
     if categorical
         onehot_vec = [0.0 for i = 1:length(bins)]
         bin_index = findfirst(isequal(val), bins)

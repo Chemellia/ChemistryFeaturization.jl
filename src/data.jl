@@ -16,8 +16,9 @@ valenceshell_conf_df = select(
     atom_data_df,
     :Symbol,
     "Electronic Structure" =>
-        (x -> replace.(x, r"\[(.+)\]\.(?<valence>\w+)" => s"\g<valence>")) =>
-            "Electronic Structure",
+        (
+            x -> replace.(x, r"\[(.+)\]\.(?<valence>\w+)" => s"\g<valence>")
+        ) => "Electronic Structure",
 )
 
 end
