@@ -7,6 +7,9 @@ export inverse_square, exp_decay
 using PyCall
 using ChemistryFeaturization
 using Serialization
+using Xtals
+using NearestNeighbors
+rc[:paths][:crystals] = @__DIR__ # because Xtals has a silly default thing
 
 # options for decay of bond weights with distance...
 # user can of course write their own as well
@@ -133,8 +136,7 @@ function weights_voronoi(struc)
     weight_mat = 0.5 .* (weight_mat .+ weight_mat')
 end
 
-using Xtals
-rc[:paths][:crystals] = @__DIR__
+
 function dists_xtals(fpath::String)
     c = Crystal(fpath)
     # ...
@@ -145,28 +147,41 @@ Find all lists of pairs of atoms in `crys` that are within a distance of `cutoff
 
 Returns as is, js, dists to be compatible with ASE's output format for the analogous function.
 """
-function neighbor_list(crys::Crystal, 
+function neighbor_list(crys::Crystal; 
     cutoff_radius::Real = 8.0,
     max_num_nbr::Int = 12,
     )
-    n_atoms = c.atoms.n
+    n_atoms = crys.atoms.n
+
+    # make 3 x 3 x 3 supercell and find indices of "middle" atoms
+    # as well as index mapping from outer -> inner
+    supercell = replicate(crys, (3,3,3))
+
+    # TODO: add check for size of cutoff radius relative to size of sc
+
+    # todo: try BallTree, also perhaps other leafsize values
+    #tree = BruteTree(sc.atoms.coords.xf, PeriodicEuclidean([1.0, 1.0, 1.0]))
+    tree = BruteTree(Cart(supercell.atoms.coords, supercell.box).x)
+
+    is_raw = 13*n_atoms+1:14*n_atoms
+    js_raw = inrange(tree, Cart(supercell.atoms.coords[is_raw], supercell.box).x, cutoff_radius)
+
+    index_map(i) = (i-1) % n_atoms + 1 # I suddenly understand why some people dislike 1-based indexing
 
     local is = Int[]
     local js = Int[]
     local dists = Float64[]
 
-    # make 3 x 3 x 3 supercell and find indices of "middle" atoms
-    # as well as index mapping from outer -> inner
-    sc = replicate(c, (3,3,3))
-    # ...
-
-    # convert these coords to a "tree" with a Euclidean metric
-    # TODO: figure out what leafsize needs to be and which type of tree is fastest
-
-    # is_raw = those indices
-    js_raw = inrange(tree, points, cutoff_radius)
-
-    # process into is, (mapped) js, dists, impose number cutoffs
+    # process into is, (mapped) js, compute dists, impose number cutoffs
+    for i in 1:n_atoms
+        local i_raw_here = is_raw[i]
+        js_raw_here = [j for j in js_raw[i] if j!=i_raw_here] # exclude self
+        for j in js_raw_here
+            push!(is, i)
+            push!(js, index_map(j))
+            push!(dists, distance(supercell.atoms, supercell.box, i_raw_here, j, false))
+        end
+    end
 
     return is, js, dists
 end
