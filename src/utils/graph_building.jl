@@ -147,15 +147,12 @@ Find all lists of pairs of atoms in `crys` that are within a distance of `cutoff
 
 Returns as is, js, dists to be compatible with ASE's output format for the analogous function.
 """
-function neighbor_list(crys::Crystal; 
-    cutoff_radius::Real = 8.0,
-    max_num_nbr::Int = 12,
-    )
+function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0, max_num_nbr::Int = 12)
     n_atoms = crys.atoms.n
 
     # make 3 x 3 x 3 supercell and find indices of "middle" atoms
     # as well as index mapping from outer -> inner
-    supercell = replicate(crys, (3,3,3))
+    supercell = replicate(crys, (3, 3, 3))
 
     # TODO: add check for size of cutoff radius relative to size of sc
 
@@ -164,18 +161,19 @@ function neighbor_list(crys::Crystal;
     tree = BruteTree(Cart(supercell.atoms.coords, supercell.box).x)
 
     is_raw = 13*n_atoms+1:14*n_atoms
-    js_raw = inrange(tree, Cart(supercell.atoms.coords[is_raw], supercell.box).x, cutoff_radius)
+    js_raw =
+        inrange(tree, Cart(supercell.atoms.coords[is_raw], supercell.box).x, cutoff_radius)
 
-    index_map(i) = (i-1) % n_atoms + 1 # I suddenly understand why some people dislike 1-based indexing
+    index_map(i) = (i - 1) % n_atoms + 1 # I suddenly understand why some people dislike 1-based indexing
 
     local is = Int[]
     local js = Int[]
     local dists = Float64[]
 
     # process into is, (mapped) js, compute dists, impose number cutoffs
-    for i in 1:n_atoms
+    for i = 1:n_atoms
         local i_raw_here = is_raw[i]
-        js_raw_here = [j for j in js_raw[i] if j!=i_raw_here] # exclude self
+        js_raw_here = [j for j in js_raw[i] if j != i_raw_here] # exclude self
         for j in js_raw_here
             push!(is, i)
             push!(js, index_map(j))
