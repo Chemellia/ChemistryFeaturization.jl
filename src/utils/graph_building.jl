@@ -17,14 +17,13 @@ inverse_square(x) = x^-2.0
 exp_decay(x) = exp(-x)
 
 """
-Function to build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
+Build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
 
 # Arguments
 ## Required Arguments
 - `file_path::String`: Path to ASE-readable file containing a molecule/crystal structure
 
 ## Keyword Arguments
-- `normalize_weights::Bool=true`: Whether to rescale graph weights such that the maximum value is 1.0 (recommended)
 - `use_voronoi::bool`: if true, use Voronoi method for neighbor lists, if false use cutoff method
 
     (The rest of these parameters are only used if `use_voronoi==false`)
@@ -39,45 +38,56 @@ function build_graph(
     cutoff_radius::Real = 8.0,
     max_num_nbr::Integer = 12,
     dist_decay_func::Function = inverse_square,
-    normalize_weights::Bool = true,
 )
-    aseio = pyimport_conda("ase.io", "ase", "conda-forge")
-    atoms_object = aseio.read(file_path)
+    c = Crystal(file_path)
+    atom_ids = String.(c.atoms.species)
 
-    # list of atom symbols
-    atom_ids = [get(atoms_object, i - 1).symbol for i = 1:length(atoms_object)]
-
-    # check if any nonperiodic BC's
-    nonpbc = any(.!atoms_object.pbc)
-    local cant_voronoi = false
-    if nonpbc & use_voronoi
-        @warn "Voronoi edge weights are not supported if any direction in the structure is nonperiodic. Using cutoff weights method..."
-        cant_voronoi = true
-    end
-
-    if use_voronoi && !cant_voronoi
+    if use_voronoi
+        @info "Note that building neighbor lists and edge weights via the Voronoi method requires the assumption of periodic boundaries. If you are building a graph for a molecule, you probably do not want this..."
         s = pyimport_conda("pymatgen.core.structure", "pymatgen", "conda-forge")
-        pmgase = pyimport_conda("pymatgen.io.ase", "pymatgen", "conda-forge")
-        aa = pmgase.AseAtomsAdaptor()
-        struc = aa.get_structure(atoms_object)
+        struc = s.Structure.from_file(file_path)
         weight_mat = weights_voronoi(struc)
+        return weight_mat, atom_ids
     else
-        nl = pyimport_conda("ase.neighborlist", "ase", "conda-forge")
-        is, js, dists = nl.neighbor_list("ijd", atoms_object, cutoff_radius)
-        weight_mat = weights_cutoff(
-            is .+ 1,
-            js .+ 1,
-            dists;
+        build_graph(
+            c;
+            cutoff_radius = cutoff_radius,
             max_num_nbr = max_num_nbr,
             dist_decay_func = dist_decay_func,
         )
     end
 
-    if normalize_weights
-        weight_mat = weight_mat ./ maximum(weight_mat)
-    end
+end
 
-    return weight_mat, atom_ids
+"""
+Build graph from a Crystal object. Currently only supports the "cutoff" method of neighbor list/weight calculation (not Voronoi).
+This dispatch exists to support autodiff of graph-building.
+
+# Arguments
+## Required Arguments
+- `crys::Crystal`: Crystal object representing the atomic geometry from which to build a graph
+
+## Keyword Arguments
+- `cutoff_radius::Real=8.0`: cutoff radius for atoms to be considered neighbors (in angstroms)
+- `max_num_nbr::Integer=12`: maximum number of neighbors to include (even if more fall within cutoff radius)
+- `dist_decay_func::Function=inverse_square`: function to determine falloff of graph edge weights with neighbor distance
+"""
+function build_graph(
+    crys::Crystal;
+    cutoff_radius::Real = 8.0,
+    max_num_nbr::Integer = 12,
+    dist_decay_func::Function = inverse_square,
+)
+
+    is, js, dists = neighbor_list(crys; cutoff_radius = cutoff_radius)
+    weight_mat = weights_cutoff(
+        is,
+        js,
+        dists;
+        max_num_nbr = max_num_nbr,
+        dist_decay_func = dist_decay_func,
+    )
+    return weight_mat, String.(crys.atoms.species)
 end
 
 """
@@ -106,6 +116,9 @@ function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inver
 
     # average across diagonal, just in case
     weight_mat = 0.5 .* (weight_mat .+ weight_mat')
+
+    # normalize weights
+    weight_mat = weight_mat ./ maximum(weight_mat)
 end
 
 """
@@ -134,20 +147,18 @@ function weights_voronoi(struc)
 
     # average across diagonal (because neighborness isn't strictly symmetric in the way we're defining it here)
     weight_mat = 0.5 .* (weight_mat .+ weight_mat')
+
+    # normalize weights
+    weight_mat = weight_mat ./ maximum(weight_mat)
 end
 
-
-function dists_xtals(fpath::String)
-    c = Crystal(fpath)
-    # ...
-end
 
 """
 Find all lists of pairs of atoms in `crys` that are within a distance of `cutoff_radius` of each other, respecting periodic boundary conditions.
 
 Returns as is, js, dists to be compatible with ASE's output format for the analogous function.
 """
-function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0, max_num_nbr::Int = 12)
+function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0)
     n_atoms = crys.atoms.n
 
     # make 3 x 3 x 3 supercell and find indices of "middle" atoms
