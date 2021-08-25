@@ -40,7 +40,7 @@ function GraphNodeFeaturization(
     categorical::Union{Vector{Bool},Bool,Nothing} = nothing,
 )
     num_features = length(feature_names)
-    local lookup_table_here , logspaced_here , categorical_here , nbins_here
+    local lookup_table_here, logspaced_here, categorical_here, nbins_here
     if isnothing(lookup_table)
         lookup_table_here = atom_data_df
     else

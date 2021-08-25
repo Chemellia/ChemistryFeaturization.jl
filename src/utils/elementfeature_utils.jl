@@ -129,7 +129,7 @@ function get_bins(
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
-    local bins , min_val , max_val
+    local bins, min_val, max_val
 
     if categorical
         if feature_name in categorical_feature_names
