@@ -17,7 +17,7 @@ inverse_square(x) = x^-2.0
 exp_decay(x) = exp(-x)
 
 """
-Build graph from a file storing a crystal structure (currently supports anything ase.io.read can read in). Returns an AtomGraph object.
+Build graph from a file storing a crystal structure (currently supports anything Xtals.jl can read in). Returns the weight matrix and elements used for constructing an `AtomGraph`.
 
 # Arguments
 ## Required Arguments
