@@ -4,8 +4,8 @@ using LinearAlgebra
 using GraphPlot
 using Colors
 using Serialization
+using Xtals
 using ..ChemistryFeaturization.Utils.GraphBuilding
-
 using ..ChemistryFeaturization.AbstractType: AbstractAtoms
 
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
@@ -52,7 +52,7 @@ AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
 """
-    AtomGraph(input_file_path, id = splitext(input_file_path)[begin]; output_file_path = nothing, featurization = nothing, overwrite_file = false, use_voronoi = false, cutoff_radius = 8.0, max_num_nbr = 12, dist_decay_func = inverse_square)
+    AtomGraph(input_file_path, id = splitext(input_file_path)[begin]; output_file_path = nothing, overwrite_file = false, use_voronoi = false, cutoff_radius = 8.0, max_num_nbr = 12, dist_decay_func = inverse_square)
 
 Construct an AtomGraph object from a structure file.
 
@@ -119,6 +119,39 @@ function AtomGraph(
     end
 
     return ag
+end
+
+"""
+    AtomGraph(crys::Crystal; id="", cutoff_radius = 8.0, max_num_nbr = 12, dist_decay_func = inverse_square)
+
+Construct an AtomGraph object from a Crystal object (defined in Xtals.jl). For now, only supports cutoff-based graph building.
+
+# Required Arguments
+- `crys::Crystal`: Crystal from which to build the graph
+
+# Optional Arguments
+- `id::String`: ID associated with structure (e.g. identifier from online database). Defaults to the empty string.
+- `cutoff_radius::Real = 8.0`: Longest allowable distance to a neighbor, in Angstroms
+- `max_num_nbr::Integer = 12`: Largest allowable number of neighbors
+- `dist_decay_func = inverse_square`: Function by which to assign edge weights according to distance between neighbors
+
+# Note
+`max_num_nbr` is a "soft" limit – if multiple neighbors are at the same distance, the full neighbor list may be longer.
+"""
+function AtomGraph(
+    crys::Crystal;
+    id::String = "",
+    cutoff_radius::Real = 8.0,
+    max_num_nbr::Integer = 12,
+    dist_decay_func::Function = inverse_square,
+)
+    adj_mat, elements = build_graph(
+        crys;
+        cutoff_radius = cutoff_radius,
+        max_num_nbr = max_num_nbr,
+        dist_decay_func = dist_decay_func,
+    )
+    ag = AtomGraph(adj_mat, elements, id)
 end
 
 # pretty printing, short version
