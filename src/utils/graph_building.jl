@@ -9,7 +9,7 @@ using ChemistryFeaturization
 using Serialization
 using Xtals
 using NearestNeighbors
-rc[:paths][:crystals] = @__DIR__ # because Xtals has a silly default thing
+#rc[:paths][:crystals] = @__DIR__ # so that Xtals.jl knows where things are
 
 # options for decay of bond weights with distance...
 # user can of course write their own as well
@@ -165,7 +165,12 @@ function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0)
     # as well as index mapping from outer -> inner
     supercell = replicate(crys, (3, 3, 3))
 
-    # TODO: add check for size of cutoff radius relative to size of sc
+    # check for size of cutoff radius relative to size of cell
+    min_celldim = min(crys.box.a, crys.box.b, crys.box.c)
+    if cutoff_radius >= min_celldim
+        @warn "Your cutoff radius is quite large relative to the size of your unit cell. This may cause issues with neighbor list generation, and will definitely cause a very dense graph. To avoid issues, I'm setting it to be approximately equal to the smallest unit cell dimension."
+        cutoff_radius = 0.99*min_celldim
+    end
 
     # todo: try BallTree, also perhaps other leafsize values
     #tree = BruteTree(sc.atoms.coords.xf, PeriodicEuclidean([1.0, 1.0, 1.0]))
@@ -177,20 +182,16 @@ function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0)
 
     index_map(i) = (i - 1) % n_atoms + 1 # I suddenly understand why some people dislike 1-based indexing
 
-    local is = Int[]
-    local js = Int[]
-    local dists = Float64[]
-
-    # process into is, (mapped) js, compute dists, impose number cutoffs
-    for i = 1:n_atoms
-        local i_raw_here = is_raw[i]
-        js_raw_here = [j for j in js_raw[i] if j != i_raw_here] # exclude self
-        for j in js_raw_here
-            push!(is, i)
-            push!(js, index_map(j))
-            push!(dists, distance(supercell.atoms, supercell.box, i_raw_here, j, false))
-        end
+    # this looks horrifying but it does do the right thing...
+    #ijraw_pairs = [p for p in Iterators.flatten([Iterators.product([p for p in zip(is_raw, js_raw)][n]...) for n in 1:4]) if p[1]!=p[2]]
+    split1 = map(zip(is_raw, js_raw)) do x
+        return [p for p in [(x[1], [j for j in js if j!=x[1]]...) for js in x[2]] if length(p)==2]
     end
+    ijraw_pairs = [(split1...)...]
+    get_pairdist((i,j)) = distance(supercell.atoms, supercell.box, i, j, false)
+    dists = get_pairdist.(ijraw_pairs)
+    is = index_map.([t[1] for t in ijraw_pairs])
+    js = index_map.([t[2] for t in ijraw_pairs])
 
     return is, js, dists
 end
