@@ -169,7 +169,7 @@ function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0)
     min_celldim = min(crys.box.a, crys.box.b, crys.box.c)
     if cutoff_radius >= min_celldim
         @warn "Your cutoff radius is quite large relative to the size of your unit cell. This may cause issues with neighbor list generation, and will definitely cause a very dense graph. To avoid issues, I'm setting it to be approximately equal to the smallest unit cell dimension."
-        cutoff_radius = 0.99*min_celldim
+        cutoff_radius = 0.99 * min_celldim
     end
 
     # todo: try BallTree, also perhaps other leafsize values
@@ -185,10 +185,13 @@ function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0)
     # this looks horrifying but it does do the right thing...
     #ijraw_pairs = [p for p in Iterators.flatten([Iterators.product([p for p in zip(is_raw, js_raw)][n]...) for n in 1:4]) if p[1]!=p[2]]
     split1 = map(zip(is_raw, js_raw)) do x
-        return [p for p in [(x[1], [j for j in js if j!=x[1]]...) for js in x[2]] if length(p)==2]
+        return [
+            p for p in [(x[1], [j for j in js if j != x[1]]...) for js in x[2]] if
+            length(p) == 2
+        ]
     end
     ijraw_pairs = [(split1...)...]
-    get_pairdist((i,j)) = distance(supercell.atoms, supercell.box, i, j, false)
+    get_pairdist((i, j)) = distance(supercell.atoms, supercell.box, i, j, false)
     dists = get_pairdist.(ijraw_pairs)
     is = index_map.([t[1] for t in ijraw_pairs])
     js = index_map.([t[2] for t in ijraw_pairs])
