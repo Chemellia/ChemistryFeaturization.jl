@@ -4,14 +4,18 @@ I'm generally trying to adhere to [semver](https://semver.org) here. This means 
 
 Categories to include for each release, if relevant: breaking, added, fixed, removed/deprecated
 
-## Upcoming
+## Upcoming (v0.5.0)
 ### Added
 * add pretty printing for `GraphNodeFeaturization`, `FeaturizedAtoms`, uniformize spacing via `\t` across these and `AtomGraph`
 * [logic] move `data/` directory to root of repo
 * [logic] move `build_onehot_vec` to `OneHotOneCold`
+* replaced Python ASE dependency with Xtals.jl, allowing AD through graph-building! Can now also pass a Crystal object for graph-building
 
 ### Fixed
 * export `featurize` and `decode` properly for `FeaturizedAtoms`
+
+### Removed/Deprecated
+* ASE deprecation removes compatibility with reading some file formats that ASE supports but Xtals does not
 
 ## v0.4.2 [2021-07-02]
 ### Added
