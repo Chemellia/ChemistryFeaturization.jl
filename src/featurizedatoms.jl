@@ -6,6 +6,11 @@ using ..ChemistryFeaturization.AbstractType: AbstractAtoms, AbstractFeaturizatio
 Container object for an `Atoms` object, a `featurization`, and the resulting
 `encoded_features` from applying the `featurization` to the `atoms`.
 
+## Fields
+- `atoms`: [Atoms](@ref) object to be featurized
+- `featurization`: [Featurization](@ref) scheme meant to be used for featurizing `atoms`
+- `encoded_features`: The result of featurizing `atoms` using `featurization`
+
 Note: `encoded_features` will NOT change for a given atoms-featurization pair.
 """
 struct FeaturizedAtoms{A<:AbstractAtoms,F<:AbstractFeaturization}

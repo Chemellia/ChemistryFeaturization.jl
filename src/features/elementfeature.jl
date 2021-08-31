@@ -15,7 +15,7 @@ include("abstractfeatures.jl")
 
 Describe features associated with individual atoms that depend only upon their elemental identity
 
-## Fields
+# Fields
 - `name::String`: Name of the feature
 - `encoder_decoder::AbstractCodec`: Codec defined which handles the feature's encoding and decoding logic
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
