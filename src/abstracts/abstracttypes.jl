@@ -21,6 +21,12 @@ abstract type AbstractFeatureDescriptor end
 Abstract type from which all concrete featurization schemes are subtyped.
 """
 abstract type AbstractFeaturization end
+
+"""
+    AbstractCodec
+
+Abstract type from which all Codec implementations are subtyped.
+"""
 abstract type AbstractCodec end
 
 end
