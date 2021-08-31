@@ -1,3 +1,18 @@
+"""
+    FeatureDescriptor
+
+A feature, in this context, refers to a distinct attribute manifested
+by an atomic system.
+A FeatureDescriptor describes a feature/class of features - i.e., its name,
+possible values, etc.
+
+A FeatureDescriptor does NOT store any actual instances of the value(s) of the
+feature it describes.
+Simply put, it can be understood to be "features of a feature".
+
+All FeatureDescriptors MUST also describe an encoding and decoding scheme.
+This can (and should) be easily done using a Codec.
+"""
 module FeatureDescriptor
 
 using Base: Int16

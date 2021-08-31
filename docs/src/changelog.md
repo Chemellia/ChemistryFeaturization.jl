@@ -26,11 +26,12 @@ Categories to include for each release, if relevant: breaking, added, fixed, rem
 
 ## v0.4.0 [2021-06-30]
 ### Added
-* create `FeaturizedAtoms` type
+* create `FeaturizedAtoms` type, remove `featurization`, `encoded_features` fields from Atoms objects
 * add docstrings for various things, add section of docs for Codecs
 
 ### Fixed
 * macOS CI fixed, but possibly not in an ideal way because it seems to result in occasional precompile warnings upon update
+* Docs for stable/tagged versions now build properly
 
 ### Removed/Deprecated
 * remove encoded features field from `AtomGraph` type

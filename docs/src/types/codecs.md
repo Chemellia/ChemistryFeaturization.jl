@@ -1,9 +1,6 @@
 # Codecs
 
 ```@docs
-AbstractType.AbstractCodec
-```
-
-```@docs
+Codec
 Codec.OneHotOneCold
 ```

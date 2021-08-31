@@ -3,14 +3,17 @@ module AbstractType
 """
     AbstractAtoms
 
-Abstract type from which all concrete Atoms types are subtyped.
+All types defined for different representations of atomic systems
+(different [Atoms](@ref) types) must be a subtype of AbstractAtoms.
 """
 abstract type AbstractAtoms end
+
 
 """
     AbstractFeatureDescriptor
 
-Abstract type from which all concrete feature descriptor types are subtyped.
+All FeatureDescriptors defined for different types of features must be a
+subtype of AbstractFeatureDescriptor.
 """
 abstract type AbstractFeatureDescriptor end
 
@@ -18,14 +21,16 @@ abstract type AbstractFeatureDescriptor end
 """
     AbstractFeaturization
 
-Abstract type from which all concrete featurization schemes are subtyped.
+All types defined for different featurization schemes must be a subtype
+of AbstractFeaturization.
 """
 abstract type AbstractFeaturization end
 
 """
     AbstractCodec
 
-Abstract type from which all Codec implementations are subtyped.
+All codecs defined for different encoding-decoding schemes
+must be a subtype of AbstractCodec.
 """
 abstract type AbstractCodec end
 
