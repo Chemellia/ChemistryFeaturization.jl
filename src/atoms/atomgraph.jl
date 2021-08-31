@@ -69,8 +69,8 @@ Construct an AtomGraph object from a structure file.
 - `dist_decay_func = inverse_square`: Function by which to assign edge weights according to distance between neighbors
 - `normalize_weights::Bool = true`: Whether to normalize weights such that the largest is 1.0
 
-# Note
-`max_num_nbr` is a "soft" limit – if multiple neighbors are at the same distance, the full neighbor list may be longer.
+!!! note
+    `max_num_nbr` is a "soft" limit – if multiple neighbors are at the same distance, the full neighbor list may be longer.
 """
 function AtomGraph(
     input_file_path::String,

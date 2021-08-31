@@ -11,7 +11,8 @@ Container object for an `Atoms` object, a `featurization`, and the resulting
 - `featurization`: [Featurization](@ref) scheme meant to be used for featurizing `atoms`
 - `encoded_features`: The result of featurizing `atoms` using `featurization`
 
-Note: `encoded_features` will NOT change for a given atoms-featurization pair.
+!!! note
+    `encoded_features` will NOT change for a given atoms-featurization pair.
 """
 struct FeaturizedAtoms{A<:AbstractAtoms,F<:AbstractFeaturization}
     atoms::A
