@@ -31,6 +31,12 @@ decode(::FeatureDescriptor.AbstractFeatureDescriptor, ::Any)
 
 * the function `encodable_elements` should be defined on all feature descriptors, as it will be used to verify that a feature can be encoded for every atom in a structure.
 
+## AbstractFeatureDescriptor
+
+```@docs
+AbstractType.AbstractFeatureDescriptor
+```
+
 ## Atom Feature Descriptors
 
 These types encode features for single atoms in a structure. The abstract parent type is `AtomFeatureDescriptor`.
