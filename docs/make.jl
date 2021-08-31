@@ -12,6 +12,7 @@ makedocs(
             "Feature Descriptors"=>"types/feature_descriptors.md",
             "Codec"=>"types/codecs.md",
             "Featurization"=>"types/featurizations.md",
+            "Featurized Atoms" => "types/featurizedatoms.md"
         ],
         "Contributing"=>"contributing.md",
         "Changelog"=>"changelog.md",
