@@ -1,24 +1,28 @@
 # Feature Descriptors
 
-The type hierarchy of these objects is currently:
-```
-|---- AbstractFeatureDescriptor
-    |---- AbstractAtomFeatureDescriptor
-        |==== ElementFeatureDescriptor
-        |==== SpeciesFeatureDescriptor
-    |---- AbstractPairFeatureDescriptor
-        |==== PairFeatureDescriptor
-        |---- BondFeatureDescriptor
-            |==== BondType
-            |==== InRing
-            |==== IsConjugated
-```
-where 
-`----` = Abstract Type
-and
-`====` = Concrete Type
+## Hierarchy
 
-More details on each of these types is below, and more types (e.g. environment features) will be implemented in the future!
+The type hierarchy of `FeatureDescriptor` objects is currently:
+
+```text
+AbstractType.AbstractFeatureDescriptor
+├─── AbstractAtomFeatureDescriptor
+│    ├─── SpeciesFeatureDescriptor
+│    └─── ElementFeatureDescriptor
+│
+├─── AbstractEnvironmentFeatureDescriptor
+│    └─── OrbitalFeatureDescriptor
+│
+└─── AbstractPairFeatureDescriptor
+     ├─── BondFeatureDescriptor
+     │    ├─── BondType
+     │    ├─── InRing
+     │    └─── IsConjugated
+     │
+     └─── PairFeatureDescriptor
+```
+
+More details on each of these types can be found below. More types (e.g. environment features) will be implemented in the future!
 
 ## Functionality common to all feature descriptors
 
