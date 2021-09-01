@@ -31,7 +31,6 @@ deploydocs(
     repo = "github.com/Chemellia/ChemistryFeaturization.jl.git",
     target = "build",
     devbranch = "main",
-    versions = ["stable" => "v^", "v#.#"],
     branch = "gh-pages",
 )
 
