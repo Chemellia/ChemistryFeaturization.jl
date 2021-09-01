@@ -16,8 +16,6 @@ using DataFrames
 
 A featurization for AtomGraph objects that encodes features associated with each node. Contains a collection of `AbstractAtomFeatureDescriptor` objects, and can be initialized by passing those, or by passing parameters for constructing them.
 
-## Notes
-
 ## Required Arguments
 - `feature_names::Vector{String}`: Names of each feature
 - `lookup_table::DataFrame` (optional): source of data for features, if not included in built-in `atom_data_df`

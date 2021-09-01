@@ -4,31 +4,36 @@
 FeatureDescriptor
 ```
 
-Feature descriptors store all necessary information to encode **and decode** feature values on various parts of an atoms object and appropriately combine them into a single object (vector, matrix, etc.) describing the value/values of the feature for the entire object.
+Feature descriptors store all necessary information to encode and decode feature values on various parts of an [Atoms](@ref atoms) object and appropriately combine them into a single form (vector, matrix, etc.), describing the value(s) of the feature for the entire object.
 
 For example, if an `ElementFeatureDescriptor` encodes a vector for each atom in an object, they could be concatenated together into a matrix with a column for each atom to describe a structure.
 
-Feature Descriptors must be designed with interoperability in mind. A `FeatureDescriptor` object must work deterministically with different datasets.
+Feature Descriptors must be designed with interoperability in mind. A [FeatureDescriptor](@ref fd) object must work deterministically with different datasets.
 
-The type hierarchy of these objects is currently:
-```
-|---- AbstractFeatureDescriptor
-    |---- AbstractAtomFeatureDescriptor
-        |==== ElementFeatureDescriptor
-        |==== SpeciesFeatureDescriptor
-    |---- AbstractPairFeatureDescriptor
-        |==== PairFeatureDescriptor
-        |---- BondFeatureDescriptor
-            |==== BondType
-            |==== InRing
-            |==== IsConjugated
-```
-where 
-`----` = Abstract Type
-and
-`====` = Concrete Type
+## Hierarchy
 
-More details on each of these types is below, and more types (e.g. environment features) will be implemented in the future!
+The type hierarchy of these objects is currently as follows.
+
+```text
+AbstractType.AbstractFeatureDescriptor
+├─── AbstractAtomFeatureDescriptor
+│    ├─── SpeciesFeatureDescriptor
+│    └─── ElementFeatureDescriptor
+│
+├─── AbstractEnvironmentFeatureDescriptor
+│    └─── OrbitalFieldMatrix
+│
+└─── AbstractPairFeatureDescriptor
+     ├─── BondFeatureDescriptor
+     │    ├─── BondType
+     │    ├─── InRing
+     │    └─── IsConjugated
+     │
+     └─── PairFeatureDescriptor
+```
+
+More details on each of these types can be found below.\
+More types (e.g. environment features) will be implemented in the future!
 
 ## Functionality common to all feature descriptors
 
