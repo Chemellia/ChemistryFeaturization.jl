@@ -33,7 +33,7 @@ export decode
     "Logic specifying how $(typeof(codec))'s decoding mechanism actually decodes $(typeof(fd)) is undefined.",
 )
 
-output_shape(efd::AbstractFeatureDescriptor) = output_shape(fd, fd.encoder_decoder)
+output_shape(efd::AbstractFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
 export output_shape
 
 include("abstractfeatures.jl")
