@@ -4,10 +4,9 @@ This module houses the built-in feature values for a variety of non-contextual a
 module ElementFeatureUtils
 
 using DataFrames
-using CSV
-using JSON
 using Flux: onecold
 using ...ChemistryFeaturization.Codec: build_onehot_vec
+using ...ChemistryFeaturization.Data: atom_data_df, feature_info
 
 # export things
 export default_nbins, oom_threshold_log
@@ -23,11 +22,6 @@ const default_nbins = 10
 const oom_threshold_log = 2
 
 # read in features...
-atom_data_path = joinpath(@__DIR__, "..", "..", "data", "pymatgen_atom_data.csv")
-const atom_data_df = DataFrame(CSV.File(atom_data_path))
-feature_info_path = joinpath(@__DIR__, "..", "..", "data", "feature_info.json")
-const feature_info = JSON.parsefile(feature_info_path)
-
 const categorical_feature_names = feature_info["categorical"]
 const categorical_feature_vals = Dict(
     fea => sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for
@@ -129,7 +123,7 @@ function get_bins(
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
-    local bins , min_val , max_val
+    local bins, min_val, max_val
 
     if categorical
         if feature_name in categorical_feature_names

@@ -15,10 +15,10 @@ schemes.
 """
 module Codec
 
-@enum EncodeOrDecode ENCODE DECODE
-export EncodeOrDecode
+include("simplecodec.jl")
+export SimpleCodec
 
-include("OneHotOneCold.jl")
+include("onehotonecold.jl")
 export OneHotOneCold, build_onehot_vec
 
 end

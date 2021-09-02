@@ -35,7 +35,7 @@ using ..ChemistryFeaturization.Atoms
 
         @test weights(ag.graph) == wm_mp195
         @test all(isapprox.(ag.laplacian, lapl_mp195, atol = 1e-7))
-        @test ag.elements == els_mp195
+        @test elements(ag) == els_mp195
 
         # test that warning is thrown for NaNs in laplacian
         @test_throws ArgumentError AtomGraph(
@@ -51,8 +51,8 @@ using ..ChemistryFeaturization.Atoms
         serialize(abspath(@__DIR__, "..", "test_data", "strucs", "testgraph.jls"), ag)
         ag2 = deserialize(abspath(@__DIR__, "..", "test_data", "strucs", "testgraph.jls"))
         @test adjacency_matrix(ag.graph) == adjacency_matrix(ag2.graph)
-        @test ag2.elements == ag.elements
-        @test ag.laplacian == ag2.laplacian
+        @test elements(ag) == ag2.elements
+        @test Atoms.normalized_laplacian(ag) == ag2.laplacian
     end
 
     @testset "batch processing" begin
@@ -65,7 +65,7 @@ using ..ChemistryFeaturization.Atoms
         mp195s = [ag for ag in skipmissing(ags2) if contains(ag.id, "mp-195")]
 
         for ag in mp195s
-            @test ag.elements == els_mp195
+            @test elements(ag) == els_mp195
             @test weights(ag.graph) == wm_mp195
             @test all(isapprox.(ag.laplacian, lapl_mp195, atol = 1e-7))
         end
@@ -88,7 +88,7 @@ using ..ChemistryFeaturization.Atoms
 
         # test graph_colors
         ag = AtomGraph(g, ["O", "C", "O"])
-        c1, c2, c3 = ChemistryFeaturization.Atoms.graph_colors(ag.elements)
+        c1, c2, c3 = ChemistryFeaturization.Atoms.graph_colors(elements(ag))
         @test c1 == c3 != c2
 
         # TODO: figure out a way to test visualize_graph itself?
