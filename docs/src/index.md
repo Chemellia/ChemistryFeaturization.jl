@@ -14,4 +14,4 @@ It provides flexible, modular data types and functions for starting from a "bare
 
 ![CF_flowchart](files/flowchart.png)
 
-To learn more about the package, it would be good to start with the [Terminology/Philosophy](@ref) section to get a handle on the vocabulary as we use it, and also some insights about the design philosophy behind the package. Then go ahead and browse the sidebar for more!
+To learn more about the package, it would be good to start with the [Terminology and Philosophy](@ref) section to get a handle on the vocabulary as we use it, and also some insights about the design philosophy behind the package. Then go ahead and browse the sidebar for more!

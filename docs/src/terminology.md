@@ -1,4 +1,4 @@
-# Terminology/Philosophy
+# Terminology and Philosophy
 
 There are a lot of seemingly similar terms used for quantities in this package that refer to disparate things (or, are used slightly differently by other people in other places). Here, we try to best define these terms as we intend them. Further down, once the terms are defined, we elaborate on why the package is designed the way it is.
 
@@ -11,39 +11,24 @@ Depth = 3
 
 ### Feature
 
-A quality or quantity associated with an atom that we wish to encode, such as atomic mass, row in the periodic table, etc.
+A quality or a quantity that is associated with an atom, which is of interest to us.\
+A feature could be a property of an individual atom, such as its atomic mass or the row in the periodic table to which it belongs; or it could be a property of a pair of atoms (e.g. distance between them, presence of a bond), or even a fingerprint of an entire structure.
 
 ### Encoding
 
-The process of translating the value of a feature from its human-readable form (such as a float or a string) to whatever form will be ingested by a machine learning model. This could be as simple as an equality operation, but more often is, e.g. building a one-hot vector.
+The process of translating the value of a feature from its human-readable form (such as a `Float` or a `String`) to the form fed into the machine learning model.
+
+The complexity of the encoding logic, whether it's something as simple as an equality operation, or something much more complex, is a decision left to the user. Often, this is building a one-hot vector.
 
 ### Decoding
 
-The inverse process to encoding. Note that in many cases (e.g. a continuous-valued feature encoded to a one-hot vector), the process isn't fully invertible, i.e. you can't get back a precise value but rather only a range corresponding to the associated onehot bin.
+The inverse process to encoding.
 
-## Data types in `ChemistryFeaturization`
+Generally, it is recommended that there is symmetry between the encoding and decoding logic.
 
-### Feature Descriptor
-
-Describes the "features of a feature" – i.e. its name, possible values, instructions for encoding it, etc., but does NOT store an actual instance of its value.
-
-For more on the available types of feature descriptors, see [Feature Descriptors](@ref fd).
-
-### AbstractCodec
-
-Component of a feature descriptor that stores the actual encoding/decoding functions. 
-
-### Atoms Object
-
-Describes a molecule, crystal, etc. in whatever representation will be ingested by an ML model (e.g. a graph), and can also store encoded features of that structure. 
-
-For more on the available types of atoms objects, see [Atoms Objects](@ref atoms).
-
-### Featurization Object
-
-Stores sets of feature descriptors and instructions for combining the values they encode on an atoms object.
-
-For more on the available types of featurization objects, see [Featurization](@ref).
+!!! note
+    In many cases, the process isn't fully invertible. For instance, for a continuous-valued feature encoded to a one-hot vector you can't get back a precise value but rather only a range corresponding to the associated onehot bin.
+    In such cases, the decoding mechanism should try and return the most meaningful and human-interpretable form.
 
 ## Design Philosophy
 
