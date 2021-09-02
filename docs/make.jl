@@ -8,12 +8,13 @@ makedocs(
         "Terminology"=>"terminology.md",
         "Tutorial"=>"tutorial.md",
         "Types"=>Any[
+            "Overview" => "types/overview.md",
             "Abstract Types"=>"types/abstracttypes.md",
             "Atoms Objects"=>"types/atoms.md",
             "Feature Descriptors"=>"types/feature_descriptors.md",
+            "Codec"=>"types/codecs.md",
             "Featurization"=>"types/featurizations.md",
             "Featurized Atoms"=>"types/featurizedatoms.md",
-            "Codec"=>"types/codecs.md",
         ],
         "Utilities"=>"utils.md",
         "Contributing"=>"contributing.md",
@@ -31,7 +32,6 @@ deploydocs(
     repo = "github.com/Chemellia/ChemistryFeaturization.jl.git",
     target = "build",
     devbranch = "main",
-    versions = ["stable" => "v^", "v#.#"],
     branch = "gh-pages",
 )
 

@@ -1,4 +1,4 @@
-# Featurization
+# [Featurization](@id fzn)
 
 ```@docs
 Featurization

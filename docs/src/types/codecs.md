@@ -1,4 +1,4 @@
-# Codecs
+# [Codecs](@id codecs)
 
 ```@docs
 Codec

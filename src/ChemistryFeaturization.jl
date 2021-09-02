@@ -5,6 +5,10 @@ using SimpleWeightedGraphs
 encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
 encode(a::Any, object_to_be_encoded) = throw(MethodError(encode, a))
 decode(a::Any, encoded_features) = throw(MethodError(decode, a))
+elements(a::Any) = throw(MethodError(elements, a))
+
+include("data.jl")
+export Data
 
 include("abstracts/abstracttypes.jl")
 export AbstractType
@@ -23,7 +27,7 @@ export ElementFeatureDescriptor, output_shape
 include("atoms/atoms.jl")
 export Atoms
 
-using .Atoms: AtomGraph, visualize
+using .Atoms: AtomGraph, visualize, elements
 export AtomGraph, visualize
 
 include("featurizations/featurizations.jl")

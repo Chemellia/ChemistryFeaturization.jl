@@ -1,8 +1,8 @@
 using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
-
+using ..ChemistryFeaturization: elements
 using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
-using ..ChemistryFeaturization.Codec: OneHotOneCold, EncodeOrDecode, ENCODE, DECODE
+using ..ChemistryFeaturization.Codec: OneHotOneCold
 
 include("abstractfeatures.jl")
 
@@ -28,6 +28,22 @@ struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     lookup_table::DataFrame
 end
 
+function ElementFeatureDescriptor(feature_name::String, encoder_decoder::AbstractCodec)
+    lookup_table = atom_data_df
+
+    colnames = names(lookup_table)
+    @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
+
+    lookup_table = lookup_table[:, ["Symbol", feature_name]]
+    dropmissing!(lookup_table)
+
+    ElementFeatureDescriptor(
+        feature_name,
+        encoder_decoder,
+        default_categorical(feature_name, lookup_table),
+        lookup_table,
+    )
+end
 
 """
     ElementFeatureDescriptor(feature_name, lookup_table, categorical, contextual, length, encodable_elements)
@@ -84,26 +100,15 @@ function encodable_elements(feature_name::String, lookup_table::DataFrame = atom
 end
 
 function (efd::ElementFeatureDescriptor)(a::AbstractAtoms)
-    @assert all([el in encodable_elements(efd) for el in a.elements]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
-    efd.encoder_decoder(efd, a, ENCODE)
+    @assert all([el in encodable_elements(efd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
+    efd.encoder_decoder(efd, a)
 end
 
-encode(efd::ElementFeatureDescriptor, a::AbstractAtoms) =
-    efd.encoder_decoder(efd, a, ENCODE)
-decode(efd::ElementFeatureDescriptor, encoded_feature) =
-    efd.encoder_decoder(efd, encoded_feature)
+(ed::OneHotOneCold)(efd::ElementFeatureDescriptor, a::AbstractAtoms) =
+    ed.encode_f(efd, a, ed.nbins, ed.logspaced)
 
-function (ed::OneHotOneCold)(
-    efd::ElementFeatureDescriptor,
-    a::AbstractAtoms,
-    e_or_d::EncodeOrDecode,
-)
-    if e_or_d == ENCODE
-        ed.encode_f(efd, a, ed.nbins, ed.logspaced)
-    else
-        ed.decode_f(efd, a, ed.nbins, ed.logspaced)
-    end
-end
+(ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature) =
+    ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
 
 """
     output_shape(efd::ElementFeatureDescriptor)
@@ -111,16 +116,11 @@ end
 Get the output-shape for an ElementFeatureDescriptor object using the logic assoicated with its
 Codec.
 """
-output_shape(efd::ElementFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
-
 function output_shape(efd::ElementFeatureDescriptor, ed::OneHotOneCold)
     return efd.categorical ? length(unique(efd.lookup_table[:, Symbol(efd.name)])) :
            ed.nbins
 end
 
-function (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature)
-    ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
-end
 
 """
     default_efd_encode(efd::ElementFeatureDescriptor, a::AbstractAtoms, nbins::Integer, logspaced::Bool)
@@ -144,7 +144,7 @@ function default_efd_encode(
                 logspaced = logspaced,
                 categorical = efd.categorical,
             ),
-            a.elements,
+            elements(a),
         ),
     )
 end
