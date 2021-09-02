@@ -8,7 +8,7 @@ makedocs(
         "Terminology"=>"terminology.md",
         "Tutorial"=>"tutorial.md",
         "Types"=>Any[
-            "Overview" => "types/overview.md",
+            "Overview"=>"types/overview.md",
             "Abstract Types"=>"types/abstracttypes.md",
             "Atoms Objects"=>"types/atoms.md",
             "Feature Descriptors"=>"types/feature_descriptors.md",
