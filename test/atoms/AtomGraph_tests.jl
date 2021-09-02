@@ -2,7 +2,7 @@ using Test
 using LightGraphs
 using SimpleWeightedGraphs
 using Serialization
-using ..ChemistryFeaturization.Atoms
+using ChemistryFeaturization
 using Xtals
 
 # NB: featurizing graphs is tested in ElementFeatureDescriptor and GraphNodeFeaturization tests
@@ -58,7 +58,7 @@ using Xtals
         ag2 = deserialize(abspath(@__DIR__, "..", "test_data", "strucs", "testgraph.jls"))
         @test adjacency_matrix(ag.graph) == adjacency_matrix(ag2.graph)
         @test elements(ag) == ag2.elements
-        @test Atoms.normalized_laplacian(ag) == ag2.laplacian
+        @test ChemistryFeaturization.Atoms.normalized_laplacian(ag) == ag2.laplacian
     end
 
     @testset "batch processing" begin
