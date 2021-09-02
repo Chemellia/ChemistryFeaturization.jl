@@ -9,7 +9,8 @@ tests = [
     # "utils/GraphBuilding_tests",
     # "atoms/AtomGraph_tests",
     # "features/ElementFeature_tests",
-    "features/OrbitalFeature_tests",
+    # "features/OrbitalFeature_tests",
+    "utils/OrbitalFeatureUtils_tests",
     # "featurizations/GraphNodeFeaturization_tests",
     # "featurizedatoms_tests",
     # TODO: add Weave stuff

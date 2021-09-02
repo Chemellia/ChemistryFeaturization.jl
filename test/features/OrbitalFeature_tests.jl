@@ -8,13 +8,13 @@ using SparseArrays
     ofd = OrbitalFeatureDescriptor()
 
     @testset "Encode - with `default_ofd_encode`" begin
-        silica = AtomGraph(Float32.([0 1 0; 1 0 1; 0 1 0]), ["O", "Si", "Ar"])
+        silica = AtomGraph(Float32.([0 1 0; 1 0 1; 0 1 0]), ["O", "Si", "O"])
         encoded_silica = encode(ofd, silica)
         I, J, V = findnz(encoded_silica)
 
-        @test I == [2, 3, 4, 5, 4, 5]
+        @test I == [2, 3, 4, 5, 2, 3]
         @test J == [1, 1, 2, 2, 3, 3]
-        @test V == [2, 4, 2, 2, 2, 6]
+        @test V == [2, 4, 2, 2, 2, 4]
 
         # non existent element - doesn't really make sense
         nonexistent = AtomGraph(Float32.([1 1; 1 1]), ["Non", "Existent"])
