@@ -8,6 +8,11 @@ using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
 using ..ChemistryFeaturization.Data: valenceshell_conf_df
 using SparseArrays
 
+"""
+    OrbitalFeatureDescriptor
+
+Describes the orbital configuration of an element.
+"""
 struct OrbitalFeatureDescriptor <: AbstractEnvironmentFeatureDescriptor
     encoder_decoder::AbstractCodec
     function OrbitalFeatureDescriptor()
@@ -42,6 +47,13 @@ function Base.show(io::IO, ::MIME"text/plain", efd::OrbitalFeatureDescriptor)
     print(io, st)
 end
 
+"""
+    default_ofd_encode(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms)
+
+Default encoding scheme for OrbitalFeatureDescriptor, which returns a
+sparse matrix, where column_i is a sparse representation of the electronic
+configuration of the ith element in the [Atoms](@ref atoms) object.
+"""
 function default_ofd_encode(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms)
     I = Vector{Int16}()
     J = Vector{Int16}()
@@ -61,6 +73,16 @@ function default_ofd_encode(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms)
     sparse(I, J, V) # create a SparseMatrix with the valence shell configuration of each element as a column vector
 end
 
+
+"""
+    default_ofd_decode(
+        ofd::OrbitalFeatureDescriptor,
+        encoded_features::SparseArrays.AbstractSparseMatrixCSC{Tv,Ti}
+    ) where {Tv,Ti}
+
+Default decoding scheme for OrbitalFeatureDescriptor, which returns the 
+vector of elements encoded, given the encoded sparse matrix.
+"""
 function default_ofd_decode(
     ofd::OrbitalFeatureDescriptor,
     encoded_features::SparseArrays.AbstractSparseMatrixCSC{Tv,Ti},
