@@ -11,7 +11,8 @@ Depth = 3
 
 ### Feature
 
-A quality or a quantity that is associated with an atom, which is of interest to us. A feature could be anything, like atomic mass, the row in the periodic table to which the element belongs, etc.
+A quality or a quantity that is associated with an atom, which is of interest to us.\
+A feature could be a property of an individual atom, such as its atomic mass or the row in the periodic table to which it belongs; or it could be a property of a pair of atoms (e.g. distance between them, presence of a bond), or even a fingerprint of an entire structure.
 
 ### Encoding
 
