@@ -2,6 +2,7 @@ module OrbitalFeatureUtils
 
 using SparseArrays
 using DataFrames
+using ...ChemistryFeaturization.Data: valenceshell_conf_df
 
 # Helper functions used for encoding
 #=
@@ -71,7 +72,7 @@ end
 
 
 # using regex, get the valence shell configuration
-function _orbitalregex(df::DataFrame, element)
+function _orbitalregex(element, df::DataFrame = valenceshell_conf_df)
     config_df_row =
         filter(:Symbol => x -> x == element, df; view = true)[!, "Electronic Structure"][1]
     orbital_regex = r"[1-9][s|p|d|f|g][1-9]" # regex which will match individual orbitals
@@ -80,13 +81,16 @@ function _orbitalregex(df::DataFrame, element)
 end
 
 # Get the electronic configuration of `element` (equivalent to the findnz() result if the configuration was a SparseVector)
-function _name_to_econf(df::DataFrame, element)
-    valence_shell_config = _orbitalregex(df, element)
+function _name_to_econf(element, df::DataFrame = valenceshell_conf_df)
+    valence_shell_config = _orbitalregex(element, valenceshell_conf_df)
     return _orbitalsparse(valence_shell_config)
 end
 
 # Get the name of the element which has the electronic configuration `shell_conf_sparse` (as a SparseVector).
-function _econf_to_name(df::DataFrame, shell_conf_sparse::SparseVector{Tv,Ti}) where {Tv,Ti}
+function _econf_to_name(
+    shell_conf_sparse::SparseVector{Tv,Ti},
+    df::DataFrame = valenceshell_conf_df,
+) where {Tv,Ti}
     rows, vals = findnz(shell_conf_sparse)
     shell_conf = ""
 

@@ -61,7 +61,7 @@ function default_ofd_encode(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms)
     col = 0
     for i in elements(a)
         # X, Y are equivalent to I, V for a SparseVector
-        X, Y = _name_to_econf(valenceshell_conf_df, i)
+        X, Y = _name_to_econf(i)
         col += 1    # column number
 
         for i = 1:length(X)
@@ -89,7 +89,7 @@ function default_ofd_decode(
 ) where {Tv,Ti}
     elements = String[]
     for i = 1:size(encoded_features)[2]
-        push!(elements, _econf_to_name(valenceshell_conf_df, encoded_features[:, i]))
+        push!(elements, _econf_to_name(encoded_features[:, i]))
     end
     return elements
 end

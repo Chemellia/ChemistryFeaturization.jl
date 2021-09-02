@@ -1,6 +1,5 @@
 using Test
 using SparseArrays: sparsevec
-using ..ChemistryFeaturization.Data: valenceshell_conf_df as df
 using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
     _indexorbital,
     _orbitalindex,
@@ -46,8 +45,8 @@ using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
     end
 
     @testset "_orbitalregex" begin
-        @test _orbitalregex(df, "He") == SubString.(["1s2"])
-        @test _orbitalregex(df, "Cr") == SubString.(["3d5", "4s1"])
+        @test _orbitalregex("He") == SubString.(["1s2"])
+        @test _orbitalregex("Cr") == SubString.(["3d5", "4s1"])
     end
 
     @testset "_orbitalsparse" begin
@@ -58,18 +57,18 @@ using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
 
     @testset "Element Name - Electronic Configuration" begin
         function test_econf_to_name(I, V, element)
-            @test _econf_to_name(df, sparsevec(Int16.(I), Int16.(V))) == element
+            @test _econf_to_name(sparsevec(Int16.(I), Int16.(V))) == element
         end
 
-        I_H, V_H = _name_to_econf(df, "H")
+        I_H, V_H = _name_to_econf("H")
         @test (I_H, V_H) == ([1], [1])
         test_econf_to_name(I_H, V_H, "H")
 
-        I_He, V_He = _name_to_econf(df, "He")
+        I_He, V_He = _name_to_econf("He")
         @test (I_He, V_He) == ([1], [2])
         test_econf_to_name(I_He, V_He, "He")
 
-        I_Li, V_Li = _name_to_econf(df, "Li")
+        I_Li, V_Li = _name_to_econf("Li")
         @test (I_Li, V_Li) == ([2], [1])
         test_econf_to_name(I_He, V_He, "He")
     end
