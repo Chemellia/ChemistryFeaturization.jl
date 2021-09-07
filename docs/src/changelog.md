@@ -4,7 +4,9 @@ I'm generally trying to adhere to [semver](https://semver.org) here. This means 
 
 Categories to include for each release, if relevant: breaking, added, fixed, removed/deprecated
 
-## Upcoming (v0.5.0)
+## Upcoming
+
+## v0.5.0 [2021-09-07]
 
 ### Added
 
