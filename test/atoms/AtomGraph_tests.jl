@@ -2,7 +2,8 @@ using Test
 using LightGraphs
 using SimpleWeightedGraphs
 using Serialization
-using ..ChemistryFeaturization.Atoms
+using ChemistryFeaturization
+using Xtals
 
 # NB: featurizing graphs is tested in ElementFeatureDescriptor and GraphNodeFeaturization tests
 
@@ -16,6 +17,7 @@ using ..ChemistryFeaturization.Atoms
         -0.3333333 -0.3333333 -0.3333333 1.0
     ]
     els_mp195 = ["Ho", "Pt", "Pt", "Pt"]
+    path_mp195 = abspath(@__DIR__, "..", "test_data", "strucs", "mp-195.cif")
 
     @testset "construct object" begin
         # build a cute little triangle graph
@@ -31,11 +33,15 @@ using ..ChemistryFeaturization.Atoms
         @test adjacency_matrix(ag.graph) == adjacency_matrix(ag2.graph)
 
         # and now from a file...
-        ag = AtomGraph(abspath(@__DIR__, "..", "test_data", "strucs", "mp-195.cif"))
+        ag = AtomGraph(path_mp195)
+        # and from a Crystal object
+        c = Crystal(path_mp195)
+        ag2 = AtomGraph(c)
 
-        @test weights(ag.graph) == wm_mp195
+        @test weights(ag.graph) == weights(ag2.graph) == wm_mp195
         @test all(isapprox.(ag.laplacian, lapl_mp195, atol = 1e-7))
-        @test elements(ag) == els_mp195
+        @test all(isapprox.(ag2.laplacian, lapl_mp195, atol = 1e-7))
+        @test ag.elements == ag2.elements == els_mp195
 
         # test that warning is thrown for NaNs in laplacian
         @test_throws ArgumentError AtomGraph(
@@ -52,7 +58,7 @@ using ..ChemistryFeaturization.Atoms
         ag2 = deserialize(abspath(@__DIR__, "..", "test_data", "strucs", "testgraph.jls"))
         @test adjacency_matrix(ag.graph) == adjacency_matrix(ag2.graph)
         @test elements(ag) == ag2.elements
-        @test Atoms.normalized_laplacian(ag) == ag2.laplacian
+        @test ChemistryFeaturization.Atoms.normalized_laplacian(ag) == ag2.laplacian
     end
 
     @testset "batch processing" begin
