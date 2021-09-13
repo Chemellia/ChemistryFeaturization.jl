@@ -38,20 +38,21 @@ end
 function AtomGraph(
     graph::SimpleWeightedGraph{B,C},
     elements::Vector{String},
-    structure::A,
+    structure,
     id = "",
-) where {C<:Real,B<:Integer,A}
+) where {C<:Real,B<:Integer}
     # check that elements is the right length
     num_atoms = size(graph)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
 
     # this was previously C.(normalized_laplacian(graph)) - won't that potentially give rise to compatibility issues if C is a custom type?
     laplacian = normalized_laplacian(graph)
-    AtomGraph{A}(graph, elements, laplacian, structure, id)
+    AtomGraph(graph, elements, laplacian, structure, id)
 end
 
 # if the original structure is a graph...
-AtomGraph(graph::SimpleWeightedGraph, elements::Vector{String}, id="") = AtomGraph{SimpleWeightedGraph}(graph, elements, graph, id)
+AtomGraph(graph::SimpleWeightedGraph, elements::Vector{String}, id = "") =
+    AtomGraph{SimpleWeightedGraph}(graph, elements, graph, id)
 
 # initialize directly from adjacency matrix
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
@@ -163,7 +164,23 @@ function AtomGraph(
     ag = AtomGraph(adj_mat, elements, crys, id)
 end
 
-function AtomGraph(mol::GraphMol, id::String = ""; kwargs...)
+# helper fcn
+function get_elements(mol::GraphMol)
+    String.(map(1:atomcount(mol)) do n
+        atom = getatom(mol, n)
+        s = atomsymbol(atomnumber(atom))
+        end)
+#     String.([mol.nodeattrs[i].symbol for i in 1:length(mol.nodeattrs)])
+end
+
+"""
+    AtomGraph(mol::GraphMol, id="")
+
+Build an AtomGraph from a GraphMol object. Currently does not have access to any 3D structure, so resulting graph is unweighted.
+
+Eventually, could have a version of this that connects to e.g. PubChem or ChemSpider to try to fetch 3D structures, in which case other kwargs for actual graph-building will become relevant.
+"""
+function AtomGraph(mol::GraphMol, id::String = "")
     # TODO: use weighted graphs
     if MolecularGraph.atomcount(mol) == 1
         @info "A single-node graph is not very interesting...and also hard to compute a laplacian for."
@@ -171,7 +188,7 @@ function AtomGraph(mol::GraphMol, id::String = ""; kwargs...)
     end
     sg = SimpleGraph(MolecularGraph.atomcount(mol))
     add_edge!.(Ref(sg), Edge.(mol.edges))
-    elements = String.([mol.nodeattrs[i].symbol for i in 1:length(mol.nodeattrs)])
+    elements = get_elements(mol)
     AtomGraph(collect(adjacency_matrix(sg)), elements, mol, id)
 end
 
