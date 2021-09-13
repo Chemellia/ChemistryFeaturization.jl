@@ -87,7 +87,7 @@ function build_graph(
         max_num_nbr = max_num_nbr,
         dist_decay_func = dist_decay_func,
     )
-    return weight_mat, String.(crys.atoms.species)
+    return weight_mat, String.(crys.atoms.species), crys
 end
 
 """

@@ -5,12 +5,13 @@ using GraphPlot
 using Colors
 using Serialization
 using Xtals
+using MolecularGraph
 using ..ChemistryFeaturization.Utils.GraphBuilding
 using ..ChemistryFeaturization.AbstractType: AbstractAtoms
 
 # TO CONSIDER: store ref to featurization rather than the thing itself? Does this matter for any performance we care about?
 """
-    AtomGraph
+    AtomGraph{A}
 
 A type representing an atomic structure as a graph (`gr`).
 
@@ -23,33 +24,41 @@ A type representing an atomic structure as a graph (`gr`).
   convolution operations by avoiding recomputing it every pass.
 - `id::String`: Optional, an identifier, e.g. to correspond with tags/labels of an imported
   dataset.
+- `structure::A`: the original representation from which this AtomGraph was created
 """
-mutable struct AtomGraph <: AbstractAtoms
+mutable struct AtomGraph{A} <: AbstractAtoms{A}
     graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
     laplacian::Matrix{<:Real} # wanted to use Graphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
+    structure::A
     id::String # or maybe we let it be a number too?
 end
 
 # one without features or featurization initialized yet
 function AtomGraph(
-    graph::SimpleWeightedGraph{A,B},
+    graph::SimpleWeightedGraph{B,C},
     elements::Vector{String},
+    structure::A,
     id = "",
-) where {B<:Real,A<:Integer}
+) where {C<:Real,B<:Integer,A}
     # check that elements is the right length
     num_atoms = size(graph)[1]
     @assert length(elements) == num_atoms "Element list length doesn't match graph size!"
 
-    # this was previously B.(normalized_laplacian(graph)) - won't that potentially give rise to compatibility issues if B is a custom type?
+    # this was previously C.(normalized_laplacian(graph)) - won't that potentially give rise to compatibility issues if C is a custom type?
     laplacian = normalized_laplacian(graph)
-    AtomGraph(graph, elements, laplacian, id)
+    AtomGraph{A}(graph, elements, laplacian, structure, id)
 end
 
+# if the original structure is a graph...
+AtomGraph(graph::SimpleWeightedGraph, elements::Vector{String}, id="") = AtomGraph{SimpleWeightedGraph}(graph, elements, graph, id)
 
 # initialize directly from adjacency matrix
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
+
+AtomGraph(adj::Array{R}, elements::Vector{String}, structure, id = "") where {R<:Real} =
+    AtomGraph(SimpleWeightedGraph(adj), elements, structure, id)
 
 """
     AtomGraph(input_file_path, id = splitext(input_file_path)[begin]; output_file_path = nothing, overwrite_file = false, use_voronoi = false, cutoff_radius = 8.0, max_num_nbr = 12, dist_decay_func = inverse_square)
@@ -95,14 +104,14 @@ function AtomGraph(
 
     else # try actually building the graph
         try
-            adj_mat, elements = build_graph(
+            adj_mat, elements, structure = build_graph(
                 input_file_path,
                 use_voronoi = use_voronoi,
                 cutoff_radius = cutoff_radius,
                 max_num_nbr = max_num_nbr,
                 dist_decay_func = dist_decay_func,
             )
-            ag = AtomGraph(adj_mat, elements, id)
+            ag = AtomGraph(adj_mat, elements, structure, id)
         catch
             @warn "Unable to build graph for $input_file_path"
             return missing
@@ -151,18 +160,30 @@ function AtomGraph(
         max_num_nbr = max_num_nbr,
         dist_decay_func = dist_decay_func,
     )
-    ag = AtomGraph(adj_mat, elements, id)
+    ag = AtomGraph(adj_mat, elements, crys, id)
+end
+
+function AtomGraph(mol::GraphMol, id::String = ""; kwargs...)
+    # TODO: use weighted graphs
+    if MolecularGraph.atomcount(mol) == 1
+        @info "A single-node graph is not very interesting...and also hard to compute a laplacian for."
+        return missing
+    end
+    sg = SimpleGraph(MolecularGraph.atomcount(mol))
+    add_edge!.(Ref(sg), Edge.(mol.edges))
+    elements = String.([mol.nodeattrs[i].symbol for i in 1:length(mol.nodeattrs)])
+    AtomGraph(collect(adjacency_matrix(sg)), elements, mol, id)
 end
 
 # pretty printing, short version
 function Base.show(io::IO, ag::AtomGraph)
-    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges"
+    st = "$(typeof(ag)) $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges"
     print(io, st)
 end
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", ag::AtomGraph)
-    st = "AtomGraph $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n\tatoms: $(ag.elements)"
+    st = "$(typeof(ag)) $(ag.id) with $(nv(ag.graph)) nodes, $(ne(ag.graph)) edges\n\tatoms: $(ag.elements)"
     print(io, st)
 end
 
