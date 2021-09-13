@@ -1,12 +1,12 @@
 module AbstractType
 
 """
-    AbstractAtoms
+    AbstractAtoms{A}
 
 All types defined for different representations of atomic systems
-(different [Atoms](@ref atoms) types) must be a subtype of AbstractAtoms.
+(different [Atoms](@ref atoms) types) must be a subtype of AbstractAtoms. Type parameter represents the original structure representation from which the object was built.
 """
-abstract type AbstractAtoms end
+abstract type AbstractAtoms{A} end
 
 
 """
