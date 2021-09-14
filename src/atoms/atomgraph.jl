@@ -52,7 +52,7 @@ end
 
 # if the original structure is a graph...
 AtomGraph(graph::SimpleWeightedGraph, elements::Vector{String}, id = "") =
-    AtomGraph{SimpleWeightedGraph}(graph, elements, graph, id)
+    AtomGraph(graph, elements, graph, id)
 
 # initialize directly from adjacency matrix
 AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
