@@ -39,7 +39,7 @@ function AtomGraph(
     graph::SimpleWeightedGraph{B,C},
     elements::Vector{String},
     structure,
-    id = "",
+    id::String = "",
 ) where {C<:Real,B<:Integer}
     # check that elements is the right length
     num_atoms = size(graph)[1]
@@ -51,14 +51,14 @@ function AtomGraph(
 end
 
 # if the original structure is a graph...
-AtomGraph(graph::SimpleWeightedGraph, elements::Vector{String}, id = "") =
+AtomGraph(graph::SimpleWeightedGraph, elements::Vector{String}, id::String = "") =
     AtomGraph(graph, elements, graph, id)
 
 # initialize directly from adjacency matrix
-AtomGraph(adj::Array{R}, elements::Vector{String}, id = "") where {R<:Real} =
+AtomGraph(adj::Array{R}, elements::Vector{String}, id::String = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
-AtomGraph(adj::Array{R}, elements::Vector{String}, structure, id = "") where {R<:Real} =
+AtomGraph(adj::Array{R}, elements::Vector{String}, structure, id::String = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, structure, id)
 
 """

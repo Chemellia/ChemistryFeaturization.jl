@@ -24,9 +24,8 @@ encodable_elements(fd::AbstractFeatureDescriptor) =
     throw(MethodError(encodable_elements, fd))
 export encodable_elements
 
-# does this one need to be defined at top-level and imported also? TBD...
 """
-    get_value(fd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms)
+    get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms)
 Get the value(s) of feature corresponding to feature descriptor `fd` for structure `atoms`.
 
 See also: [`encode`](@ref)
@@ -36,38 +35,25 @@ get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = throw(MethodErr
 
 import ..ChemistryFeaturization.encode
 """
-    encode(fd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms)
+    encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms)
 Encode features for `atoms` using the feature descriptor `fd`.
 """
-encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = fd.encoder_decoder(fd, atoms)
-
-"""
-    encode(fd::AbstractAtomFeatureDescriptor, value)
-Encode `value` as a value of the feature described feature descriptor `fd`.
-"""
-# TODO: potentially this
+encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = encode(fd.encoder_decoder, get_value(fd, atoms)) # TODO: would like this to be get_value for clarity but scope issues at present
 export encode
 
 import ..ChemistryFeaturization.decode
 """
-    decode(fd::AbstractAtomFeatureDescriptor, encoded_feature)
+    decode(fd::AbstractFeatureDescriptor, encoded_feature)
 Decode `encoded_feature` using the feature descriptor `fd`.
 """
-decode(fd::AbstractFeatureDescriptor, encoded_feature) =
-    fd.encoder_decoder(fd, encoded_feature)
+decode(fd::AbstractFeatureDescriptor, encoded_feature) = decode(fd.encoder_decoder, encoded_feature)
 export decode
-
-(codec::AbstractCodec)(fd::AbstractFeatureDescriptor, a::AbstractAtoms) = error(
-    "Logic specifying how $(typeof(codec))'s encoding mechanism actually encodes $(typeof(fd)) is undefined.",
-)
-(codec::AbstractCodec)(fd::AbstractFeatureDescriptor, encoded_feature) = error(
-    "Logic specifying how $(typeof(codec))'s decoding mechanism actually decodes $(typeof(fd)) is undefined.",
-)
 
 output_shape(efd::AbstractFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
 export output_shape
 
 include("abstractfeatures.jl")
+encode(efd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms) = hcat(encode(efd.encoder_decoder, get_value(efd, atoms))...)
 
 include("bondfeatures.jl")
 

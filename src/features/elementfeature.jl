@@ -6,7 +6,6 @@ using ..ChemistryFeaturization.Codec: OneHotOneCold
 
 include("abstractfeatures.jl")
 
-
 # TODO - consider edge cases in constructor. add this stuff into modulify.
 
 # TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
@@ -72,9 +71,11 @@ function ElementFeatureDescriptor(
     lookup_table = lookup_table[:, ["Symbol", feature_name]]
     dropmissing!(lookup_table)
 
+    bins = get_bins(feature_name, lookup_table; nbins=nbins, logspaced=logspaced, categorical=categorical)
+
     ElementFeatureDescriptor(
         feature_name,
-        OneHotOneCold(default_efd_encode, default_efd_decode, nbins, logspaced),
+        OneHotOneCold(categorical, bins),
         categorical,
         lookup_table,
     )
@@ -109,13 +110,6 @@ function get_value(efd::ElementFeatureDescriptor, a::AbstractAtoms)
     map(el -> getproperty(feature_vals[feature_vals.Symbol.==el, :][1, :], Symbol(efd.name)), elements(a))
 end
 
-
-(ed::OneHotOneCold)(efd::ElementFeatureDescriptor, a::AbstractAtoms) =
-    ed.encode_f(efd, a, ed.nbins, ed.logspaced)
-
-(ed::OneHotOneCold)(efd::ElementFeatureDescriptor, encoded_feature) =
-    ed.decode_f(efd, encoded_feature, ed.nbins, ed.logspaced)
-
 """
     output_shape(efd::ElementFeatureDescriptor)
 
@@ -126,46 +120,3 @@ function output_shape(efd::ElementFeatureDescriptor, ed::OneHotOneCold)
     return efd.categorical ? length(unique(efd.lookup_table[:, Symbol(efd.name)])) :
            ed.nbins
 end
-
-
-"""
-    default_efd_encode(efd::ElementFeatureDescriptor, a::AbstractAtoms, nbins::Integer, logspaced::Bool)
-
-Default one-hot encoding function for an ElementFeatureDescriptor object.
-"""
-function default_efd_encode(
-    efd::ElementFeatureDescriptor,
-    a::AbstractAtoms,
-    nbins::Integer,
-    logspaced::Bool,
-)
-    reduce(
-        hcat,
-        map(
-            v -> onehot_encoder(
-                v,
-                efd.name,
-                efd.lookup_table;
-                nbins = nbins,
-                logspaced = logspaced,
-                categorical = efd.categorical,
-            ),
-            get_value(efd, a),
-        ),
-    )
-end
-
-"""
-    default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins::Integer, logspaced::Bool)
-
-Default one-cold decoding logic for an ElementFeatureDescriptor object.
-"""
-default_efd_decode(efd::ElementFeatureDescriptor, encoded_feature, nbins, logspaced) =
-    onecold_decoder(
-        encoded_feature,
-        efd.name,
-        efd.lookup_table;
-        nbins = nbins,
-        logspaced = logspaced,
-        categorical = efd.categorical,
-    )
