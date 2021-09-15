@@ -157,21 +157,14 @@ function get_bins(
 end
 
 "Function for encoding onehot-style vectors based on values in a lookup table. Intended to be used as an `encode_f` for `ElementFeatureDescriptor` objects. See source code of convenience constructor for `ElementFeatureDescriptor` for more details."
-function onehot_lookup_encoder(
-    el::String,
+function onehot_encoder(
+    val,
     feature_name::String,
     lookup_table::DataFrame = atom_data_df;
     nbins::Integer = default_nbins,
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
-    colnames = names(lookup_table)
-    @assert (feature_name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
-
-    feature_vals = lookup_table[:, [:Symbol, Symbol(feature_name)]]
-
-    @assert el in feature_vals.Symbol "Element $el is not in the database! :("
-
     bins = get_bins(
         feature_name,
         lookup_table;
@@ -181,7 +174,6 @@ function onehot_lookup_encoder(
     )
 
     # pull value of feature for this element
-    val = getproperty(feature_vals[feature_vals.Symbol.==el, :][1, :], Symbol(feature_name))
     build_onehot_vec(val, bins, categorical)
 end
 

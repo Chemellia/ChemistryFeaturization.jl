@@ -99,10 +99,16 @@ function encodable_elements(feature_name::String, lookup_table::DataFrame = atom
     ]
 end
 
-function (efd::ElementFeatureDescriptor)(a::AbstractAtoms)
+function get_value(efd::ElementFeatureDescriptor, a::AbstractAtoms)
     @assert all([el in encodable_elements(efd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
-    efd.encoder_decoder(efd, a)
+
+    colnames = names(efd.lookup_table)
+    @assert (efd.name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
+
+    feature_vals = efd.lookup_table[:, [:Symbol, Symbol(efd.name)]]
+    map(el -> getproperty(feature_vals[feature_vals.Symbol.==el, :][1, :], Symbol(efd.name)), elements(a))
 end
+
 
 (ed::OneHotOneCold)(efd::ElementFeatureDescriptor, a::AbstractAtoms) =
     ed.encode_f(efd, a, ed.nbins, ed.logspaced)
@@ -136,15 +142,15 @@ function default_efd_encode(
     reduce(
         hcat,
         map(
-            e -> onehot_lookup_encoder(
-                e,
+            v -> onehot_encoder(
+                v,
                 efd.name,
                 efd.lookup_table;
                 nbins = nbins,
                 logspaced = logspaced,
                 categorical = efd.categorical,
             ),
-            elements(a),
+            get_value(efd, a),
         ),
     )
 end
