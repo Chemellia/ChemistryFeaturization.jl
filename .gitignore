@@ -2,8 +2,6 @@
 .DS_Store
 */.DS_Store
 test/test_data/*.jls
-test/test_data/graphs
-test/test_data/graphs/*
 *#
 Icon*
 */Icon*
