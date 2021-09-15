@@ -22,7 +22,7 @@ export Utils
 include("features/features.jl")
 export FeatureDescriptor
 using .FeatureDescriptor: ElementFeatureDescriptor
-export ElementFeatureDescriptor, output_shape
+export ElementFeatureDescriptor, output_shape, get_value
 
 include("atoms/atoms.jl")
 export Atoms

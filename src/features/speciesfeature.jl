@@ -7,6 +7,8 @@ include("abstractfeatures.jl")
 
 Construct a feature object that encodes features associated with individual atoms that depend upon their local environment in some way (if your feature is defined only by elemental identity, you should use ElementFeatureDescriptor!)
 
+Type parameter represents the structure representation(s) from which this feature descriptor is able to compute features.
+
 ## Arguments
 - `name::String`: the name of the feature
 - `encode_f::Function`: a function that takes in <:AbstractAtoms and returns encoded values of this feature for the atoms in that structure
@@ -15,9 +17,10 @@ Construct a feature object that encodes features associated with individual atom
 - `length::Int`: length of encoded vector
 - `encodable_elements::Vector{String}`: list of elements (by symbol) that can be encoded by this feature
 """
-struct SpeciesFeatureDescriptor <: AbstractAtomFeatureDescriptor
+struct SpeciesFeatureDescriptor{A} <: AbstractAtomFeatureDescriptor
     name::String
     length::Integer
+    compute_f::Any
     encoder_decoder::AbstractCodec
     categorical::Bool
     encodable_elements::Vector{String}
@@ -36,9 +39,8 @@ end
 # TODO: add way to get range/list of possible values for feature...
 encodable_elements(f::SpeciesFeatureDescriptor) = f.encodable_elements
 
-function (f::SpeciesFeatureDescriptor)(a::AbstractAtoms)
-    @assert all([el in f.encodable_elements for el in a.elements]) "Feature $(f.name) cannot encode some element(s) in this structure!"
-    f.encode_f(a)
-end
 
-# TODO: some Weave stuff needed here?
+function (sfd::SpeciesFeatureDescriptor{A})(a::AbstractAtoms{A}) where {A}
+    @assert all([el in encodable_elements(efd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
+    sfd.compute_f(a.structure) # TODO: currently inconsistent with analogous behavior of EFD
+end
