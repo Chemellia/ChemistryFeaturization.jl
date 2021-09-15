@@ -24,12 +24,28 @@ encodable_elements(fd::AbstractFeatureDescriptor) =
     throw(MethodError(encodable_elements, fd))
 export encodable_elements
 
+# does this one need to be defined at top-level and imported also? TBD...
+"""
+    get_value(fd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms)
+Get the value(s) of feature corresponding to feature descriptor `fd` for structure `atoms`.
+
+See also: [`encode`](@ref)
+"""
+get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = throw(MethodError(fd, atoms))
+(fd::AbstractFeatureDescriptor)(atoms::AbstractAtoms) = get_value(fd, atoms)
+
 import ..ChemistryFeaturization.encode
 """
     encode(fd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms)
-Encode `atoms` using the feature descriptor `fd`.
+Encode features for `atoms` using the feature descriptor `fd`.
 """
-encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = fd(atoms)
+encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = fd.encoder_decoder(fd, atoms)
+
+"""
+    encode(fd::AbstractAtomFeatureDescriptor, value)
+Encode `value` as a value of the feature described feature descriptor `fd`.
+"""
+# TODO: potentially this
 export encode
 
 import ..ChemistryFeaturization.decode
