@@ -5,7 +5,7 @@ using ChemistryFeaturization.Atoms: elements
 using ChemistryFeaturization: elements
 
 @testset "Modules and Abstract methods" begin
-    struct FakeAtoms <: AbstractAtoms end
+    struct FakeAtoms <: AbstractAtoms{Nothing} end
     struct FakeFD <: AbstractFeatureDescriptor end
     struct FakeFeaturization <: AbstractFeaturization end
     struct FakeCodec <: AbstractCodec end

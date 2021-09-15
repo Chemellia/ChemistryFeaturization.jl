@@ -54,8 +54,8 @@ using Xtals
     @testset "save/load" begin
         g = SimpleWeightedGraph(Float32.([0 1 1; 1 0 1; 1 1 0]))
         ag = AtomGraph(g, ["C", "C", "C"])
-        serialize(abspath(@__DIR__, "..", "test_data", "strucs", "testgraph.jls"), ag)
-        ag2 = deserialize(abspath(@__DIR__, "..", "test_data", "strucs", "testgraph.jls"))
+        serialize(abspath(@__DIR__, "..", "test_data", "testgraph.jls"), ag)
+        ag2 = deserialize(abspath(@__DIR__, "..", "test_data", "testgraph.jls"))
         @test adjacency_matrix(ag.graph) == adjacency_matrix(ag2.graph)
         @test elements(ag) == ag2.elements
         @test ChemistryFeaturization.Atoms.normalized_laplacian(ag) == ag2.laplacian
