@@ -123,7 +123,6 @@ function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inver
     weight_mat
 end
 
-
 function _cutoff!(weight_mat, f, ijd,
                   nb_counts, longest_dists; max_num_nbr = 12)
 
@@ -175,6 +174,31 @@ function weights_voronoi(struc)
     weight_mat = weight_mat ./ maximum(weight_mat)
 end
 
+function index_works(crystal::Xtals.Crystal, n_atoms; cutoff_radius = 8.)
+  tree = BruteTree(Cart(crystal.atoms.coords, crystal.box).x)
+
+  is_raw = 13*n_atoms+1:14*n_atoms
+  js_raw = inrange(tree,
+                   Cart(crystal.atoms.coords[is_raw],
+                        crystal.box).x,
+                   cutoff_radius)
+
+  split1 = map(zip(is_raw, js_raw)) do x
+      [
+          p for p in [(x[1], [j for j in js if j != x[1]]...) for js in x[2]] if
+          length(p) == 2
+      ]
+  end
+  ijraw_pairs = [(split1...)...]
+end
+
+index_map(i, n_atoms) = (i - 1) % n_atoms + 1
+
+function more_index_stuff(s, n; cutoff_radius = 8.)
+  ijraw_pairs = index_works(s, n, cutoff_radius = cutoff_radius)
+  [t[1] for t in ijraw_pairs],
+  [t[2] for t in ijraw_pairs]
+end
 
 """
 Find all lists of pairs of atoms in `crys` that are within a distance of `cutoff_radius` of each other, respecting periodic boundary conditions.
@@ -186,7 +210,7 @@ function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0)
 
     # make 3 x 3 x 3 supercell and find indices of "middle" atoms
     # as well as index mapping from outer -> inner
-    supercell = replicate(crys, (3, 3, 3))
+    supercell = replicate2(crys, (3, 3, 3))
 
     # check for size of cutoff radius relative to size of cell
     min_celldim = min(crys.box.a, crys.box.b, crys.box.c)
@@ -195,35 +219,19 @@ function neighbor_list(crys::Crystal; cutoff_radius::Real = 8.0)
         cutoff_radius = 0.99 * min_celldim
     end
 
-    # todo: try BallTree, also perhaps other leafsize values
-    #tree = BruteTree(sc.atoms.coords.xf, PeriodicEuclidean([1.0, 1.0, 1.0]))
-    tree = BruteTree(Cart(supercell.atoms.coords, supercell.box).x)
-
-    is_raw = 13*n_atoms+1:14*n_atoms
-    js_raw =
-        inrange(tree, Cart(supercell.atoms.coords[is_raw], supercell.box).x, cutoff_radius)
-
-    index_map(i) = (i - 1) % n_atoms + 1 # I suddenly understand why some people dislike 1-based indexing
-
-    # this looks horrifying but it does do the right thing...
-    #ijraw_pairs = [p for p in Iterators.flatten([Iterators.product([p for p in zip(is_raw, js_raw)][n]...) for n in 1:4]) if p[1]!=p[2]]
-    split1 = map(zip(is_raw, js_raw)) do x
-        return [
-            p for p in [(x[1], [j for j in js if j != x[1]]...) for js in x[2]] if
-            length(p) == 2
-        ]
+    is, js = Zygote.ignore() do
+      more_index_stuff(supercell, n_atoms; cutoff_radius = cutoff_radius)
     end
-    ijraw_pairs = [(split1...)...]
-    get_pairdist((i, j)) = distance(supercell.atoms, supercell.box, i, j, false)
-    dists = get_pairdist.(ijraw_pairs)
-    is = index_map.([t[1] for t in ijraw_pairs])
-    js = index_map.([t[2] for t in ijraw_pairs])
 
+    dists = Xtals.distance(supercell.atoms.coords, supercell.box, is, js, false)
+
+    is, js = Int.(index_map.(is, n_atoms)),
+             Int.(index_map.(js, n_atoms))
     return is, js, dists
 end
 
 # TODO: graphs from SMILES via OpenSMILES.jl
 
 include("adjoints.jl")
-
+include("xtals.jl")
 end
