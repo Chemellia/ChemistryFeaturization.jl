@@ -1,5 +1,6 @@
 using Zygote # , ChainRulesCore
 using Zygote: @adjoint
+using StaticArrays
 using LinearAlgebra
 
 @adjoint function Base.Iterators.Zip(is)
@@ -48,4 +49,15 @@ _zero(::Nothing) = nothing
   end
 
   (y,ld), cutoff_pb
+end
+
+Zygote.@nograd Xtals.Charges{Xtals.Frac}
+
+function Zygote.ChainRulesCore.rrule(::Type{SArray{D, T, ND, L}}, x...) where {D, T, ND, L}
+  y = SArray{D, T, ND, L}(x...)
+  function sarray_pb(Δy)
+    Δy = map(t->eltype(x...)(t...), Δy)
+    return NoTangent(), (Δy...,)
+  end
+  return y, sarray_pb
 end
