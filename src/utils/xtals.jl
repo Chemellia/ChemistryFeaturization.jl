@@ -2,6 +2,8 @@ using StaticArrays
 using Xtals
 using Zygote: @adjoint
 using Zygote.ChainRulesCore
+using NearestNeighbors
+using LinearAlgebra
 
 function rl(f_to_c::Array{Float64, 2})
    # the unit cell vectors are the columns of f_to_c
@@ -20,10 +22,6 @@ end
   Zygote.pullback(rl, x)
 end
 
-
-
-
-
 function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
     if Xtals.ne(crystal.bonds) != 0
         error("the crystal " * crystal.name * " has assigned bonds. to replicate, remove
@@ -39,32 +37,34 @@ function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
     box = replicate(crystal.box, repfactors)
 
     charges = Xtals.Charges{Xtals.Frac}(n_charges)
+    # atoms = Xtals.Atoms{Xtals.Frac}(n_atoms)
 
-    xf_shift, ix = Zygote.ignore() do
-      repeat(vec(collect.(Iterators.product(0:2, 0:2, 0:2))), inner = 27), repeat(1:crystal.atoms.n, outer = 27)
+    xf_shift = Zygote.ignore() do
+      x = repeat(collect.(sort(vec(collect(Iterators.product(0:2, 0:2, 0:2))))), inner = crystal.atoms.n)
+      reduce(hcat, x)
     end
-    cols = map(ix) do i
-      xf = @views crystal.atoms.coords.xf[:, i] + xf_shift[i]
-      xf ./ repfactors
-    end
-    xf = reduce(hcat, cols)
+
+    xf_raw = repeat(crystal.atoms.coords.xf, 1, prod(repfactors)) .+ xf_shift
+    xf = xf_raw ./ repfactors
+    
     frac = Frac(xf)
-    species = repeat(crystal.atoms.species, inner = 27)
+    species = repeat(crystal.atoms.species, inner = prod(repfactors))
     atoms = Xtals.Atoms(length(species), species, frac)
 
     # charge_counter = 0
+    # atom_counter = 0
     # for ra = 0:(repfactors[1] - 1), rb = 0:(repfactors[2] - 1), rc = 0:(repfactors[3] - 1)
     #     xf_shift = 1.0 * [ra, rb, rc]
 
-    #     # # replicate atoms
-    #     # for i = 1:crystal.atoms.n
-    #     #     atom_counter += 1
+    #     # replicate atoms
+    #     for i = 1:crystal.atoms.n
+    #         atom_counter += 1
 
-    #     #     atoms.species[atom_counter] = crystal.atoms.species[i]
+    #         atoms.species[atom_counter] = crystal.atoms.species[i]
 
-    #     #     xf = crystal.atoms.coords.xf[:, i] + xf_shift
-    #     #     atoms.coords.xf[:, atom_counter] = xf ./ repfactors
-    #     # end
+    #         xf = crystal.atoms.coords.xf[:, i] + xf_shift
+    #         atoms.coords.xf[:, atom_counter] = xf ./ repfactors
+    #     end
 
     #     # replicate charges
     #     for i = 1:crystal.charges.n
@@ -80,47 +80,7 @@ function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
     
     return Crystal(crystal.name, box, atoms, charges, Xtals.MetaGraph(n_atoms), crystal.symmetry)
 end
-
-@adjoint function Xtals.distance_matrix(c::Xtals.Crystal, pbc)
-  n = c.atoms.n
-  Xtals.distance_matrix(c, pbc), Δ -> begin
-  d = collect(Δ)
-  dfc = similar(Δ, size(c.box.f_to_c))
-  nt = Zygote.accum(Zygote.nt_nothing(c),
-                    (atoms = Zygote.nt_nothing(c.atoms),
-                     box = Zygote.nt_nothing(c.box)))
-  for i = 1:n
-    for j = (i+1):n
-      y, back = Zygote.pullback(@view(c.atoms.coords.xf[:,i]),
-                                @view(c.atoms.coords.xf[:,j]),
-                                c.box.f_to_c) do x_, y_, fc
-        # TODO: support for periodic boundary conditions
-        # Xtals.distance(at, bo, i, j, pbc)
-        dxf = x_ - y_
-        norm(fc * dxf)
-      end
-      b = back(d[i,j])
-      l = length(b[1])
-      cix = vcat(repeat([CartesianIndex((i,i))], l),
-                 repeat([CartesianIndex((i,j))], l))
-      jix = vcat(repeat([CartesianIndex((i,i))], l),
-                 repeat([CartesianIndex((j,i))], l))
-      dfc = Zygote.accum(dfc, b[3])
-      v = vcat(b[1], b[2])
-      d[cix] = v
-      d[jix] = v
-    end
-  end
-
-  # Accumulation
-  ant = (atoms = (coords = (xf = d,),),)
-  bnt = (box = (f_to_c = dfc, ),)
-  nt = Zygote.accum(nt, ant)
-  nt = Zygote.accum(nt, bnt)
-  (nt, nothing)
-  end
-end
-
+Zygote.@nograd Xtals.Charges{Xtals.Frac}
 
 function ChainRulesCore.rrule(::Type{SArray{D, T, ND, L}}, x...) where {D, T, ND, L}
   y = SArray{D, T, ND, L}(x...)
@@ -149,10 +109,9 @@ function index_works(crystal::Xtals.Crystal, n_atoms; cutoff_radius = 8.)
   end
   ijraw_pairs = [(split1...)...]
 end
-Zygote.@nograd index_works
 
 index_map(i, n_atoms) = (i - 1) % n_atoms + 1
-Zygote.@nograd index_map
+
 
 function neighbor_list2(crys::Crystal; cutoff_radius::Real = 8.0)
     n_atoms = crys.atoms.n
@@ -168,14 +127,27 @@ function neighbor_list2(crys::Crystal; cutoff_radius::Real = 8.0)
         cutoff_radius = 0.99 * min_celldim
     end
 
-
-    ijraw_pairs = Zygote.ignore() do
-      index_works(supercell, n_atoms, cutoff_radius = cutoff_radius)
+    is, js = Zygote.ignore() do
+      i, j = more_index_stuff(supercell, n_atoms;
+                              cutoff_radius = cutoff_radius)
     end
-    dists = Xtals.distance_matrix(supercell, false)
-    is = index_map.([t[1] for t in ijraw_pairs], n_atoms)
-    js = index_map.([t[2] for t in ijraw_pairs], n_atoms)
+
+    dists = Xtals.distance(supercell.atoms.coords, supercell.box, is, js, false)
+
+    is, js = Int.(index_map.(is, n_atoms)),
+             Int.(index_map.(js, n_atoms))
     return is, js, dists
+end
+
+function more_index_stuff(s, n; cutoff_radius = 8.)
+  ijraw_pairs = index_works(s, n, cutoff_radius = cutoff_radius)
+  [t[1] for t in ijraw_pairs],
+  [t[2] for t in ijraw_pairs]
+end
+
+function Xtals.distance(coords::Xtals.Frac, box::Xtals.Box, i, j, pbc)
+  dxf = @views coords.xf[:, i] - coords.xf[:, j]
+  norm.(eachcol(box.f_to_c * dxf))
 end
 
 function build_graph2(
