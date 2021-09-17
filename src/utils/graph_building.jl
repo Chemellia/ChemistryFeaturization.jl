@@ -232,4 +232,7 @@ end
 
 # TODO: graphs from SMILES via OpenSMILES.jl
 
+include("adjoints.jl")
+include("xtals.jl")
+
 end
