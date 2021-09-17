@@ -21,6 +21,7 @@ Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 SimpleWeightedGraphs = "47aef6b3-ad0c-573a-a1e2-d07658019622"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Xtals = "ede5f01d-793e-4c47-9885-c447d1f18d6d"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
 CSV = "0.7, 0.8"
@@ -40,7 +41,9 @@ Xtals = "0.3"
 julia = "1.6"
 
 [extras]
+FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [targets]
-test = ["Test"]
+test = ["FiniteDifferences", "Test", "Zygote"]
