@@ -20,6 +20,7 @@ PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 SimpleWeightedGraphs = "47aef6b3-ad0c-573a-a1e2-d07658019622"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Xtals = "ede5f01d-793e-4c47-9885-c447d1f18d6d"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
@@ -37,7 +38,9 @@ LightGraphs = "1"
 NearestNeighbors = "0.4"
 PyCall = "1"
 SimpleWeightedGraphs = "1"
+StaticArrays = "1"
 Xtals = "0.3"
+Zygote = "0.6"
 julia = "1.6"
 
 [extras]
