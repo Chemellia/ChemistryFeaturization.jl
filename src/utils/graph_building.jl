@@ -114,6 +114,12 @@ function weights_cutoff(is, js, dists; max_num_nbr = 12, dist_decay_func = inver
                                          ijd,
                                          nb_counts,
                                          longest_dists)
+
+    # average across diagonal, just in case
+    weight_mat = 0.5 .* (weight_mat .+ weight_mat')
+
+    # normalize weights
+    weight_mat = weight_mat ./ maximum(weight_mat)
     weight_mat
 end
 
@@ -134,11 +140,6 @@ function _cutoff!(weight_mat, f, ijd,
         end
     end
 
-    # average across diagonal, just in case
-    weight_mat = 0.5 .* (weight_mat .+ weight_mat')
-
-    # normalize weights
-    weight_mat = weight_mat ./ maximum(weight_mat)
     weight_mat, longest_dists
 end
 
