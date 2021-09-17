@@ -2,15 +2,6 @@ using Zygote # , ChainRulesCore
 using Zygote: @adjoint
 using LinearAlgebra
 
-@adjoint function Base.Generator(f, iter)
-  ys, backs = Zygote.unzip([Zygote.pullback(f, x) for x in iter])
-  Base.Generator(f, iter), Δ -> begin
-    b(d::Dict) = [back(v)[1] for (back,v) in zip(backs,values(d))]
-    b(nt::NamedTuple{(:f, :iter)}) = [back(i)[1] for (back,i) in zip(backs,nt.iter)]
-    (nothing, b(Δ))
-  end
-end
-
 @adjoint function Base.Iterators.Zip(is)
   Zip_pullback(Δ) = (Zygote.unzip(Δ),)
   return Base.Iterators.Zip(is), Zip_pullback
