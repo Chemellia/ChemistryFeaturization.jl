@@ -36,7 +36,7 @@ function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
 
     box = replicate(crystal.box, repfactors)
 
-    charges = Xtals.Charges{Xtals.Frac}(n_charges)
+    # charges = Xtals.Charges{Xtals.Frac}(n_charges)
     # atoms = Xtals.Atoms{Xtals.Frac}(n_atoms)
 
     xf_shift = Zygote.ignore() do
@@ -44,6 +44,7 @@ function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
       reduce(hcat, x)
     end
 
+    # Repeat Atoms
     xf_raw = repeat(crystal.atoms.coords.xf, 1, prod(repfactors)) .+ xf_shift
     xf = xf_raw ./ repfactors
     
@@ -51,32 +52,11 @@ function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
     species = repeat(crystal.atoms.species, inner = prod(repfactors))
     atoms = Xtals.Atoms(length(species), species, frac)
 
-    # charge_counter = 0
-    # atom_counter = 0
-    # for ra = 0:(repfactors[1] - 1), rb = 0:(repfactors[2] - 1), rc = 0:(repfactors[3] - 1)
-    #     xf_shift = 1.0 * [ra, rb, rc]
-
-    #     # replicate atoms
-    #     for i = 1:crystal.atoms.n
-    #         atom_counter += 1
-
-    #         atoms.species[atom_counter] = crystal.atoms.species[i]
-
-    #         xf = crystal.atoms.coords.xf[:, i] + xf_shift
-    #         atoms.coords.xf[:, atom_counter] = xf ./ repfactors
-    #     end
-
-    #     # replicate charges
-    #     for i = 1:crystal.charges.n
-    #         charge_counter += 1
-
-    #         charges.q[charge_counter] = crystal.charges.q[i]
-
-    #         xf = crystal.charges.coords.xf[:, i] + xf_shift
-    #         charges.coords.xf[:, charge_counter] = xf ./ repfactors
-    #     end
-    # end
-    # global reggatoms = atoms
+    # Repeat Charges
+    q = repeat(crystal.charges.q, inner = prod(repfactors))
+    xf_raw = repeat(crystal.charges.coords.xf, 1, prod(repfactors))
+    xf = length(xf_raw) > 0 ? (xf_raw .+ xf_shift) ./ repfactors : xf_raw
+    charges = Xtals.Charges(length(q), q, Frac(xf))
     
     return Crystal(crystal.name, box, atoms, charges, Xtals.MetaGraph(n_atoms), crystal.symmetry)
 end
