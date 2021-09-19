@@ -36,9 +36,6 @@ function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
 
     box = replicate(crystal.box, repfactors)
 
-    # charges = Xtals.Charges{Xtals.Frac}(n_charges)
-    # atoms = Xtals.Atoms{Xtals.Frac}(n_atoms)
-
     xf_shift = Zygote.ignore() do
       x = repeat(collect.(sort(vec(collect(Iterators.product(0:2, 0:2, 0:2))))), inner = crystal.atoms.n)
       reduce(hcat, x)
