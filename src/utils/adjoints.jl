@@ -8,10 +8,6 @@ using LinearAlgebra
   return Base.Iterators.Zip(is), Zip_pullback
 end
 
-@adjoint function Pair(a, b)
-  Pair(a, b), Δ -> (Δ, nothing)
-end
-
 @adjoint function Dict(g::Base.Generator)
   ys, backs = Zygote.unzip([Zygote.pullback(g.f, args) for args in g.iter])
   Dict(ys...), Δ -> begin
