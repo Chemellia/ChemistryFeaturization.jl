@@ -71,7 +71,13 @@ function ElementFeatureDescriptor(
     lookup_table = lookup_table[:, ["Symbol", feature_name]]
     dropmissing!(lookup_table)
 
-    bins = get_bins(feature_name, lookup_table; nbins=nbins, logspaced=logspaced, categorical=categorical)
+    bins = get_bins(
+        feature_name,
+        lookup_table;
+        nbins = nbins,
+        logspaced = logspaced,
+        categorical = categorical,
+    )
 
     ElementFeatureDescriptor(
         feature_name,
@@ -107,7 +113,11 @@ function get_value(efd::ElementFeatureDescriptor, a::AbstractAtoms)
     @assert (efd.name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
 
     feature_vals = efd.lookup_table[:, [:Symbol, Symbol(efd.name)]]
-    map(el -> getproperty(feature_vals[feature_vals.Symbol.==el, :][1, :], Symbol(efd.name)), elements(a))
+    map(
+        el ->
+            getproperty(feature_vals[feature_vals.Symbol.==el, :][1, :], Symbol(efd.name)),
+        elements(a),
+    )
 end
 
 """

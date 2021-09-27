@@ -1,11 +1,7 @@
 using Test
 using SparseArrays: sparsevec
 using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
-    _indexorbital,
-    _orbitalindex,
-    _orbitalsparse,
-    _econf_to_name,
-    valenceshell_conf_df
+    _indexorbital, _orbitalindex, _orbitalsparse, _econf_to_name, valenceshell_conf_df
 
 @testset "OrbitalFeatureUtils" begin
     @testset "Index - Orbital" begin
@@ -51,7 +47,12 @@ using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
 
     @testset "Element Name - Electronic Configuration" begin
 
-        get_config(el) = _orbitalsparse(getproperty(valenceshell_conf_df[valenceshell_conf_df.Symbol.==el, :][1,:], Symbol("Electronic Structure")))
+        get_config(el) = _orbitalsparse(
+            getproperty(
+                valenceshell_conf_df[valenceshell_conf_df.Symbol.==el, :][1, :],
+                Symbol("Electronic Structure"),
+            ),
+        )
 
         function test_econf_to_name(I, V, element)
             @test _econf_to_name(sparsevec(Int16.(I), Int16.(V))) == element
