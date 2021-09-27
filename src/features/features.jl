@@ -40,6 +40,7 @@ Encode features for `atoms` using the feature descriptor `fd`.
 """
 encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = encode(fd.encoder_decoder, get_value(fd, atoms)) # TODO: would like this to be get_value for clarity but scope issues at present
 export encode
+export get_value
 
 import ..ChemistryFeaturization.decode
 """
