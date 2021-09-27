@@ -11,7 +11,8 @@ corresponding to a single element given its valence shell configuration (regex-e
 =#
 function _orbitalsparse(valence_shell_config)
     orbital_regex = r"[1-9][s|p|d|f|g][1-9]" # regex which will match individual orbitals
-    orbital_config = map(o -> o.match, collect(eachmatch(orbital_regex, valence_shell_config)))
+    orbital_config =
+        map(o -> o.match, collect(eachmatch(orbital_regex, valence_shell_config)))
     I = map(e -> _orbitalindex(e[1:2]), orbital_config)
     V = map(e -> parse(Int, e[3]), orbital_config)
     return I, V

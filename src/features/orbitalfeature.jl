@@ -24,10 +24,14 @@ end
 function get_value(ofd::OrbitalFeatureDescriptor, el::String)
     @assert el in valenceshell_conf_df[:, :Symbol] "All elements must be valid and accounted for in the periodic table!"
 
-    getproperty(valenceshell_conf_df[valenceshell_conf_df.Symbol.==el, :][1,:], Symbol("Electronic Structure"))
+    getproperty(
+        valenceshell_conf_df[valenceshell_conf_df.Symbol.==el, :][1, :],
+        Symbol("Electronic Structure"),
+    )
 end
 
-get_value(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms) = map(e -> get_value(ofd, e), elements(a))
+get_value(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms) =
+    map(e -> get_value(ofd, e), elements(a))
 
 (ofd::OrbitalFeatureDescriptor)(el::String) = get_value(ofd, el)
 
@@ -79,7 +83,9 @@ end
 Default decoding scheme for OrbitalFeatureDescriptor, which returns the 
 vector of elements encoded, given the encoded sparse matrix.
 """
-function default_ofd_decode(encoded_features::SparseArrays.AbstractSparseMatrixCSC{Tv,Ti}) where {Tv,Ti}
+function default_ofd_decode(
+    encoded_features::SparseArrays.AbstractSparseMatrixCSC{Tv,Ti},
+) where {Tv,Ti}
     elements = String[]
     for i = 1:size(encoded_features)[2]
         push!(elements, _econf_to_name(encoded_features[:, i]))

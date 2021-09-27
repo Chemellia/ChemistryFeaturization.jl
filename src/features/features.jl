@@ -30,7 +30,8 @@ Get the value(s) of feature corresponding to feature descriptor `fd` for structu
 
 See also: [`encode`](@ref)
 """
-get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = throw(MethodError(fd, atoms))
+get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) =
+    throw(MethodError(fd, atoms))
 (fd::AbstractFeatureDescriptor)(atoms::AbstractAtoms) = get_value(fd, atoms)
 
 import ..ChemistryFeaturization.encode
@@ -38,7 +39,8 @@ import ..ChemistryFeaturization.encode
     encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms)
 Encode features for `atoms` using the feature descriptor `fd`.
 """
-encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = encode(fd.encoder_decoder, get_value(fd, atoms))
+encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) =
+    encode(fd.encoder_decoder, get_value(fd, atoms))
 export encode
 export get_value
 
@@ -47,14 +49,16 @@ import ..ChemistryFeaturization.decode
     decode(fd::AbstractFeatureDescriptor, encoded_feature)
 Decode `encoded_feature` using the feature descriptor `fd`.
 """
-decode(fd::AbstractFeatureDescriptor, encoded_feature) = decode(fd.encoder_decoder, encoded_feature)
+decode(fd::AbstractFeatureDescriptor, encoded_feature) =
+    decode(fd.encoder_decoder, encoded_feature)
 export decode
 
 output_shape(efd::AbstractFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
 export output_shape
 
 include("abstractfeatures.jl")
-encode(efd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms) = hcat(encode(efd.encoder_decoder, get_value(efd, atoms))...)
+encode(efd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms) =
+    hcat(encode(efd.encoder_decoder, get_value(efd, atoms))...)
 
 include("bondfeatures.jl")
 

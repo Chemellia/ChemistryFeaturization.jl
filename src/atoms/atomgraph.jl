@@ -58,8 +58,12 @@ AtomGraph(graph::SimpleWeightedGraph, elements::Vector{String}, id::String = "")
 AtomGraph(adj::Array{R}, elements::Vector{String}, id::String = "") where {R<:Real} =
     AtomGraph(SimpleWeightedGraph(adj), elements, id)
 
-AtomGraph(adj::Array{R}, elements::Vector{String}, structure, id::String = "") where {R<:Real} =
-    AtomGraph(SimpleWeightedGraph(adj), elements, structure, id)
+AtomGraph(
+    adj::Array{R},
+    elements::Vector{String},
+    structure,
+    id::String = "",
+) where {R<:Real} = AtomGraph(SimpleWeightedGraph(adj), elements, structure, id)
 
 """
     AtomGraph(input_file_path, id = splitext(input_file_path)[begin]; output_file_path = nothing, overwrite_file = false, use_voronoi = false, cutoff_radius = 8.0, max_num_nbr = 12, dist_decay_func = inverse_square)
@@ -169,8 +173,8 @@ function get_elements(mol::GraphMol)
     String.(map(1:atomcount(mol)) do n
         atom = getatom(mol, n)
         s = atomsymbol(atomnumber(atom))
-        end)
-#     String.([mol.nodeattrs[i].symbol for i in 1:length(mol.nodeattrs)])
+    end)
+    #     String.([mol.nodeattrs[i].symbol for i in 1:length(mol.nodeattrs)])
 end
 
 """
