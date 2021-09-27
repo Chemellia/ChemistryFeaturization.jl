@@ -28,22 +28,23 @@ const cf = ChemistryFeaturization
     X, block, amass = ElementFeatureDescriptor.(fnames)
 
     @testset "Encode" begin
-        @test_throws AssertionError X(He_mol)
+        @test get_value(block, triangle_C) == block(triangle_C)
+        @test_throws AssertionError get_value(X, He_mol)
+
+        @test_throws AssertionError encode(X, He_mol)
         @test encode(block, He_mol) == Float64.([0 0; 1 1; 0 0; 0 0])
         @test encode(amass, He_mol)[3, :] == ones(2)
 
         # now let's try some options (and make sure they're ignored when appropriate...)...
         X = ElementFeatureDescriptor("X", nbins = 8, logspaced = true)
         @test encode(X, triangle_C)[6, :] == ones(3)
-
         block = ElementFeatureDescriptor("Block", nbins = 5)
         @test encode(block, triangle_C)[2, :] == ones(3)
 
-        @testset "Explicitly specify Codec" begin
-            ohoc_codec = amass.encoder_decoder
-            amass_v2 = ElementFeatureDescriptor("Atomic mass", ohoc_codec)
-            @test amass_v2(He_mol) == amass(He_mol)
-        end
+        # explicit codec
+        ohoc_codec = amass.encoder_decoder
+        amass_v2 = ElementFeatureDescriptor("Atomic mass", ohoc_codec, false)
+        @test amass_v2(He_mol) == amass(He_mol)
     end
 
     @testset "Decode" begin
@@ -65,9 +66,7 @@ const cf = ChemistryFeaturization
         meaning = ElementFeatureDescriptor("MeaningOfLife", df)
         @test encode(meaning, triangle_C)[10, :] == ones(3)
 
-        @testset "Encodable Elements" begin
-            @test encodable_elements(meaning) == ["C", "As", "Tc"]
-            @test encodable_elements("MeaningOfLife", df) == ["C", "As", "Tc"]
-        end
+        @test encodable_elements(meaning) == ["C", "As", "Tc"]
+        @test_throws AssertionError get_value(meaning, He_mol)
     end
 end
