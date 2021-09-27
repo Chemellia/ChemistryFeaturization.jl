@@ -2,7 +2,6 @@ using Test
 using DataFrames
 using CSV
 using ChemistryFeaturization.Utils.ElementFeatureUtils
-using ..ChemistryFeaturization.Codec: build_onehot_vec
 
 @testset "ElementFeatureUtils" begin
     df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
@@ -50,36 +49,5 @@ using ..ChemistryFeaturization.Codec: build_onehot_vec
     @test_throws AssertionError get_bins("Valence", categorical = false, logspaced = true)
     @test get_bins("noarsenic", df) == 1.0:0.1:2.0
     @test get_bins("noarsenic", df, categorical = true) == [1, 2]
-
-    # build_onehot_vec
-    @test build_onehot_vec("s", ["s", "p", "d", "f"], true) == [1, 0, 0, 0]
-    @test_throws AssertionError build_onehot_vec("s", ["s", "p", "d", "f"], false)
-    bins = 0:2:6
-    @test build_onehot_vec(3, bins, false) == [0, 1, 0]
-    @test build_onehot_vec(0, bins, false) == [1, 0, 0]
-    @test build_onehot_vec(2, bins, false) == [0, 1, 0]
-    @test build_onehot_vec(6, bins, false) == [0, 0, 1]
-    @test_throws AssertionError build_onehot_vec(-1, bins, false)
-    @test_throws ArgumentError build_onehot_vec(1, bins, true)
-
-    # onehot_lookup_encoder
-    @test onehot_lookup_encoder("C", "Block") == [0, 1, 0, 0]
-    @test onehot_lookup_encoder("C", "Row")[2] == 1
-    @test onehot_lookup_encoder("C", "MeaningOfLife", df, nbins = 4) == [0, 0, 0, 1]
-    @test_throws TypeError onehot_lookup_encoder("He", "X")
-    @test_throws TypeError onehot_lookup_encoder("As", "noarsenic", df)
-    @test_throws AssertionError onehot_lookup_encoder("C", "heffalump")
-    @test_throws AssertionError onehot_lookup_encoder("Si", "MeaningOfLife", df)
-
-    # onecold_decoder
-    @test onecold_decoder([0, 1, 0, 0], "Block") == "p"
-    @test onecold_decoder([0 1; 1 0; 0 0; 0 0], "Block") == ["p", "s"]
-    decoded = onecold_decoder(
-        onehot_lookup_encoder("As", "MeaningOfLife", df),
-        "MeaningOfLife",
-        df,
-    )
-    @test decoded[1] <= 0 < decoded[2]
-    @test_throws AssertionError onecold_decoder([1, 0, 0], "heffalump")
 
 end

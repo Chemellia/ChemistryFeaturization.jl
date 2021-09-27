@@ -128,7 +128,7 @@ function chunk_vec(vec::Vector{<:Real}, nbins::Vector{<:Integer})
 end
 
 function encode(fzn::GraphNodeFeaturization, ag::AtomGraph)
-    encoded = reduce(vcat, map((x) -> x(ag), fzn.features))
+    encoded = reduce(vcat, map((x) -> encode(x, ag), fzn.features))
     return encoded
 end
 

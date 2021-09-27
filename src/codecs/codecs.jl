@@ -15,6 +15,8 @@ include("simplecodec.jl")
 export SimpleCodec
 
 include("onehotonecold.jl")
-export OneHotOneCold, encode, decode
+export OneHotOneCold
+
+export encode, decode
 
 end

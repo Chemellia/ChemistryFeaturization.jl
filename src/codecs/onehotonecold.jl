@@ -3,6 +3,8 @@ import ..ChemistryFeaturization.encode
 import ..ChemistryFeaturization.decode
 using Flux: onecold
 
+export encode, decode
+
 """
     OneHotOneCold(encode_f, decode_f, nbins, logspaced)
 

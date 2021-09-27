@@ -2,6 +2,7 @@ using Test
 using DataFrames
 using CSV
 using ..ChemistryFeaturization.FeatureDescriptor
+using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 
 const cf = ChemistryFeaturization
 
@@ -28,16 +29,15 @@ const cf = ChemistryFeaturization
 
     @testset "Encode" begin
         @test_throws AssertionError X(He_mol)
-
-        @test block(He_mol) == Float64.([0 0; 1 1; 0 0; 0 0])
-        @test amass(He_mol)[3, :] == ones(2)
+        @test encode(block, He_mol) == Float64.([0 0; 1 1; 0 0; 0 0])
+        @test encode(amass, He_mol)[3, :] == ones(2)
 
         # now let's try some options (and make sure they're ignored when appropriate...)...
         X = ElementFeatureDescriptor("X", nbins = 8, logspaced = true)
-        @test X(triangle_C)[6, :] == ones(3)
+        @test encode(X, triangle_C)[6, :] == ones(3)
 
         block = ElementFeatureDescriptor("Block", nbins = 5)
-        @test block(triangle_C)[2, :] == ones(3)
+        @test encode(block, triangle_C)[2, :] == ones(3)
 
         @testset "Explicitly specify Codec" begin
             ohoc_codec = amass.encoder_decoder
@@ -47,23 +47,23 @@ const cf = ChemistryFeaturization
     end
 
     @testset "Decode" begin
-        @test decode(block, block(He_mol)) == ["p", "p"]
+        @test decode(block, encode(block, He_mol)) == ["p", "p"]
 
         true_He_amass = atom_data_df[2, Symbol("Atomic mass")]
-        He_amass_min, He_amass_max = decode(amass, amass(He_mol)[:, 1])
+        He_amass_min, He_amass_max = decode(amass, encode(amass, He_mol)[:, 1])
         @test He_amass_min < true_He_amass < He_amass_max
 
         true_X = atom_data_df.X[6]
-        decoded_X_range = decode(X, X(triangle_C)[:, 1])
+        decoded_X_range = decode(X, encode(X, triangle_C)[:, 1])
         @test decoded_X_range[1] < true_X < decoded_X_range[2]
-        @test decode(block, block(triangle_C)) == ["p", "p", "p"]
+        @test decode(block, encode(block, triangle_C)) == ["p", "p", "p"]
     end
 
     # and make a custom lookup table...
     @testset "Custom Lookup Table" begin
         df = CSV.read(abspath(@__DIR__, "..", "test_data", "lookup_table.csv"), DataFrame)
         meaning = ElementFeatureDescriptor("MeaningOfLife", df)
-        @test meaning(triangle_C)[10, :] == ones(3)
+        @test encode(meaning, triangle_C)[10, :] == ones(3)
 
         @testset "Encodable Elements" begin
             @test encodable_elements(meaning) == ["C", "As", "Tc"]

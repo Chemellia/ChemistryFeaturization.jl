@@ -10,7 +10,7 @@ using ...ChemistryFeaturization.Data: atom_data_df, feature_info
 export default_nbins, oom_threshold_log
 export atom_data_df, avail_feature_names
 export categorical_feature_names, categorical_feature_vals, continuous_feature_names
-export default_log, fea_minmax, default_categorical
+export default_log, fea_minmax, default_categorical, default_nbins
 export get_bins, get_param_vec
 
 # default number of bins for continuous features, if unspecified

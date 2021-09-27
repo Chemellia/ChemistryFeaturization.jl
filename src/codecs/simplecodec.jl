@@ -1,4 +1,8 @@
 using ..ChemistryFeaturization.AbstractType: AbstractCodec
+import ..ChemistryFeaturization.encode
+import ..ChemistryFeaturization.decode
+
+export encode, decode
 
 """
     SimpleCodec(encode_f, decode_f)
@@ -15,3 +19,6 @@ struct SimpleCodec <: AbstractCodec
     encode_f::Function
     decode_f::Function
 end
+
+encode(sc::SimpleCodec, val) = sc.encode_f(val)
+decode(sc::SimpleCodec, encoded) = sc.decode_f(encoded)
