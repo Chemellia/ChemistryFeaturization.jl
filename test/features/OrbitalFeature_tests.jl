@@ -1,10 +1,10 @@
 using Test
 using DataFrames
-using ..ChemistryFeaturization.Atoms: elements
+using ..ChemistryFeaturization: elements
 using ..ChemistryFeaturization.FeatureDescriptor: OrbitalFeatureDescriptor
 using SparseArrays
 
-@testset "Encode-Decode" begin
+@testset "OrbitalFeatureDescriptor" begin
     ofd = OrbitalFeatureDescriptor()
 
     @testset "Encode - with `default_ofd_encode`" begin
@@ -26,6 +26,6 @@ using SparseArrays
             Float32.([0 1 0 0 0; 1 0 1 0 0; 0 1 0 1 0; 0 0 1 0 1; 0 0 0 1 0]),
             ["O", "Al", "O", "Al", "O"],
         )
-        @test all(decode(ofd, ofd(alumina)) .== elements(alumina))
+        @test all(decode(ofd, encode(ofd, alumina)) .== elements(alumina))
     end
 end

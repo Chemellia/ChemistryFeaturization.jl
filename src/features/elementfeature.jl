@@ -118,5 +118,5 @@ Codec.
 """
 function output_shape(efd::ElementFeatureDescriptor, ed::OneHotOneCold)
     return efd.categorical ? length(unique(efd.lookup_table[:, Symbol(efd.name)])) :
-           ed.nbins
+           length(ed.bins) - 1
 end
