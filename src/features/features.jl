@@ -18,6 +18,7 @@ module FeatureDescriptor
 using Base: Int16
 using ..ChemistryFeaturization.AbstractType:
     AbstractAtoms, AbstractFeatureDescriptor, AbstractCodec
+using ..ChemistryFeaturization.Codec: OneHotOneCold
 
 import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fd::AbstractFeatureDescriptor) =
@@ -53,12 +54,13 @@ decode(fd::AbstractFeatureDescriptor, encoded_feature) =
     decode(fd.encoder_decoder, encoded_feature)
 export decode
 
-output_shape(efd::AbstractFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
-export output_shape
-
 include("abstractfeatures.jl")
 encode(efd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms) =
     hcat(encode(efd.encoder_decoder, get_value(efd, atoms))...)
+
+output_shape(efd::AbstractFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
+output_shape(afd::AbstractAtomFeatureDescriptor, ed::OneHotOneCold) = afd.categorical ? length(ed.bins) : length(ed.bins) - 1
+export output_shape
 
 include("bondfeatures.jl")
 
