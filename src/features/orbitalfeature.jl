@@ -24,6 +24,7 @@ end
 function get_value(ofd::OrbitalFeatureDescriptor, el::String)
     @assert el in valenceshell_conf_df[:, :Symbol] "All elements must be valid and accounted for in the periodic table!"
 
+    # pull the value for this element from the "Electronic Structure" column of the orbital data table
     getproperty(
         valenceshell_conf_df[valenceshell_conf_df.Symbol.==el, :][1, :],
         Symbol("Electronic Structure"),
