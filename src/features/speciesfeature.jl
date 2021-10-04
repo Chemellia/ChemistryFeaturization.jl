@@ -3,13 +3,13 @@ using DataFrames
 include("abstractfeatures.jl")
 
 """
-    SpeciesFeatureDescriptor(feature_name, encode_f, decode_f, categorical, contextual, length, encodable_elements)
+    SpeciesFeatureDescriptor
 
 Construct a feature object that encodes features associated with individual atoms that depend upon their local environment in some way (if your feature is defined only by elemental identity, you should use ElementFeatureDescriptor!)
 
 Type parameter represents the structure representation(s) from which this feature descriptor is able to compute features.
 
-## Arguments
+## Fields
 - `name::String`: the name of the feature
 - `encode_f::Function`: a function that takes in <:AbstractAtoms and returns encoded values of this feature for the atoms in that structure
 - `decode_f::Function`: inverse function to `encode_f`, takes in encoded feature and returns value (for categorical) or range of values (for continuous-valued) of the feature
@@ -19,7 +19,6 @@ Type parameter represents the structure representation(s) from which this featur
 """
 struct SpeciesFeatureDescriptor{A} <: AbstractAtomFeatureDescriptor
     name::String
-    length::Integer
     compute_f::Any
     encoder_decoder::AbstractCodec
     categorical::Bool

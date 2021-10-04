@@ -105,14 +105,3 @@ function get_value(efd::ElementFeatureDescriptor, a::AbstractAtoms)
         elements(a),
     )
 end
-
-"""
-    output_shape(efd::ElementFeatureDescriptor)
-
-Get the output-shape for an ElementFeatureDescriptor object using the logic assoicated with its
-Codec.
-"""
-function output_shape(efd::ElementFeatureDescriptor, ed::OneHotOneCold)
-    return efd.categorical ? length(unique(efd.lookup_table[:, Symbol(efd.name)])) :
-           length(ed.bins) - 1
-end
