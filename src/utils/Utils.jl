@@ -9,4 +9,7 @@ export OrbitalFeatureUtils
 include("graph_building.jl")
 export GraphBuilding
 
+include("speciesfeature_utils.jl")
+export SpeciesFeatureUtils
+
 end
