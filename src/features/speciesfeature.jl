@@ -47,7 +47,13 @@ function SpeciesFeatureDescriptor(name::String)
         # TODO: figure out default binning situation for continuous-valued SFD's
         #codec = OneHotOneCold(false, )
     end
-    SpeciesFeatureDescriptor{info[:A]}(name, info[:compute_f], codec, categorical, info[:encodable_elements])
+    SpeciesFeatureDescriptor{info[:A]}(
+        name,
+        info[:compute_f],
+        codec,
+        categorical,
+        info[:encodable_elements],
+    )
 end
 
 # pretty printing, short version
