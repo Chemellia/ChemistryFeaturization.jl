@@ -13,7 +13,7 @@ tests = [
     "utils/OrbitalFeatureUtils_tests",
     "featurizations/GraphNodeFeaturization_tests",
     "featurizedatoms_tests",
-    "codecs/codec_tests"
+    "codecs/codec_tests",
     # TODO: add Weave stuff
     # TODO: add SpeciesFeature tests
 ]
