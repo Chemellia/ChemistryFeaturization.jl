@@ -120,6 +120,8 @@ function get_bins(
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
+    colnames = names(lookup_table)
+    @assert feature_name in colnames "Your lookup table must have a column with the same name as your feature to be usable!"
     local bins, min_val, max_val
 
     if categorical
