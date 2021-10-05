@@ -13,7 +13,7 @@ using SparseArrays
         @test get_value(ofd, "C") == "2s2.2p2"
         @test get_value(ofd, "La") == "5d1.6s2"
         @test get_value(ofd, "Po") == "4f14.5d10.6s2.6p4"
-        
+
         # and on an AtomGraph
         He_mol = AtomGraph(Float32.([1 0; 0 1]), ["He", "He"])
         @test get_value(ofd, He_mol) == ["1s2", "1s2"]

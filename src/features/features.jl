@@ -59,7 +59,8 @@ encode(efd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms) =
     hcat(encode(efd.encoder_decoder, get_value(efd, atoms))...)
 
 output_shape(efd::AbstractFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
-output_shape(afd::AbstractAtomFeatureDescriptor, ed::OneHotOneCold) = afd.categorical ? length(ed.bins) : length(ed.bins) - 1
+output_shape(afd::AbstractAtomFeatureDescriptor, ed::OneHotOneCold) =
+    afd.categorical ? length(ed.bins) : length(ed.bins) - 1
 export output_shape
 
 include("bondfeatures.jl")

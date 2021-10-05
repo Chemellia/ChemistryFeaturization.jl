@@ -13,8 +13,8 @@ sfd_names_props = Dict(
         :compute_f => isaromatic,
         :categorical => true,
         :encodable_elements => mg_elements,
-        :possible_vals => [true, false]
-    )
+        :possible_vals => [true, false],
+    ),
 )
 
 end
