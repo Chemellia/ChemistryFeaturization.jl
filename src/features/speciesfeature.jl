@@ -63,7 +63,7 @@ end
 encodable_elements(f::SpeciesFeatureDescriptor) = f.encodable_elements
 
 
-function get_value(sfd::SpeciesFeatureDescriptor{A}, a::AbstractAtoms{A}) where {A}
-    @assert all([el in encodable_elements(efd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
+function get_value(sfd::SpeciesFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
+    @assert all([el in encodable_elements(sfd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
     sfd.compute_f(a.structure)
 end
