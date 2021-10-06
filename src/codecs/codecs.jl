@@ -11,11 +11,14 @@ schemes.
 """
 module Codec
 
+using ..ChemistryFeaturization.AbstractType: AbstractCodec
+import ..ChemistryFeaturization.output_shape
+
 include("simplecodec.jl")
 export SimpleCodec
 
 include("onehotonecold.jl")
-export OneHotOneCold
+export OneHotOneCold, output_shape
 
 include("directcodec.jl")
 export DirectCodec
