@@ -5,7 +5,7 @@ import ..ChemistryFeaturization.decode
 """
     DirectCodec
 
-AbstractCodec type whose encoding function is the identity, or at most some constant * identity.
+Codec type whose encoding function is some constant * the identity function.
 """
 struct DirectCodec <: AbstractCodec
     scale::Number
