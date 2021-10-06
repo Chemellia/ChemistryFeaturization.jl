@@ -3,7 +3,7 @@ import ..ChemistryFeaturization.encode
 import ..ChemistryFeaturization.decode
 using Flux: onecold
 
-export encode, decode
+export encode, decode, output_shape
 
 """
     OneHotOneCold(encode_f, decode_f, nbins, logspaced)
@@ -15,6 +15,8 @@ struct OneHotOneCold <: AbstractCodec
     categorical::Bool
     bins::Vector
 end
+
+output_shape(ohoc::OneHotOneCold) = ohoc.categorical ? length(ohoc.bins) : length(ohoc.bins) - 1
 
 "A flexible version of Flux.onehot that can handle both categorical and continuous-valued encoding."
 function encode(ohoc::OneHotOneCold, val)
@@ -37,10 +39,10 @@ function encode(ohoc::OneHotOneCold, val)
     return onehot_vec
 end
 
-# make the "broadcast" work
-encode(ohoc::OneHotOneCold, vals::Vector) = [encode(ohoc, val) for val in vals]
+encode(ohoc::OneHotOneCold, vals::Vector) = encode.(Ref(ohoc), vals)
 
 function decode(ohoc::OneHotOneCold, encoded)
+    @assert size(encoded)[1] == output_shape(ohoc)
     local decoded
     if ohoc.categorical # return value
         decoded = onecold(encoded, ohoc.bins)

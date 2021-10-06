@@ -6,6 +6,7 @@ encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
 encode(a::Any, object_to_be_encoded) = throw(MethodError(encode, a))
 decode(a::Any, encoded_features) = throw(MethodError(decode, a))
 elements(a::Any) = throw(MethodError(elements, a))
+output_shape(a::Any) = throw(MethodError(output_shape, a))
 
 include("data.jl")
 export Data
