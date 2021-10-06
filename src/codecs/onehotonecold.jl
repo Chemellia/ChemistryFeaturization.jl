@@ -16,7 +16,8 @@ struct OneHotOneCold <: AbstractCodec
     bins::Vector
 end
 
-output_shape(ohoc::OneHotOneCold) = ohoc.categorical ? length(ohoc.bins) : length(ohoc.bins) - 1
+output_shape(ohoc::OneHotOneCold) =
+    ohoc.categorical ? length(ohoc.bins) : length(ohoc.bins) - 1
 
 "A flexible version of Flux.onehot that can handle both categorical and continuous-valued encoding."
 function encode(ohoc::OneHotOneCold, val)
