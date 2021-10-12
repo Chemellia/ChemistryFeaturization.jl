@@ -39,7 +39,7 @@ function build_graph(
     max_num_nbr::Integer = 12,
     dist_decay_func::Function = inverse_square,
 )
-    c = Crystal(file_path)
+    c = Crystal(abspath(file_path))
     atom_ids = String.(c.atoms.species)
 
     if use_voronoi
