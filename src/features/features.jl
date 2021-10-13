@@ -28,8 +28,7 @@ export encodable_elements
 """
     get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms)
 Get the value(s) of feature corresponding to feature descriptor `fd` for structure `atoms`.
-
-See also: [`encode`](@ref)
+This function computes and returns the value that would actually get encoded by [`encode`](@ref).
 """
 get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) =
     throw(MethodError(fd, atoms))
