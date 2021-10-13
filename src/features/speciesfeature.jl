@@ -7,7 +7,7 @@ include("abstractfeatures.jl")
 """
     SpeciesFeatureDescriptor{A}
 
-A feature object that encodes features associated with individual atoms that depend upon their local environment in some way (if your feature is defined only by elemental identity, you should use ElementFeatureDescriptor!)
+A feature object that encodes features associated with individual atoms (collectively depicted by a representation of type `A`) that depend upon their local environment in some way (if your feature is defined only by elemental identity, you should use ElementFeatureDescriptor!)
 
 Type parameter represents the structure representation(s) from which this feature descriptor is able to compute features.
 
