@@ -20,7 +20,7 @@ Type parameter represents the structure representation(s) from which this featur
 """
 struct SpeciesFeatureDescriptor{A} <: AbstractAtomFeatureDescriptor
     name::String
-    compute_f::Any
+    compute_f::Function
     encoder_decoder::AbstractCodec
     categorical::Bool
     encodable_elements::Vector{String}
