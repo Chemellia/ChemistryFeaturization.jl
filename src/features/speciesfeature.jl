@@ -28,6 +28,8 @@ end
 
 """
     SpeciesFeatureDescriptor(name::String)
+
+Construct a `SpeciesFeatureDescriptor` from one of the built-in options (currently supports a variety of MolecularGraph functions, see Utils.SpeciesFeatureUtils.sfd_names_props for details).
 """
 function SpeciesFeatureDescriptor(name::String)
     @assert name in keys(sfd_names_props) "That species feature isn't one of the built-in ones, you'll have to construct it directly. Consult ChemistryFeaturiztion.Utils.SpeciesFeatureUtils.sfd_names_props for built-in species features."
