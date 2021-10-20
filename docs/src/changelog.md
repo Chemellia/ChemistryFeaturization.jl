@@ -4,7 +4,7 @@ I'm generally trying to adhere to [semver](https://semver.org) here. This means 
 
 Categories to include for each release, if relevant: breaking, added, fixed, removed/deprecated
 
-## Upcoming
+## v0.6.0 [2021-10-2x]
 
 ### Added
 * actual functioning `SpeciesFeatureDescriptor`! Including some built-in data to build them using MolecularGraph.jl functions
