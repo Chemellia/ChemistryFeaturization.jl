@@ -11,14 +11,14 @@ sfd_names_props = Dict(
     "hybridization" => Dict(
         :A => GraphMol,
         :compute_f => hybridization,
-        :categorical => true
+        :categorical => true,
         :encodable_elements => mg_elements,
         :possible_vals => [:sp3, :sp2, :sp, :none],
     ),
     "hydrogenconnected" => Dict(
         :A => GraphMol,
         :compute_f => hydrogenconnected,
-        :categorical => true
+        :categorical => true,
         :encodable_elements => mg_elements,
         :possible_vals => [0,1,2,3], # I'm hoping this is right...
     ),
