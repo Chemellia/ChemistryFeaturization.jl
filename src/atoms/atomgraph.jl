@@ -1,4 +1,4 @@
-using LightGraphs
+using Graphs
 using SimpleWeightedGraphs
 using LinearAlgebra
 using GraphPlot
@@ -27,7 +27,7 @@ A type representing an atomic structure as a graph (`gr`).
 mutable struct AtomGraph <: AbstractAtoms
     graph::SimpleWeightedGraph{<:Integer,<:Real}
     elements::Vector{String}
-    laplacian::Matrix{<:Real} # wanted to use LightGraphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
+    laplacian::Matrix{<:Real} # wanted to use Graphs.LinAlg.NormalizedGraphLaplacian but seems this doesn't support weighted graphs?
     id::String # or maybe we let it be a number too?
 end
 
@@ -176,7 +176,7 @@ Compute the normalized graph Laplacian matrix of the input graph, defined as
 
 where ``A`` is the adjacency matrix and ``D`` is the degree matrix.
 """
-function normalized_laplacian(g::G) where {G<:LightGraphs.AbstractGraph}
+function normalized_laplacian(g::G) where {G<:Graphs.AbstractGraph}
     a = adjacency_matrix(g)
     d = vec(sum(a, dims = 1))
     inv_sqrt_d = diagm(0 => d .^ (-0.5f0))

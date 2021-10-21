@@ -1,6 +1,6 @@
 using Test: Serialization
 using Test
-using LightGraphs
+using Graphs
 using SimpleWeightedGraphs
 using Serialization
 using ..ChemistryFeaturization: FeaturizedAtoms
