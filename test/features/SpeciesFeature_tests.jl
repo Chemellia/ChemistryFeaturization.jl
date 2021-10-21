@@ -18,10 +18,16 @@ using ..ChemistryFeaturization.Codec
     # build one "from scratch"
     ag = AtomGraph(Float32.([0 1; 1 1]), ["H", "O"])
     num_nbs = g -> first.(length.(neighbors.(Ref(g), 1:nv(g))))
-    codec = OneHotOneCold(true, [1,2,3,4])
+    codec = OneHotOneCold(true, [1, 2, 3, 4])
     categorical = true
-    ee = ["O","H"]
-    sfd = SpeciesFeatureDescriptor{SimpleWeightedGraph}("num_neighbors", num_nbs, codec, categorical, ee)
-    @test get_value(sfd, ag) == [1,2]
-    @test encode(sfd, ag) == [1 0; 0 1; 0 0; 0 0] 
+    ee = ["O", "H"]
+    sfd = SpeciesFeatureDescriptor{SimpleWeightedGraph}(
+        "num_neighbors",
+        num_nbs,
+        codec,
+        categorical,
+        ee,
+    )
+    @test get_value(sfd, ag) == [1, 2]
+    @test encode(sfd, ag) == [1 0; 0 1; 0 0; 0 0]
 end

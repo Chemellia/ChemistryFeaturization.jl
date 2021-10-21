@@ -20,7 +20,7 @@ sfd_names_props = Dict(
         :compute_f => hydrogenconnected,
         :categorical => true,
         :encodable_elements => mg_elements,
-        :possible_vals => [0,1,2,3], # I'm hoping this is right...
+        :possible_vals => [0, 1, 2, 3], # I'm hoping this is right...
     ),
     "isaromatic" => Dict(
         :A => GraphMol,
@@ -49,7 +49,7 @@ sfd_names_props = Dict(
         :categorical => true,
         :encodable_elements => mg_elements,
         :possible_vals => [0, 1, 2], # also not certain this is correct
-    )
+    ),
 )
 
 end
