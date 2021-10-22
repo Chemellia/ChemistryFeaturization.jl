@@ -151,13 +151,11 @@ julia> encode(block, triangle_C) # calling the encode fcn
  0.0  0.0  0.0
  0.0  0.0  0.0
 
-julia> block(triangle_C) # object itself is callable
-4×3 Matrix{Float64}:
- 0.0  0.0  0.0
- 1.0  1.0  1.0
- 0.0  0.0  0.0
- 0.0  0.0  0.0
-```
+julia> block(triangle_C) # object itself is callable to give value
+3-element Vector{String}:
+ "p"
+ "p"
+ "p"
 
 Let's encode the whole featurization!
 

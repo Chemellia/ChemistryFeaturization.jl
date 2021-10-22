@@ -56,14 +56,20 @@ An `ElementFeatureDescriptor`'s encoded values are defined only by the elemental
 ElementFeatureDescriptor
 ```
 
-In the example, below, we encode the block of each atom in a hydrogen molecule. The result is two `hcat`ted vectors [1 0 0 0], indicating hydrogen is _s_-block.
+In the example, below, we first show and then encode the value of the block of each atom in a hydrogen molecule. The result is two `hcat`ted vectors [1 0 0 0], indicating hydrogen is _s_-block.
 
 ```jldoctest; setup = :(using ChemistryFeaturization.Atoms, ChemistryFeaturization.FeatureDescriptor)
 H2 = AtomGraph([0. 1.; 1. 0.], ["H", "H"])
 block = ElementFeatureDescriptor("Block")
-block(H2)
+block(H2) # equivalent to get_value(block, H2)
 
 # output
+2-element Vector{String}:
+ "s"
+ "s"
+```
+```julia
+julia> encode(block, H2)
 4×2 Matrix{Float64}:
  1.0  1.0
  0.0  0.0
@@ -73,17 +79,71 @@ block(H2)
 
 Because they are defined only by the element, values for these features can be tabulated in a lookup table. Many commonly-desired element features are included in the `atom_data_df` DataFrame, but you can also define custom lookup tables for other features by utilizing the `lookup_table` keyword of the `ElementFeatureDescriptor` constructor.
 
-TODO: add remark about encoding options once that PR is merged
-
 ### Species Feature Descriptor
 
-A `SpeciesFeatureDescriptor`'s encoded values depend on its local environment. Examples are an atom's format oxidation state, or whether it is part of an aromatic ring.
+A `SpeciesFeatureDescriptor`'s encoded values depend on its local environment. Examples are an atom's formal oxidation state, or whether it is part of an aromatic ring.
 
 ```@docs
 FeatureDescriptor.SpeciesFeatureDescriptor
 ```
 
-TODO: more details once we have better examples
+A variety of built-in options for computing features on `GraphMol` objects (see MolecularGraph.jl package) are included. These can be constructed from a string, like
+
+```julia
+julia> sfd = SpeciesFeatureDescriptor("isaromatic")
+
+SpeciesFeature isaromatic:
+   categorical: true
+   works on: GraphMol
+```
+This feature will return a an array of bits representing whether each atom in a structure is part of an aromatic ring. For example...
+```julia
+using MolecularGraph
+using ChemistryFeaturization.Codec
+
+caffeine = smilestomol("CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
+ag = AtomGraph(caffeine)
+```
+```julia
+julia> get_value(sfd, ag)
+14-element BitVector:
+ 0
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 0
+ 1
+ 1
+ 0
+ 1
+ 0
+ 0
+ ```
+
+ We can also build custom `SpeciesFeatureDescriptors` "from scratch." For a simple example, let's suppose we want to encode graph-related features:
+```julia
+julia> ag = AtomGraph(Float32.([0 1; 1 1]), ["H", "O"]) # build a simple AtomGraph with a self loop
+```
+```julia
+# a function that will take in a graph and return the number of neighbors of each node
+num_nbs = g -> first.(length.(neighbors.(Ref(g), 1:nv(g))))
+# we'll encode neighbors counts categorically in four bins
+codec = OneHotOneCold(true, [1,2,3,4])
+categorical = true
+ee = ["O","H"]
+# the type parameter should match the type parameter of the AtomGraph object
+sfd = SpeciesFeatureDescriptor{SimpleWeightedGraph}("num_neighbors", num_nbs, codec, categorical, ee)
+```
+
+```julia
+julia> get_value(sfd, ag)
+2-element Vector{Int64}:
+ 1
+ 2
+ ```
 
 ## Pair Feature Descriptors
 

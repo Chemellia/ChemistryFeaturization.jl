@@ -1,12 +1,7 @@
 using Test
 using SparseArrays: sparsevec
 using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
-    _indexorbital,
-    _orbitalindex,
-    _orbitalsparse,
-    _orbitalregex,
-    _name_to_econf,
-    _econf_to_name
+    _indexorbital, _orbitalindex, _orbitalsparse, _econf_to_name, valenceshell_conf_df
 
 @testset "OrbitalFeatureUtils" begin
     @testset "Index - Orbital" begin
@@ -44,31 +39,34 @@ using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
         @test _orbitalindex.(orbitals) == count
     end
 
-    @testset "_orbitalregex" begin
-        @test _orbitalregex("He") == SubString.(["1s2"])
-        @test _orbitalregex("Cr") == SubString.(["3d5", "4s1"])
-    end
-
     @testset "_orbitalsparse" begin
         # in the expected result, the first vector the positions and the second is the values.
-        @test _orbitalsparse(SubString.(["1s2"])) == ([1], [2]) # 1s2
-        @test _orbitalsparse(SubString.(["3d5", "4s1"])) == ([7, 6], [5, 1]) # 3d5, 4s1.
+        @test _orbitalsparse("1s2") == ([1], [2]) # 1s2
+        @test _orbitalsparse("3d5.4s1") == ([7, 6], [5, 1]) # 3d5, 4s1.
     end
 
     @testset "Element Name - Electronic Configuration" begin
+
+        get_config(el) = _orbitalsparse(
+            getproperty(
+                valenceshell_conf_df[valenceshell_conf_df.Symbol.==el, :][1, :],
+                Symbol("Electronic Structure"),
+            ),
+        )
+
         function test_econf_to_name(I, V, element)
             @test _econf_to_name(sparsevec(Int16.(I), Int16.(V))) == element
         end
 
-        I_H, V_H = _name_to_econf("H")
+        I_H, V_H = get_config("H")
         @test (I_H, V_H) == ([1], [1])
         test_econf_to_name(I_H, V_H, "H")
 
-        I_He, V_He = _name_to_econf("He")
+        I_He, V_He = get_config("He")
         @test (I_He, V_He) == ([1], [2])
         test_econf_to_name(I_He, V_He, "He")
 
-        I_Li, V_Li = _name_to_econf("Li")
+        I_Li, V_Li = get_config("Li")
         @test (I_Li, V_Li) == ([2], [1])
         test_econf_to_name(I_He, V_He, "He")
     end

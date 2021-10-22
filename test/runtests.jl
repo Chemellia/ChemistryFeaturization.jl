@@ -10,11 +10,11 @@ tests = [
     "atoms/AtomGraph_tests",
     "features/ElementFeature_tests",
     "features/OrbitalFeature_tests",
+    "features/SpeciesFeature_tests",
     "utils/OrbitalFeatureUtils_tests",
     "featurizations/GraphNodeFeaturization_tests",
     "featurizedatoms_tests",
-    # TODO: add Weave stuff
-    # TODO: add SpeciesFeature tests
+    "codecs/codec_tests",
 ]
 
 @testset "ChemistryFeaturization" begin

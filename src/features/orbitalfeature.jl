@@ -4,7 +4,7 @@ using ..ChemistryFeaturization: elements
 using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
 using ..ChemistryFeaturization.Codec: SimpleCodec
 using ..ChemistryFeaturization.Utils.OrbitalFeatureUtils:
-    _name_to_econf, _indexorbital, _econf_to_name
+    _indexorbital, _econf_to_name, _orbitalsparse
 using ..ChemistryFeaturization.Data: valenceshell_conf_df
 using SparseArrays
 
@@ -21,19 +21,20 @@ struct OrbitalFeatureDescriptor <: AbstractEnvironmentFeatureDescriptor
     end
 end
 
-function (ofd::OrbitalFeatureDescriptor)(a::AbstractAtoms)
-    @assert all([el in valenceshell_conf_df[:, :Symbol] for el in elements(a)]) "All elements must be valid and accounted for in the periodic table!"
-    ofd.encoder_decoder(ofd, a)
+function get_value(ofd::OrbitalFeatureDescriptor, el::String)
+    @assert el in valenceshell_conf_df[:, :Symbol] "All elements must be valid and accounted for in the periodic table!"
+
+    # pull the value for this element from the "Electronic Structure" column of the orbital data table
+    getproperty(
+        valenceshell_conf_df[valenceshell_conf_df.Symbol.==el, :][1, :],
+        Symbol("Electronic Structure"),
+    )
 end
 
-# encode
-(sc::SimpleCodec)(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms) = sc.encode_f(ofd, a)
+get_value(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms) =
+    map(e -> get_value(ofd, e), elements(a))
 
-# decode
-(sc::SimpleCodec)(
-    ofd::OrbitalFeatureDescriptor,
-    encoded_features::SparseMatrixCSC{Tv,Ti},
-) where {Tv,Ti} = sc.decode_f(ofd, encoded_features)
+(ofd::OrbitalFeatureDescriptor)(el::String) = get_value(ofd, el)
 
 function output_shape(ofd::OrbitalFeatureDescriptor, sc::SimpleCodec)
     # return the number
@@ -54,14 +55,14 @@ Default encoding scheme for OrbitalFeatureDescriptor, which returns a
 sparse matrix, where column_i is a sparse representation of the electronic
 configuration of the ith element in the [Atoms](@ref atoms) object.
 """
-function default_ofd_encode(ofd::OrbitalFeatureDescriptor, a::AbstractAtoms)
+function default_ofd_encode(elec_configs::Vector{String})
     I = Vector{Int16}()
     J = Vector{Int16}()
     V = Vector{Int16}()
     col = 0
-    for i in elements(a)
+    for s in elec_configs
         # X, Y are equivalent to I, V for a SparseVector
-        X, Y = _name_to_econf(i)
+        X, Y = _orbitalsparse(s)
         col += 1    # column number
 
         for i = 1:length(X)
@@ -84,7 +85,6 @@ Default decoding scheme for OrbitalFeatureDescriptor, which returns the
 vector of elements encoded, given the encoded sparse matrix.
 """
 function default_ofd_decode(
-    ofd::OrbitalFeatureDescriptor,
     encoded_features::SparseArrays.AbstractSparseMatrixCSC{Tv,Ti},
 ) where {Tv,Ti}
     elements = String[]

@@ -4,8 +4,22 @@ I'm generally trying to adhere to [semver](https://semver.org) here. This means 
 
 Categories to include for each release, if relevant: breaking, added, fixed, removed/deprecated
 
-## Upcoming
+## v0.6.0 [2021-10-2x]
 
+### Added
+* actual functioning `SpeciesFeatureDescriptor`! Including some built-in data to build them using MolecularGraph.jl functions
+* `AtomGraph` now stores a `structure` field, giving access to structure representation used to construct graph
+* build `AtomGraph` from `GraphMol` objects (from MolecularGraph package)
+* one-hot encoding/one-cold decoding logic now lives in `OneHotOneCold` codec code
+* new codec type: `DirectCodec` for storing (scaled) actual (potentially continuous) values of features
+* disambiguate `get_value(featuredescriptor, atoms)` from `encode(featuredescriptor, atoms)`; "callable" syntax of feature descriptors now calls the former function
+
+### Breaking
+* `AtomGraph` now takes a type parameter and stores a `structure` field of that type; this allows checking that `SpeciesFeatureDescriptor` is able to encode since it computes feature values from the original structure
+* disambiguate `get_value(featuredescriptor, atoms)` from `encode(featuredescriptor, atoms)`; "callable" syntax of feature descriptors now calls the former function
+
+### Removed/Deprecated
+* removed `encodable_elements(::String)` function
 ## v0.5.0 [2021-09-07]
 
 ### Added

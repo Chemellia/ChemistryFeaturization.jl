@@ -10,8 +10,11 @@ return the Index and Value arrays (can be used for building a sparse matrix on t
 corresponding to a single element given its valence shell configuration (regex-extracted usually)
 =#
 function _orbitalsparse(valence_shell_config)
-    I = map(e -> _orbitalindex(e[1:2]), valence_shell_config)
-    V = map(e -> parse(Int, e[3]), valence_shell_config)
+    orbital_regex = r"[1-9][s|p|d|f|g][1-9]" # regex which will match individual orbitals
+    orbital_config =
+        map(o -> o.match, collect(eachmatch(orbital_regex, valence_shell_config)))
+    I = map(e -> _orbitalindex(e[1:2]), orbital_config)
+    V = map(e -> parse(Int, e[3]), orbital_config)
     return I, V
 end
 
@@ -70,15 +73,6 @@ function _orbitalindex(orbital::SubString{String})
     end
 end
 
-
-# using regex, get the valence shell configuration
-function _orbitalregex(element, df::DataFrame = valenceshell_conf_df)
-    config_df_row =
-        filter(:Symbol => x -> x == element, df; view = true)[!, "Electronic Structure"][1]
-    orbital_regex = r"[1-9][s|p|d|f|g][1-9]" # regex which will match individual orbitals
-    orbital_config = map(o -> o.match, collect(eachmatch(orbital_regex, config_df_row)))
-    return orbital_config
-end
 
 # Get the electronic configuration of `element` (equivalent to the findnz() result if the configuration was a SparseVector)
 function _name_to_econf(element, df::DataFrame = valenceshell_conf_df)

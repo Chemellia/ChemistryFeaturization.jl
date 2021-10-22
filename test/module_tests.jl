@@ -5,7 +5,7 @@ using ChemistryFeaturization.Atoms: elements
 using ChemistryFeaturization: elements
 
 @testset "Modules and Abstract methods" begin
-    struct FakeAtoms <: AbstractAtoms end
+    struct FakeAtoms <: AbstractAtoms{Nothing} end
     struct FakeFD <: AbstractFeatureDescriptor end
     struct FakeFeaturization <: AbstractFeaturization end
     struct FakeCodec <: AbstractCodec end
@@ -28,10 +28,9 @@ using ChemistryFeaturization: elements
         ffd = FakeFD()
         fc = FakeCodec()
         @test_throws MethodError encodable_elements(ffd)
-        @test_throws MethodError encode(ffd, fa)
+        @test_throws MethodError get_value(ffd, fa)
+        @test_throws ErrorException encode(ffd, fa)
         @test_throws ErrorException decode(ffd, nothing)
-        @test_throws ErrorException fc(ffd, fa)     # test the encode dispatch of Codec's callable syntax
-        @test_throws ErrorException fc(ffd, nothing) # test the decode dispatch of Codec's callable syntax
     end
 
     @testset "featurizations module" begin
