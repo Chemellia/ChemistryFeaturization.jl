@@ -47,7 +47,7 @@ function build_graph(
         s = pyimport_conda("pymatgen.core.structure", "pymatgen", "conda-forge")
         struc = s.Structure.from_file(file_path)
         weight_mat = weights_voronoi(struc)
-        return weight_mat, atom_ids
+        return weight_mat, atom_ids, struc
     else
         build_graph(
             c;
