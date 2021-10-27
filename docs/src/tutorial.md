@@ -51,14 +51,13 @@ It's a two-dimensional material with two formula units per unit cell! Another wa
 
 ```jldoctest WS2
 julia> WS2.graph[[1,4,6,2,3,5]].weights
-6×6 SparseArrays.SparseMatrixCSC{Float64, Int64} with 18 stored entries:
- 1.0     0.9732   0.9732    ⋅       ⋅        ⋅ 
- 0.9732  1.0      0.17143   ⋅       ⋅        ⋅ 
- 0.9732  0.17143  1.0       ⋅       ⋅        ⋅ 
-  ⋅       ⋅        ⋅       1.0     0.9732   0.9732
-  ⋅       ⋅        ⋅       0.9732  1.0      0.17143
-  ⋅       ⋅        ⋅       0.9732  0.17143  1.0
-
+6×6 SparseArrays.SparseMatrixCSC{Float64, Int64} with 12 stored entries:
+  ⋅   1.0      1.0       ⋅    ⋅        ⋅
+ 1.0   ⋅       0.19762   ⋅    ⋅        ⋅
+ 1.0  0.19762   ⋅        ⋅    ⋅        ⋅
+  ⋅    ⋅        ⋅        ⋅   1.0      1.0
+  ⋅    ⋅        ⋅       1.0   ⋅       0.19762
+  ⋅    ⋅        ⋅       1.0  0.19762   ⋅
 ```
 
 However, we have options in how we actually construct the graph. The default option is based on the scheme from [the original cgcnn.py implementation](https://github.com/txie-93/cgcnn), which essentially involves setting a maximum neighbor distance and a maximum number of neighbors. However, in contrast to that implementation, we construct weighted graphs (with the user having an ability to specify the weight decay function with separation distance; it defaults to inverse-square).
