@@ -1,9 +1,9 @@
 include("abstractfeatures.jl")
 
 """
-    PairFeatureDescriptor{A}
+    BondFeatureDescriptor{A}
 
-A feature object that encodes features associated with pairs of atoms in a structure that may or may not be bonded to each other. For bond features, see `BondFeatureDescriptor`.
+A feature object that encodes features associated with bonded pairs of atoms in a structure. For pair features, see `PairFeatureDescriptor`.
 
 Type parameter represents the structure representation(s) from which this feature descriptor is able to compute features.
 
@@ -14,7 +14,7 @@ Type parameter represents the structure representation(s) from which this featur
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
 - `encodable_elements::Vector{String}`: list of elements (by symbol) that can be encoded by this feature
 """
-struct PairFeatureDescriptor{A} <: AbstractPairFeatureDescriptor
+struct BondFeatureDescriptor{A} <: AbstractPairFeatureDescriptor
     name::String
     compute_f::Function
     encoder_decoder::AbstractCodec
@@ -23,14 +23,14 @@ struct PairFeatureDescriptor{A} <: AbstractPairFeatureDescriptor
 end
 
 # pretty printing, long version
-function Base.show(io::IO, ::MIME"text/plain", af::PairFeatureDescriptor{A}) where {A}
-    st = "PairFeature $(af.name):\n   categorical: $(af.categorical)\n   works on: $(A)"
+function Base.show(io::IO, ::MIME"text/plain", af::BondFeatureDescriptor{A}) where {A}
+    st = "BondFeature $(af.name):\n   categorical: $(af.categorical)\n   works on: $(A)"
     print(io, st)
 end
 
-encodable_elements(f::PairFeatureDescriptor) = f.encodable_elements
+encodable_elements(f::BondFeatureDescriptor) = f.encodable_elements
 
-function get_value(sfd::PairFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
+function get_value(sfd::BondFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
     @assert all([el in encodable_elements(sfd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
     sfd.compute_f(a.structure)
 end

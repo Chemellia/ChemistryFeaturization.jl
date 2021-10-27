@@ -58,9 +58,6 @@ function SpeciesFeatureDescriptor(name::String)
     )
 end
 
-# pretty printing, short version
-Base.show(io::IO, af::SpeciesFeatureDescriptor) = print(io, "SpeciesFeature $(af.name)")
-
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", af::SpeciesFeatureDescriptor{A}) where {A}
     st = "SpeciesFeature $(af.name):\n   categorical: $(af.categorical)\n   works on: $(A)"

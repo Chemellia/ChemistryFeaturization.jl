@@ -84,9 +84,6 @@ function ElementFeatureDescriptor(
     )
 end
 
-# pretty printing, short version
-Base.show(io::IO, efd::ElementFeatureDescriptor) = print(io, "ElementFeature $(efd.name)")
-
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", efd::ElementFeatureDescriptor)
     st = "ElementFeature $(efd.name):\n   categorical: $(efd.categorical)\n   encoded length: $(output_shape(efd))"

@@ -20,6 +20,9 @@ using ..ChemistryFeaturization.AbstractType:
     AbstractAtoms, AbstractFeatureDescriptor, AbstractCodec
 using ..ChemistryFeaturization.Codec: OneHotOneCold
 
+# pretty printing, short version
+Base.show(io::IO, fd::AbstractFeatureDescriptor) = print(io, "$(typeof(fd)) $(fd.name)")
+
 import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fd::AbstractFeatureDescriptor) =
     throw(MethodError(encodable_elements, fd))
