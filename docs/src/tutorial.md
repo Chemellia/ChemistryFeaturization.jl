@@ -24,7 +24,7 @@ We can build an `AtomGraph` "manually," by specifying an adjacency matrix and di
 julia> adj_mat = Float32.([0 1 1; 1 0 1; 1 1 0]);
 
 julia> triangle_C = AtomGraph(adj_mat, ["C", "C", "C"])
-AtomGraph  with 3 nodes, 3 edges
+AtomGraph{SimpleWeightedGraphs.SimpleWeightedGraph{Int64, Float32}}  with 3 nodes, 3 edges
 	atoms: ["C", "C", "C"]
 ```
 
@@ -36,7 +36,9 @@ In a "real" application, you'll likely be reading structures from files such as 
 
 ```jldoctest WS2; setup=:(cd("./src/files/"))
 julia> WS2 = AtomGraph("mp-224.cif")
-AtomGraph mp-224 with 6 nodes, 9 edges
+┌ Warning: Your cutoff radius is quite large relative to the size of your unit cell. This may cause issues with neighbor list generation, and will definitely cause a very dense graph. To avoid issues, I'm setting it to be approximately equal to the smallest unit cell dimension.
+└ @ ChemistryFeaturization.Utils.GraphBuilding ~/Chemellia/ChemistryFeaturization.jl/src/utils/graph_building.jl:174
+AtomGraph{Crystal} mp-224 with 6 nodes, 6 edges
 	atoms: ["W", "W", "S", "S", "S", "S"]
 
 ```
@@ -156,6 +158,7 @@ julia> block(triangle_C) # object itself is callable to give value
  "p"
  "p"
  "p"
+```
 
 Let's encode the whole featurization!
 
@@ -185,8 +188,8 @@ If we want to attach the encoded features to the graph, we can use the `featuriz
 
 ```jldoctest fzn
 julia> featurized = featurize(triangle_C, fzn)
-FeaturizedAtoms{AtomGraph, GraphNodeFeaturization} with 17 x 3 encoded features:
-	Atoms: AtomGraph  with 3 nodes, 3 edges
+FeaturizedAtoms{AtomGraph{SimpleWeightedGraphs.SimpleWeightedGraph{Int64, Float32}}, GraphNodeFeaturization} with 17 x 3 encoded features:
+	Atoms: AtomGraph{SimpleWeightedGraphs.SimpleWeightedGraph{Int64, Float32}}  with 3 nodes, 3 edges
 	Featurization: GraphNodeFeaturization encoding 3 features
 ```
 

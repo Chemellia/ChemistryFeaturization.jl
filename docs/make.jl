@@ -1,4 +1,4 @@
-using Documenter, ChemistryFeaturization
+using Documenter, ChemistryFeaturization, Xtals
 
 makedocs(
     sitename = "ChemistryFeaturization.jl",
