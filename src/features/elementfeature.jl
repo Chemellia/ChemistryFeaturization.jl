@@ -20,9 +20,9 @@ Describe features associated with individual atoms that depend only upon their e
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
 - `lookup_table::DataFrame`: table containing values of feature for every encodable element
 """
-struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
+struct ElementFeatureDescriptor{C<:AbstractCodec} <: AbstractAtomFeatureDescriptor
     name::String
-    encoder_decoder::AbstractCodec
+    encoder_decoder::C
     categorical::Bool
     lookup_table::DataFrame
     function ElementFeatureDescriptor(

@@ -18,10 +18,10 @@ Type parameter represents the structure representation(s) from which this featur
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
 - `encodable_elements::Vector{String}`: list of elements (by symbol) that can be encoded by this feature
 """
-struct SpeciesFeatureDescriptor{A} <: AbstractAtomFeatureDescriptor
+struct SpeciesFeatureDescriptor{A,C<:AbstractCodec} <: AbstractAtomFeatureDescriptor
     name::String
     compute_f::Function
-    encoder_decoder::AbstractCodec
+    encoder_decoder::C
     categorical::Bool
     encodable_elements::Vector{String}
 end
