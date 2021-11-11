@@ -9,7 +9,7 @@ Type parameter represents the structure representation(s) from which this featur
 
 ## Fields
 - `name::String`: the name of the feature
-- `compute_f`: function that takes in a structure of type `A` and returns values of this feature for every atom in the structure
+- `compute_f`: function that takes in a structure of type `A` and returns values of this feature for every bonded pair of atoms in the structure
 - `encoder_decoder::AbstractCodec`: codec that encodes/decodes values of this feature
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
 - `encodable_elements::Vector{String}`: list of elements (by symbol) that can be encoded by this feature
@@ -22,7 +22,14 @@ struct BondFeatureDescriptor{A,C<:AbstractCodec} <: AbstractPairFeatureDescripto
     encodable_elements::Vector{String}
 end
 
-function get_value(bfd::BondFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
+function get_value(bfd::BondFeatureDescriptor{GraphMol}, a::AbstractAtoms{GraphMol})
     @assert all([el in encodable_elements(bfd) for el in elements(a)]) "Feature $(bfd.name) cannot encode some element(s) in this structure!"
-    bfd.compute_f(a.structure)
+    vals = bfd.compute_f(a.structure)
+    bonds = a.structure.edges
+    mat = Matrix{Union{Missing,eltype(vals)}}(missing, length(a.structure.nodeattrs), length(a.structure.nodeattrs))
+    for i in 1:length(bonds)
+        mat[bonds[i][1], bonds[i][2]] = vals[i]
+        mat[bonds[i][2], bonds[i][1]] = vals[i]
+    end
+    return mat
 end

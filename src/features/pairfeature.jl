@@ -9,7 +9,7 @@ Type parameter represents the structure representation(s) from which this featur
 
 ## Fields
 - `name::String`: the name of the feature
-- `compute_f`: function that takes in a structure of type `A` and returns values of this feature for every atom in the structure
+- `compute_f`: function that takes in a structure of type `A` and returns values of this feature for every pair of atoms in the structure organized in a matrix
 - `encoder_decoder::AbstractCodec`: codec that encodes/decodes values of this feature
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
 - `encodable_elements::Vector{String}`: list of elements (by symbol) that can be encoded by this feature
