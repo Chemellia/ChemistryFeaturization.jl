@@ -23,9 +23,14 @@ using ..ChemistryFeaturization.Codec: OneHotOneCold
 # pretty printing, short version
 Base.show(io::IO, fd::AbstractFeatureDescriptor) = print(io, "$(typeof(fd)) $(fd.name)")
 
+# pretty printing, long version
+function Base.show(io::IO, ::MIME"text/plain", fd::AbstractFeatureDescriptor{A}) where {A}
+    st = "$(typeof(fd)) $(fd.name):\n   categorical: $(fd.categorical)\n   works on: $(A)"
+    print(io, st)
+end
+
 import ..ChemistryFeaturization.encodable_elements
-encodable_elements(fd::AbstractFeatureDescriptor) =
-    throw(MethodError(encodable_elements, fd))
+encodable_elements(fd::AbstractFeatureDescriptor) = fd.encodable_elements
 export encodable_elements
 
 """

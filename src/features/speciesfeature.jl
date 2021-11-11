@@ -58,17 +58,7 @@ function SpeciesFeatureDescriptor(name::String)
     )
 end
 
-# pretty printing, long version
-function Base.show(io::IO, ::MIME"text/plain", af::SpeciesFeatureDescriptor{A}) where {A}
-    st = "SpeciesFeature $(af.name):\n   categorical: $(af.categorical)\n   works on: $(A)"
-    print(io, st)
-end
-
-# TODO: add way to get range/list of possible values for feature...
-encodable_elements(f::SpeciesFeatureDescriptor) = f.encodable_elements
-
-
 function get_value(sfd::SpeciesFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
-    @assert all([el in encodable_elements(sfd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
+    @assert all([el in encodable_elements(sfd) for el in elements(a)]) "Feature $(sfd.name) cannot encode some element(s) in this structure!"
     sfd.compute_f(a.structure)
 end
