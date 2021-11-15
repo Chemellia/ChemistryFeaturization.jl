@@ -37,7 +37,7 @@ struct ElementFeatureDescriptor{C<:AbstractCodec} <: AbstractAtomFeatureDescript
         lookup_table = lookup_table[:, ["Symbol", feature_name]]
         dropmissing!(lookup_table)
 
-        new(feature_name, encoder_decoder, categorical, lookup_table)
+        new{typeof(encoder_decoder)}(feature_name, encoder_decoder, categorical, lookup_table)
     end
 end
 

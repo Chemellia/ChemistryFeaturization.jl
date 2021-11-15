@@ -1,4 +1,4 @@
-using DataFrames
+# using DataFrames
 using ..ChemistryFeaturization.Utils.SpeciesFeatureUtils
 using ..ChemistryFeaturization.Codec
 
@@ -49,13 +49,19 @@ function SpeciesFeatureDescriptor(name::String)
         # TODO: figure out default binning situation for continuous-valued SFD's
         #codec = OneHotOneCold(false, )
     end
-    SpeciesFeatureDescriptor{info[:A]}(
+    SpeciesFeatureDescriptor{info[:A],typeof(codec)}(
         name,
         info[:compute_f],
         codec,
         categorical,
         info[:encodable_elements],
     )
+end
+
+# pretty printing, long version
+function Base.show(io::IO, ::MIME"text/plain", fd::SpeciesFeatureDescriptor{A}) where {A}
+    st = "$(typeof(fd)) $(fd.name):\n   categorical: $(fd.categorical)\n   works on: $(A)"
+    print(io, st)
 end
 
 function get_value(sfd::SpeciesFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}

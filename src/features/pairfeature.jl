@@ -22,6 +22,12 @@ struct PairFeatureDescriptor{A,C<:AbstractCodec} <: AbstractPairFeatureDescripto
     encodable_elements::Vector{String}
 end
 
+# pretty printing, long version
+function Base.show(io::IO, ::MIME"text/plain", fd::PairFeatureDescriptor{A}) where {A}
+    st = "$(typeof(fd)) $(fd.name):\n   categorical: $(fd.categorical)\n   works on: $(A)"
+    print(io, st)
+end
+
 function get_value(pfd::PairFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
     @assert all([el in encodable_elements(pfd) for el in elements(a)]) "Feature $(pfd.name) cannot encode some element(s) in this structure!"
     pfd.compute_f(a.structure)

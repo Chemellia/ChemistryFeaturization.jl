@@ -20,17 +20,17 @@ export Codec
 include("utils/Utils.jl")
 export Utils
 
-include("features/features.jl")
-export FeatureDescriptor
-using .FeatureDescriptor
-export ElementFeatureDescriptor, SpeciesFeatureDescriptor
-export output_shape, get_value
-
 include("atoms/atoms.jl")
 export Atoms
 
 using .Atoms: AtomGraph, visualize, elements
 export AtomGraph, visualize
+
+include("features/features.jl")
+export FeatureDescriptor
+using .FeatureDescriptor
+export ElementFeatureDescriptor, SpeciesFeatureDescriptor, BondFeatureDescriptor
+export output_shape, get_value
 
 include("featurizations/featurizations.jl")
 export Featurization
