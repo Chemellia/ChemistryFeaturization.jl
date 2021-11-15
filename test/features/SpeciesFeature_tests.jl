@@ -14,6 +14,9 @@ using ..ChemistryFeaturization.Codec
     # test the other codec case...
     sfd = SpeciesFeatureDescriptor("lonepair")
     @test all(get_value(sfd, ag) .== lonepair(caffeine))
+    encoded = encode(sfd, ag)
+    @test all(encoded[1,:] .== encoded[5,:] .== 0)
+    @test all(encoded[:, 8] .== encoded[:, 11] .== [0, 0, 0, 1, 0])
 
     # build one "from scratch"
     ag = AtomGraph(Float32.([0 1; 1 1]), ["H", "O"])
@@ -21,7 +24,7 @@ using ..ChemistryFeaturization.Codec
     codec = OneHotOneCold(true, [1, 2, 3, 4])
     categorical = true
     ee = ["O", "H"]
-    sfd = SpeciesFeatureDescriptor{SimpleWeightedGraph}(
+    sfd = SpeciesFeatureDescriptor{SimpleWeightedGraph,OneHotOneCold}(
         "num_neighbors",
         num_nbs,
         codec,

@@ -27,7 +27,7 @@ using ChemistryFeaturization: elements
         fa = FakeAtoms()
         ffd = FakeFD()
         fc = FakeCodec()
-        @test_throws MethodError encodable_elements(ffd)
+        @test_throws ErrorException encodable_elements(ffd)
         @test_throws MethodError get_value(ffd, fa)
         @test_throws ErrorException encode(ffd, fa)
         @test_throws ErrorException decode(ffd, nothing)
