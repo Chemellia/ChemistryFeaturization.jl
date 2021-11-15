@@ -33,4 +33,5 @@ using ..ChemistryFeaturization.Codec
     )
     @test get_value(sfd, ag) == [1, 2]
     @test encode(sfd, ag) == [1 0; 0 1; 0 0; 0 0]
+    # add one to verify encodable_elements check happens
 end
