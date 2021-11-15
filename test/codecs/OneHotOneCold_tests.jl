@@ -18,6 +18,7 @@
         @test_throws AssertionError decode(ohoc_cat, [1, 0])
 
         @test decode(ohoc_cont, [0, 1, 0]) == (1, 2)
+        #TODO: add tests for more dimensions
     end
 
 end

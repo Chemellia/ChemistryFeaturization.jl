@@ -6,9 +6,6 @@ using ..ChemistryFeaturization.Codec: OneHotOneCold
 
 include("abstractfeatures.jl")
 
-# TODO - consider edge cases in constructor. add this stuff into modulify.
-
-# TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
 """
     ElementFeatureDescriptor
 
@@ -37,7 +34,12 @@ struct ElementFeatureDescriptor{C<:AbstractCodec} <: AbstractAtomFeatureDescript
         lookup_table = lookup_table[:, ["Symbol", feature_name]]
         dropmissing!(lookup_table)
 
-        new{typeof(encoder_decoder)}(feature_name, encoder_decoder, categorical, lookup_table)
+        new{typeof(encoder_decoder)}(
+            feature_name,
+            encoder_decoder,
+            categorical,
+            lookup_table,
+        )
     end
 end
 

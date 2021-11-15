@@ -66,12 +66,19 @@ function BondFeatureDescriptor(name::String)
     )
 end
 # for some reason having AbstractAtoms instead of AtomGraph doesn't get dispatched propertly, I assume this has something to do with the type parameters...
-function get_value(bfd::BondFeatureDescriptor{GraphMol}, a::AtomGraph{GraphMol{A,B}}) where {A,B}
+function get_value(
+    bfd::BondFeatureDescriptor{GraphMol},
+    a::AtomGraph{GraphMol{A,B}},
+) where {A,B}
     @assert all([el in encodable_elements(bfd) for el in elements(a)]) "Feature $(bfd.name) cannot encode some element(s) in this structure!"
     vals = bfd.compute_f(a.structure)
     bonds = a.structure.edges
-    mat = Matrix{Union{Missing,eltype(vals)}}(missing, length(a.structure.nodeattrs), length(a.structure.nodeattrs))
-    for i in 1:length(bonds)
+    mat = Matrix{Union{Missing,eltype(vals)}}(
+        missing,
+        length(a.structure.nodeattrs),
+        length(a.structure.nodeattrs),
+    )
+    for i = 1:length(bonds)
         mat[bonds[i][1], bonds[i][2]] = vals[i]
         mat[bonds[i][2], bonds[i][1]] = vals[i]
     end
