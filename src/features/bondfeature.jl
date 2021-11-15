@@ -78,6 +78,7 @@ function get_value(
         length(a.structure.nodeattrs),
         length(a.structure.nodeattrs),
     )
+    # force it to be symmetric...TODO: add option for asymmetric features
     for i = 1:length(bonds)
         mat[bonds[i][1], bonds[i][2]] = vals[i]
         mat[bonds[i][2], bonds[i][1]] = vals[i]

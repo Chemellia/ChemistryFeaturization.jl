@@ -25,10 +25,6 @@ AbstractType.AbstractFeatureDescriptor
 │
 └─── AbstractPairFeatureDescriptor
      ├─── BondFeatureDescriptor
-     │    ├─── BondType
-     │    ├─── InRing
-     │    └─── IsConjugated
-     │
      └─── PairFeatureDescriptor
 ```
 
@@ -153,6 +149,81 @@ The concrete type `PairFeatureDescriptor` encodes information about any pair of 
 
 ### Bond Feature Descriptors
 
-Bond feature descriptors are defined only for two atoms that are bonded to each other.
+Bond feature descriptors are defined only for two atoms that are bonded to each other. Currently, the API is only built out for `AbstractAtoms` objects that have been constructed from `GraphMol` objects (defined by the MolecularGraph package). Similar to `SpeciesFeatureDescriptor`s, there are convenience functions defined in an associated utils file, and we can easily construct one like so:
 
-TODO: more details here
+```julia
+julia> bfd = BondFeatureDescriptor("bondorder")
+BondFeatureDescriptor{GraphMol, OneHotOneCold} bondorder:
+   categorical: true
+   works on: GraphMol
+```
+
+When we retrieve the values, note that they are now formatted as a (symmetric) matrix, with the two indices referring to the indices of the two atoms. If the atoms aren't bonded, that entry will be `missing`.
+```julia
+julia> ag = AtomGraph(smilestomol("c1ccncc1")) # pyridine
+AtomGraph{GraphMol{SmilesAtom, SmilesBond}}  with 6 nodes, 6 edges
+        atoms: ["C", "C", "C", "N", "C", "C"]
+julia> get_value(bfd, ag)
+6×6 Matrix{Union{Missing, Int64}}:
+  missing  2          missing   missing   missing  1
+ 2          missing  1          missing   missing   missing
+  missing  1          missing  2          missing   missing
+  missing   missing  2          missing  1          missing
+  missing   missing   missing  1          missing  2
+ 1          missing   missing   missing  2          missing
+```
+
+And when we encode it, the default result is now a 3D matrix (one vector for each pair of atoms). If the value is `missing`, the third dimension will be filled with `missing`:
+```julia
+julia> Array{Union{Missing,Int}}(encode(bfd, ag)) # cast to Int so printing looks nicer, you could leave this off but would just see trues and falses instead
+6×6×3 Array{Union{Missing, Int64}, 3}:
+[:, :, 1] =
+  missing  0          missing   missing   missing  1
+ 0          missing  1          missing   missing   missing
+  missing  1          missing  0          missing   missing
+  missing   missing  0          missing  1          missing
+  missing   missing   missing  1          missing  0
+ 1          missing   missing   missing  0          missing
+
+[:, :, 2] =
+  missing  1          missing   missing   missing  0
+ 1          missing  0          missing   missing   missing
+  missing  0          missing  1          missing   missing
+  missing   missing  1          missing  0          missing
+  missing   missing   missing  0          missing  1
+ 0          missing   missing   missing  1          missing
+
+[:, :, 3] =
+  missing  0          missing   missing   missing  0
+ 0          missing  0          missing   missing   missing
+  missing  0          missing  0          missing   missing
+  missing   missing  0          missing  0          missing
+  missing   missing   missing  0          missing  0
+ 0          missing   missing   missing  0          missing
+```
+
+Some of the built-in bond features are boolean valued, and by default are direct encoded (since onehot doesn't really make sense when there are only two options). In this case, the encoded matrix is equal to the values:
+
+```julia
+julia> bfd = BondFeatureDescriptor("isringbond")
+BondFeatureDescriptor{GraphMol, DirectCodec} isringbond:
+   categorical: true
+   works on: GraphMol
+julia> get_value(bfd, ag)
+6×6 Matrix{Union{Missing, Bool}}:
+     missing  true             missing      missing      missing  true
+ true             missing  true             missing      missing      missing
+     missing  true             missing  true             missing      missing
+     missing      missing  true             missing  true             missing
+     missing      missing      missing  true             missing  true
+ true             missing      missing      missing  true             missing
+ julia> encode(bfd, ag)
+6×6 Matrix{Union{Missing, Int64}}:
+  missing  1          missing   missing   missing  1
+ 1          missing  1          missing   missing   missing
+  missing  1          missing  1          missing   missing
+  missing   missing  1          missing  1          missing
+  missing   missing   missing  1          missing  1
+ 1          missing   missing   missing  1          missing
+```
+(pyridine is a ring molecule, so every bond is a ring bond)
