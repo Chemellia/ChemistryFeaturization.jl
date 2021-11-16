@@ -7,7 +7,7 @@ using MolecularGraph
 const mg_elements = [d["Symbol"] for d in MolecularGraph.ATOMTABLE]
 
 export sfd_names_props
-sfd_names_props = Dict(
+const sfd_names_props = Dict(
     "hybridization" => Dict(
         :A => GraphMol,
         :compute_f => hybridization,

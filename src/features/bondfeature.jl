@@ -34,6 +34,8 @@ function Base.show(io::IO, ::MIME"text/plain", fd::BondFeatureDescriptor{A}) whe
     print(io, st)
 end
 
+encodable_elements(fd::BondFeatureDescriptor) = fd.encodable_elements
+
 """
     BondFeatureDescriptor(name::String)
 

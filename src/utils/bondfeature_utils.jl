@@ -6,7 +6,7 @@ using MolecularGraph
 const mg_elements = [d["Symbol"] for d in MolecularGraph.ATOMTABLE]
 
 export bfd_names_props
-bfd_names_props = Dict(
+const bfd_names_props = Dict(
     "bondorder" => Dict(
         :A => GraphMol,
         :compute_f => bondorder,
