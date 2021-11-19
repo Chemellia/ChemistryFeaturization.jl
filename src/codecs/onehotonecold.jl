@@ -74,7 +74,7 @@ function decode(ohoc::OneHotOneCold, encoded::Matrix)
         decoded = Vector{Union{decoded_eltype,Missing}}(missing, decoded_length)
     else
         decoded =
-            Array{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(missing, length)
+            Vector{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(missing, decoded_length)
     end
     for i = 1:decoded_length
         vec = encoded[:, i] # this is the key difference from the Array dispatch below
