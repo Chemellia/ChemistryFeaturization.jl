@@ -64,7 +64,7 @@ function Base.show(io::IO, ::MIME"text/plain", fd::SpeciesFeatureDescriptor{A}) 
     print(io, st)
 end
 
-encodable_elements(fd::BondFeatureDescriptor) = fd.encodable_elements
+encodable_elements(fd::SpeciesFeatureDescriptor) = fd.encodable_elements
 
 function get_value(sfd::SpeciesFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
     @assert all([el in encodable_elements(sfd) for el in elements(a)]) "Feature $(sfd.name) cannot encode some element(s) in this structure!"

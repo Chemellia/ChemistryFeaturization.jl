@@ -28,7 +28,7 @@ function Base.show(io::IO, ::MIME"text/plain", fd::PairFeatureDescriptor{A}) whe
     print(io, st)
 end
 
-encodable_elements(fd::BondFeatureDescriptor) = fd.encodable_elements
+encodable_elements(fd::PairFeatureDescriptor) = fd.encodable_elements
 
 function get_value(pfd::PairFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
     @assert all([el in encodable_elements(pfd) for el in elements(a)]) "Feature $(pfd.name) cannot encode some element(s) in this structure!"
