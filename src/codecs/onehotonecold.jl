@@ -48,7 +48,7 @@ function encode(ohoc::OneHotOneCold, vals::Array)
     # output is one dimension larger
     output = Array{Union{Bool,Missing}}(missing, size(vals)..., output_shape(ohoc))
     for ind in CartesianIndices(vals)
-        output[ind,:] = encode(ohoc, vals[ind])
+        output[ind, :] = encode(ohoc, vals[ind])
     end
     return output
 end
@@ -73,10 +73,11 @@ function decode(ohoc::OneHotOneCold, encoded::Matrix)
     if ohoc.categorical
         decoded = Vector{Union{decoded_eltype,Missing}}(missing, decoded_length)
     else
-        decoded = Array{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(missing, length)
+        decoded =
+            Array{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(missing, length)
     end
-    for i in 1:decoded_length
-        vec = encoded[:,i] # this is the key difference from the Array dispatch below
+    for i = 1:decoded_length
+        vec = encoded[:, i] # this is the key difference from the Array dispatch below
         if !all(ismissing.(vec))
             decoded[i] = decode(ohoc, vec)
         end
@@ -95,7 +96,7 @@ function decode(ohoc::OneHotOneCold, encoded::Array)
         decoded = Array{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(missing, decoded_size...)
     end
     for ind in CartesianIndices(decoded)
-        vec = encoded[ind,:]
+        vec = encoded[ind, :]
         if !all(ismissing.(vec))
             decoded[ind] = decode(ohoc, vec)
         end

@@ -24,7 +24,8 @@ using ..ChemistryFeaturization.Codec: OneHotOneCold
 Base.show(io::IO, fd::AbstractFeatureDescriptor) = print(io, "$(typeof(fd)) $(fd.name)")
 
 import ..ChemistryFeaturization.encodable_elements
-encodable_elements(fd::AbstractFeatureDescriptor) = throw(MethodError(encodable_elements, fd))
+encodable_elements(fd::AbstractFeatureDescriptor) =
+    throw(MethodError(encodable_elements, fd))
 export encodable_elements
 
 """
