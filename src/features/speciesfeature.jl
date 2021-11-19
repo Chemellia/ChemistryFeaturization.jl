@@ -1,4 +1,4 @@
-using DataFrames
+# using DataFrames
 using ..ChemistryFeaturization.Utils.SpeciesFeatureUtils
 using ..ChemistryFeaturization.Codec
 
@@ -18,10 +18,10 @@ Type parameter represents the structure representation(s) from which this featur
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
 - `encodable_elements::Vector{String}`: list of elements (by symbol) that can be encoded by this feature
 """
-struct SpeciesFeatureDescriptor{A} <: AbstractAtomFeatureDescriptor
+struct SpeciesFeatureDescriptor{A,C<:AbstractCodec} <: AbstractAtomFeatureDescriptor
     name::String
     compute_f::Function
-    encoder_decoder::AbstractCodec
+    encoder_decoder::C
     categorical::Bool
     encodable_elements::Vector{String}
 end
@@ -49,7 +49,7 @@ function SpeciesFeatureDescriptor(name::String)
         # TODO: figure out default binning situation for continuous-valued SFD's
         #codec = OneHotOneCold(false, )
     end
-    SpeciesFeatureDescriptor{info[:A]}(
+    SpeciesFeatureDescriptor{info[:A],typeof(codec)}(
         name,
         info[:compute_f],
         codec,
@@ -58,20 +58,15 @@ function SpeciesFeatureDescriptor(name::String)
     )
 end
 
-# pretty printing, short version
-Base.show(io::IO, af::SpeciesFeatureDescriptor) = print(io, "SpeciesFeature $(af.name)")
-
 # pretty printing, long version
-function Base.show(io::IO, ::MIME"text/plain", af::SpeciesFeatureDescriptor{A}) where {A}
-    st = "SpeciesFeature $(af.name):\n   categorical: $(af.categorical)\n   works on: $(A)"
+function Base.show(io::IO, ::MIME"text/plain", fd::SpeciesFeatureDescriptor{A}) where {A}
+    st = "$(typeof(fd)) $(fd.name):\n   categorical: $(fd.categorical)\n   works on: $(A)"
     print(io, st)
 end
 
-# TODO: add way to get range/list of possible values for feature...
-encodable_elements(f::SpeciesFeatureDescriptor) = f.encodable_elements
-
+encodable_elements(fd::SpeciesFeatureDescriptor) = fd.encodable_elements
 
 function get_value(sfd::SpeciesFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
-    @assert all([el in encodable_elements(sfd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
+    @assert all([el in encodable_elements(sfd) for el in elements(a)]) "Feature $(sfd.name) cannot encode some element(s) in this structure!"
     sfd.compute_f(a.structure)
 end

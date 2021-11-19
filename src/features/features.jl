@@ -20,6 +20,9 @@ using ..ChemistryFeaturization.AbstractType:
     AbstractAtoms, AbstractFeatureDescriptor, AbstractCodec
 using ..ChemistryFeaturization.Codec: OneHotOneCold
 
+# pretty printing, short version
+Base.show(io::IO, fd::AbstractFeatureDescriptor) = print(io, "$(typeof(fd)) $(fd.name)")
+
 import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fd::AbstractFeatureDescriptor) =
     throw(MethodError(encodable_elements, fd))
@@ -62,8 +65,6 @@ output_shape(afd::AbstractFeatureDescriptor) = output_shape(afd, afd.encoder_dec
 output_shape(::AbstractAtomFeatureDescriptor, ed::OneHotOneCold) = output_shape(ed)
 export output_shape
 
-include("bondfeatures.jl")
-
 include("elementfeature.jl")
 export ElementFeatureDescriptor, encode, decode, output_shape
 
@@ -75,5 +76,8 @@ export PairFeatureDescriptor
 
 include("speciesfeature.jl")
 export SpeciesFeatureDescriptor
+
+include("bondfeature.jl")
+export BondFeatureDescriptor
 
 end

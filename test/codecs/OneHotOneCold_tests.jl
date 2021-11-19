@@ -18,6 +18,12 @@
         @test_throws AssertionError decode(ohoc_cat, [1, 0])
 
         @test decode(ohoc_cont, [0, 1, 0]) == (1, 2)
+        @test decode(ohoc_cat, [1 1 1; 0 0 0; 0 0 0]) == ['a', 'a', 'a']
+        @test decode(ohoc_cont, [1 1 1; 0 0 0; 0 0 0]) == [(0, 1), (0, 1), (0, 1)]
+        arr = zeros(2, 2, 3)
+        arr[:, :, 2] .= 1
+        @test decode(ohoc_cat, arr) == ['b' 'b'; 'b' 'b']
+        @test decode(ohoc_cont, arr) == [(1, 2) (1, 2); (1, 2) (1, 2)]
     end
 
 end

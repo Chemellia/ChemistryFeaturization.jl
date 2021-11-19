@@ -6,9 +6,6 @@ using ..ChemistryFeaturization.Codec: OneHotOneCold
 
 include("abstractfeatures.jl")
 
-# TODO - consider edge cases in constructor. add this stuff into modulify.
-
-# TODO: figure out what scheme would look like that is flexible to direct-value encoding (may just need a different feature type since it'll have to handle normalization, etc. too)
 """
     ElementFeatureDescriptor
 
@@ -20,9 +17,9 @@ Describe features associated with individual atoms that depend only upon their e
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
 - `lookup_table::DataFrame`: table containing values of feature for every encodable element
 """
-struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
+struct ElementFeatureDescriptor{C<:AbstractCodec} <: AbstractAtomFeatureDescriptor
     name::String
-    encoder_decoder::AbstractCodec
+    encoder_decoder::C
     categorical::Bool
     lookup_table::DataFrame
     function ElementFeatureDescriptor(
@@ -37,7 +34,12 @@ struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
         lookup_table = lookup_table[:, ["Symbol", feature_name]]
         dropmissing!(lookup_table)
 
-        new(feature_name, encoder_decoder, categorical, lookup_table)
+        new{typeof(encoder_decoder)}(
+            feature_name,
+            encoder_decoder,
+            categorical,
+            lookup_table,
+        )
     end
 end
 
@@ -83,9 +85,6 @@ function ElementFeatureDescriptor(
         lookup_table,
     )
 end
-
-# pretty printing, short version
-Base.show(io::IO, efd::ElementFeatureDescriptor) = print(io, "ElementFeature $(efd.name)")
 
 # pretty printing, long version
 function Base.show(io::IO, ::MIME"text/plain", efd::ElementFeatureDescriptor)
