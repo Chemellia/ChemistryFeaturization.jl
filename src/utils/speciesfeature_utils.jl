@@ -71,6 +71,13 @@ const sfd_names_props = Dict(
         :encodable_elements => mg_elements,
         :codec => DirectCodec,
     ),
+    "charge" => Dict(
+        :A => GraphMol,
+        :compute_f => charge,
+        :categorical => false,
+        :encodable_elements => mg_elements,
+        :codec => DirectCodec,
+    ),
 )
 
 end
