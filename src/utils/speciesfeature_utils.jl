@@ -71,13 +71,6 @@ const sfd_names_props = Dict(
         :encodable_elements => mg_elements,
         :codec => DirectCodec,
     ),
-    "total_H_num" => Dict(
-        :A => GraphMol,
-        :compute_f => hydrogenconnected,
-        :categorical => false,
-        :encodable_elements => mg_elements,
-        :codec => DirectCodec,
-    ),
 )
 
 end
