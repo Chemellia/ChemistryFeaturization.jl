@@ -48,6 +48,7 @@ function SpeciesFeatureDescriptor(name::String)
     else
         # TODO: figure out default binning situation for continuous-valued SFD's
         #codec = OneHotOneCold(false, )
+        codec = DirectCodec(1)
     end
     SpeciesFeatureDescriptor{info[:A],typeof(codec)}(
         name,
