@@ -12,12 +12,12 @@ end
 
 function WeaveFeaturization(default_atom_feature_list = ["symbol",
                                                          "degree",
-                                                         "implicit_valence",
-                                                         "formal_charge",
+                                                         "implicithconnected",
+                                                         "charge",
                                                          "radical_electrons",
                                                          "hybridization",
                                                          "isaromatic",
-                                                         "total_H_num"],
+                                                         "hydrogenconnected"],
                             default_bond_feature_list = ["bondorder", "isaromaticbond", "isringbond"])
   species_feats = intersect(default_atom_feature_list, Utils.SpeciesFeatureUtils.sfd_names_props)
   atoms = SpeciesFeatureDescriptor.(species_feats)

@@ -64,7 +64,14 @@ const sfd_names_props = Dict(
         :encodable_elements => mg_elements,
         :possible_vals => [1, 2, 3],
     ),
-    "implicit_valence" => Dict(
+    "multiplicity" => Dict(
+        :A => GraphMol,
+        :compute_f => multiplicity,
+        :categorical => true,
+        :encodable_elements => mg_elements,
+        :possible_vals => [1, 2, 3],
+    ),
+    "implicithconnected" => Dict(
         :A => GraphMol,
         :compute_f => implicithconnected,
         :categorical => false,
