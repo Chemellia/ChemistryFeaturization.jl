@@ -50,6 +50,34 @@ const sfd_names_props = Dict(
         :encodable_elements => mg_elements,
         :possible_vals => [0, 1, 2], # also not certain this is correct
     ),
+    "degree" => Dict(
+        :A => GraphMol,
+        :compute_f => nodedegree,
+        :categorical => false,
+        :encodable_elements => mg_elements,
+        :codec => DirectCodec,
+    ),
+    "radical_electrons" => Dict(
+        :A => GraphMol,
+        :compute_f => multiplicity,
+        :categorical => true,
+        :encodable_elements => mg_elements,
+        :possible_vals => [1, 2, 3],
+    ),
+    "implicit_valence" => Dict(
+        :A => GraphMol,
+        :compute_f => implicithconnected,
+        :categorical => false,
+        :encodable_elements => mg_elements,
+        :codec => DirectCodec,
+    ),
+    "total_H_num" => Dict(
+        :A => GraphMol,
+        :compute_f => hydrogenconnected,
+        :categorical => false,
+        :encodable_elements => mg_elements,
+        :codec => DirectCodec,
+    ),
 )
 
 end
