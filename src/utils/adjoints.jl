@@ -11,12 +11,18 @@ end
 @adjoint function Dict(g::Base.Generator)
   ys, backs = Zygote.unzip([Zygote.pullback(g.f, args) for args in g.iter])
   Dict(ys...), Δ -> begin
-    ∂d = first(backs)(Δ)[1]
-    d = Dict(ys...)
-    for (k,v) in pairs(d)
-      d[k] = _zero(v)
-    end
-    (merge(d, ∂d), )
+    dd = Dict(k => b(Δ)[1].second for (b,(k,v)) in zip(backs, pairs(Δ)))
+    ((x for x in dd),)
+  end
+end
+
+@adjoint function Base.Generator(f, args)
+  Base.Generator(f, args), Δ -> (nothing, Δ)
+end
+@adjoint function Pair(k, v)
+  Pair(k, v), Δ -> begin
+    @show Δ
+    (nothing, Δ[k])
   end
 end
 
