@@ -93,6 +93,7 @@ SpeciesFeature isaromatic:
    works on: GraphMol
 ```
 This feature will return a an array of bits representing whether each atom in a structure is part of an aromatic ring. For example...
+
 ```julia
 using MolecularGraph
 using ChemistryFeaturization.Codec
@@ -100,6 +101,7 @@ using ChemistryFeaturization.Codec
 caffeine = smilestomol("CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
 ag = AtomGraph(caffeine)
 ```
+
 ```julia
 julia> get_value(sfd, ag)
 14-element BitVector:
@@ -117,12 +119,14 @@ julia> get_value(sfd, ag)
  1
  0
  0
- ```
+```
 
  We can also build custom `SpeciesFeatureDescriptors` "from scratch." For a simple example, let's suppose we want to encode graph-related features:
+
 ```julia
 julia> ag = AtomGraph(Float32.([0 1; 1 1]), ["H", "O"]) # build a simple AtomGraph with a self loop
 ```
+
 ```julia
 # a function that will take in a graph and return the number of neighbors of each node
 num_nbs = g -> first.(length.(neighbors.(Ref(g), 1:nv(g))))
@@ -139,7 +143,7 @@ julia> get_value(sfd, ag)
 2-element Vector{Int64}:
  1
  2
- ```
+```
 
 ## Pair Feature Descriptors
 
