@@ -3,6 +3,8 @@
 using ..ChemistryFeaturization.AbstractType: AbstractFeaturization
 using ..ChemistryFeaturization.FeatureDescriptor:
     AbstractAtomFeatureDescriptor, AbstractPairFeatureDescriptor
+using ..ChemistryFeaturization.Codec: DirectCodec
+using ..ChemistryFeaturization.Utils
 
 struct WeaveFeaturization <: AbstractFeaturization
     atom_features::Vector{<:AbstractAtomFeatureDescriptor}
@@ -19,10 +21,12 @@ function WeaveFeaturization(default_atom_feature_list = ["symbol",
                                                          "isaromatic",
                                                          "hydrogenconnected"],
                             default_bond_feature_list = ["bondorder", "isaromaticbond", "isringbond"])
-  species_feats = intersect(default_atom_feature_list, Utils.SpeciesFeatureUtils.sfd_names_props)
+  species_feats = intersect(keys(Utils.SpeciesFeatureUtils.sfd_names_props), default_atom_feature_list)
+  
   atoms = SpeciesFeatureDescriptor.(species_feats)
   bonds = BondFeatureDescriptor.(default_bond_feature_list)
-  WeaveFeaturization(atoms, bonds, pairs)
+  # pairs = PairFeatureDescriptor.(default_atom_feature_list)
+  WeaveFeaturization(atoms, bonds, bonds)
 end
 
 function encodable_elements(fzn::WeaveFeaturization)
@@ -36,8 +40,56 @@ end
 #     return encoded
 # end
 
-function atom_features()
+function atom_features(feat, mol; kw...)
+  
 end
+
+const DEEPCHEM_ATOM_SYMBOLS = [
+        "C",
+        "N",
+        "O",
+        "S",
+        "F",
+        "Si",
+        "P",
+        "Cl",
+        "Br",
+        "Mg",
+        "Na",
+        "Ca",
+        "Fe",
+        "As",
+        "Al",
+        "I",
+        "B",
+        "V",
+        "K",
+        "Tl",
+        "Yb",
+        "Sb",
+        "Sn",
+        "Ag",
+        "Pd",
+        "Co",
+        "Se",
+        "Ti",
+        "Zn",
+        "H",  # H?
+        "Li",
+        "Ge",
+        "Cu",
+        "Au",
+        "Ni",
+        "Cd",
+        "In",
+        "Mn",
+        "Zr",
+        "Cr",
+        "Pt",
+        "Hg",
+        "Pb",
+        "Unknown"
+      ]
 
 # weave_mols = weave_featurize(smiles[Int((b_i-1)*batch_size+1):Int(b_i*batch_size)],
 #                              atom_feature_list = atom_feature_list,
@@ -46,13 +98,19 @@ end
 # default_atom_feature_list = ["symbol","degree","implicit_valence","formal_charge","radical_electrons","hybridization","aromaticity","total_H_num" ]
 # default_bond_feature_list = ["bond_type","isConjugated","isInring"]
 
+struct FeaturizedWeave
+  atom_features
+  bond_features
+  pair_features
+end
+
 function encode(fzn::WeaveFeaturization, ag::AtomGraph; atom_feature_kwargs = (;),
                                                        bond_feature_kwargs = (;),
                                                        pair_feature_kwargs = (;))
-  af = mapreduce(x -> encode(x, ag, atom_feature_kwargs...), vcat, fzn.atom_features) 
-  bf = mapreduce(x -> encode(x, ag, bond_feature_kwargs...), vcat, fzn.bond_features)
-  pf = mapreduce(x -> encode(x, ag, pair_feature_kwargs...), vcat, fzn.pair_features)
-  vcat(af, bf, pf)
+  af = map(x -> encode(x, ag, atom_feature_kwargs...), fzn.atom_features) 
+  bf = map(x -> encode(x, ag, bond_feature_kwargs...), fzn.bond_features)
+  pf = map(x -> encode(x, ag, pair_feature_kwargs...), fzn.pair_features)
+  FeaturizedWeave(af, bf, pf)
 end
 
 # function decode(fzn::GraphNodeFeaturization, encoded::Matrix{<:Real})
