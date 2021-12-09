@@ -29,6 +29,8 @@ function WeaveFeaturization(element_feature_list = ["Atomic no"],
   WeaveFeaturization(elements, species, bonds, bonds)
 end
 
+WeaveFeaturization(; kw...) = WeaveFeaturization(values(kw)...)
+
 function encodable_elements(fzn::WeaveFeaturization)
     intersect([encodable_elements(f) for f in fzn.atom_features]...),
     intersect([encodable_elements(f) for f in fzn.bond_features]...),
@@ -108,6 +110,15 @@ function encode(fzn::WeaveFeaturization, ag::AtomGraph; atom_feature_kwargs = (;
   bf = cat(map(x -> encode(x, ag, bond_feature_kwargs...), fzn.bond_features)..., dims = 3)
   pf = cat(map(x -> encode(x, ag, pair_feature_kwargs...), fzn.pair_features)..., dims = 3)
   # Return FeaturizedAtoms here
-  FeaturizedWeave(atom_and_elements, bf, pf)
+  atom_and_elements, vcat(bf, pf)
+  # FeaturizedWeave(atom_and_elements, bf, pf)
 end
 
+function Base.show(io::IO, fzn::WeaveFeaturization)
+  println(io, "WeaveFeaturization(")
+  println(io)
+  println(io, "  Species Features: $(map(x -> x.name, fzn.element_features))")
+  println(io, "  Atom Features: $(map(x -> x.name, fzn.atom_features))")
+  println(io, "  Bond Features: $(map(x -> x.name, fzn.bond_features))")
+  println(io, ")")
+end
