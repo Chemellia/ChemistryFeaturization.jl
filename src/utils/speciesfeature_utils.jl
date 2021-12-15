@@ -55,9 +55,9 @@ const sfd_names_props = Dict(
     "degree" => Dict(
         :A => GraphMol,
         :compute_f => nodedegree,
-        :categorical => false,
+        :categorical => true,
         :encodable_elements => mg_elements,
-        :codec => DirectCodec,
+        :possible_vals => collect(0:10),
     ),
     "radical_electrons" => Dict(
         :A => GraphMol,
