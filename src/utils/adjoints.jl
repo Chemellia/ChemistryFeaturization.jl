@@ -4,7 +4,7 @@ using StaticArrays
 using LinearAlgebra
 
 @adjoint function Base.Iterators.Zip(is)
-  Zip_pullback(Δ) = (Zygote.unzip(Δ),)
+  Zip_pullback(Δ) = (Zygote.unzip(Δ.iter),)
   return Base.Iterators.Zip(is), Zip_pullback
 end
 
