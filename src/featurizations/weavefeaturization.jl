@@ -41,6 +41,10 @@ function atom_features(feat, mol; kw...)
   
 end
 
+function bond_feature(bond, mol; kw...)
+  
+end
+
 function pair_features(feat, mol; kw...)
 
 end
