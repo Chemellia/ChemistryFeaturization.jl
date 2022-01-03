@@ -6,9 +6,15 @@ supporting attributes that it may further require), and defines how to featurize
 an Atoms object by using the encoding schemes defined by the FeatureDescriptors
 stored.
 """
-module Featurization
 
-using ..ChemistryFeaturization.AbstractType: AbstractFeaturization
+"""
+    AbstractFeaturization
+
+All types defined for different [Featurizations](@ref fzn) must be a subtype
+of AbstractFeaturization.
+"""
+abstract type AbstractFeaturization end
+
 
 import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fzn::AbstractFeaturization) = throw(MethodError(encodable_elements, fzn))
@@ -22,10 +28,3 @@ import ..ChemistryFeaturization.decode
 decode(fzn::AbstractFeaturization, encoded_feature) = throw(MethodError(decode, fzn))
 export decode
 
-include("graphnodefeaturization.jl")
-export GraphNodeFeaturization, encode, decode
-
-include("weavefeaturization.jl")
-export WeaveFeaturization
-
-end

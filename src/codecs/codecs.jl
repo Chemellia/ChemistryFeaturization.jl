@@ -11,7 +11,15 @@ schemes.
 """
 module Codec
 
-using ..ChemistryFeaturization.AbstractType: AbstractCodec
+"""
+    AbstractCodec
+
+All [Codecs](@ref codecs) defined for different encoding-decoding schemes
+must be a subtype of AbstractCodec.
+"""
+abstract type AbstractCodec end
+export AbstractCodec
+
 import ..ChemistryFeaturization.output_shape
 
 include("simplecodec.jl")

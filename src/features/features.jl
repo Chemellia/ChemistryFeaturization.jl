@@ -13,41 +13,42 @@ Simply put, it can be understood to be "features of a feature".
 All FeatureDescriptors MUST also describe an encoding and decoding scheme.
 This can (and should) be easily done using a Codec.
 """
-module FeatureDescriptor
 
 using Base: Int16
-using ..ChemistryFeaturization.AbstractType:
-    AbstractAtoms, AbstractFeatureDescriptor, AbstractCodec
-using ..ChemistryFeaturization.Codec: OneHotOneCold
+using .Codec: OneHotOneCold
+
+"""
+    AbstractFeatureDescriptor
+
+All [FeatureDescriptors](@ref fd) defined for different types of features must be a
+subtype of AbstractFeatureDescriptor.
+"""
+abstract type AbstractFeatureDescriptor end
 
 # pretty printing, short version
 Base.show(io::IO, fd::AbstractFeatureDescriptor) = print(io, "$(typeof(fd)) $(fd.name)")
 
-import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fd::AbstractFeatureDescriptor) =
     throw(MethodError(encodable_elements, fd))
-export encodable_elements
 
 """
-    get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms)
+    get_value(fd::AbstractFeatureDescriptor, atoms)
 Get the value(s) of feature corresponding to feature descriptor `fd` for structure `atoms`.
 This function computes and returns the value that would actually get encoded by [`encode`](@ref).
 """
-get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) =
+get_value(fd::AbstractFeatureDescriptor, atoms) =
     throw(MethodError(fd, atoms))
-(fd::AbstractFeatureDescriptor)(atoms::AbstractAtoms) = get_value(fd, atoms)
+(fd::AbstractFeatureDescriptor)(atoms) = get_value(fd, atoms)
 
-import ..ChemistryFeaturization.encode
 """
-    encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms)
+    encode(fd::AbstractFeatureDescriptor, atoms)
 Encode features for `atoms` using the feature descriptor `fd`.
 """
-encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) =
+encode(fd::AbstractFeatureDescriptor, atoms) =
     encode(fd.encoder_decoder, get_value(fd, atoms))
 export encode
 export get_value
 
-import ..ChemistryFeaturization.decode
 """
     decode(fd::AbstractFeatureDescriptor, encoded_feature)
 Decode `encoded_feature` using the feature descriptor `fd`.
@@ -56,28 +57,20 @@ decode(fd::AbstractFeatureDescriptor, encoded_feature) =
     decode(fd.encoder_decoder, encoded_feature)
 export decode
 
-include("abstractfeatures.jl")
-encode(efd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms) =
+export AbstractAtomFeatureDescriptor,
+    AbstractPairFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
+
+abstract type AbstractAtomFeatureDescriptor <: AbstractFeatureDescriptor end
+abstract type AbstractPairFeatureDescriptor <: AbstractFeatureDescriptor end
+
+encode(efd::AbstractAtomFeatureDescriptor, atoms) =
     hcat(encode(efd.encoder_decoder, get_value(efd, atoms))...)
 
-import ..ChemistryFeaturization.output_shape
 output_shape(afd::AbstractFeatureDescriptor) = output_shape(afd, afd.encoder_decoder)
 output_shape(::AbstractAtomFeatureDescriptor, ed::OneHotOneCold) = output_shape(ed)
-export output_shape
 
 include("elementfeature.jl")
-export ElementFeatureDescriptor, encode, decode, output_shape
 
-include("orbitalfeature.jl")
-export OrbitalFeatureDescriptor
 
 include("pairfeature.jl")
 export PairFeatureDescriptor
-
-include("speciesfeature.jl")
-export SpeciesFeatureDescriptor
-
-include("bondfeature.jl")
-export BondFeatureDescriptor
-
-end

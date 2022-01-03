@@ -1,4 +1,3 @@
-using ..ChemistryFeaturization.AbstractType: AbstractCodec
 import ..ChemistryFeaturization.encode
 import ..ChemistryFeaturization.decode
 

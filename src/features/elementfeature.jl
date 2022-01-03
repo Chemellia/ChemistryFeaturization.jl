@@ -1,10 +1,7 @@
-using ..ChemistryFeaturization.Utils.ElementFeatureUtils
 using DataFrames
-using ..ChemistryFeaturization: elements
-using ..ChemistryFeaturization.AbstractType: AbstractCodec, AbstractAtoms
-using ..ChemistryFeaturization.Codec: OneHotOneCold
+using .Codec: OneHotOneCold, AbstractCodec
 
-include("abstractfeatures.jl")
+include("elementfeature_utils.jl")
 
 """
     ElementFeatureDescriptor
@@ -94,7 +91,7 @@ end
 
 encodable_elements(efd::ElementFeatureDescriptor) = efd.lookup_table[:, :Symbol]
 
-function get_value(efd::ElementFeatureDescriptor, a::AbstractAtoms)
+function get_value(efd::ElementFeatureDescriptor, a)
     @assert all([el in encodable_elements(efd) for el in elements(a)]) "Feature $(efd.name) cannot encode some element(s) in this structure!"
 
     feature_vals = efd.lookup_table[:, [:Symbol, Symbol(efd.name)]]

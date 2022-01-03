@@ -1,4 +1,3 @@
-include("abstractfeatures.jl")
 
 """
     PairFeatureDescriptor{A}
@@ -14,7 +13,7 @@ Type parameter represents the structure representation(s) from which this featur
 - `categorical::Bool`: flag for whether the feature is categorical or continuous-valued
 - `encodable_elements::Vector{String}`: list of elements (by symbol) that can be encoded by this feature
 """
-struct PairFeatureDescriptor{A,C<:AbstractCodec} <: AbstractPairFeatureDescriptor
+struct PairFeatureDescriptor{A,C<:AbstractCodec} <: AbstractPairFeatureDescriptor where {A}
     name::String
     compute_f::Function
     encoder_decoder::C
@@ -30,7 +29,7 @@ end
 
 encodable_elements(fd::PairFeatureDescriptor) = fd.encodable_elements
 
-function get_value(pfd::PairFeatureDescriptor{A}, a::AbstractAtoms{<:A}) where {A}
+function get_value(pfd::PairFeatureDescriptor{A}, a) where {A}
     @assert all([el in encodable_elements(pfd) for el in elements(a)]) "Feature $(pfd.name) cannot encode some element(s) in this structure!"
     pfd.compute_f(a.structure)
 end

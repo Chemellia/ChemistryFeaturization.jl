@@ -1,5 +1,3 @@
-using ..ChemistryFeaturization.AbstractType: AbstractAtoms, AbstractFeaturization
-
 """
     FeaturizedAtoms
 
@@ -14,21 +12,21 @@ Container object for an [Atoms](@ref atoms) object, a [Featurization](@ref fzn),
 !!! note
     `encoded_features` will NOT change for a given atoms-featurization pair.
 """
-struct FeaturizedAtoms{A<:AbstractAtoms,F<:AbstractFeaturization}
+struct FeaturizedAtoms{A,F<:AbstractFeaturization}
     atoms::A
     featurization::F
     encoded_features::Any
     FeaturizedAtoms{A,F}(
         atoms,
         featurization,
-    ) where {A<:AbstractAtoms,F<:AbstractFeaturization} =
+    ) where {A,F<:AbstractFeaturization} =
         new(atoms, featurization, encode(featurization, atoms))
 end
 
 FeaturizedAtoms(
     atoms::A,
     featurization::F,
-) where {A<:AbstractAtoms,F<:AbstractFeaturization} =
+) where {A,F<:AbstractFeaturization} =
     FeaturizedAtoms{A,F}(atoms, featurization)
 
 # pretty printing, short
@@ -62,10 +60,10 @@ end
 
 
 """
-    featurize(atoms::AbstractAtoms, featurization::AbstractFeaturization)
+    featurize(atoms, featurization::AbstractFeaturization)
 
 Featurize an `atoms` object using a `featurization` and return the
 [FeaturizedAtoms](@ref) object created.
 """
-featurize(atoms::AbstractAtoms, featurization::AbstractFeaturization) =
+featurize(atoms, featurization::AbstractFeaturization) =
     FeaturizedAtoms(atoms, featurization)
