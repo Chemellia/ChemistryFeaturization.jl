@@ -4,17 +4,14 @@ This module houses the built-in feature values for a variety of non-contextual a
 module ElementFeatureUtils
 
 using DataFrames
-using Flux: onecold
-using ...ChemistryFeaturization.Codec: build_onehot_vec
 using ...ChemistryFeaturization.Data: atom_data_df, feature_info
 
 # export things
 export default_nbins, oom_threshold_log
 export atom_data_df, avail_feature_names
 export categorical_feature_names, categorical_feature_vals, continuous_feature_names
-export default_log, fea_minmax, default_categorical
+export default_log, fea_minmax, default_categorical, default_nbins
 export get_bins, get_param_vec
-export onehot_lookup_encoder, onecold_decoder, encodable_elements
 
 # default number of bins for continuous features, if unspecified
 const default_nbins = 10
@@ -123,6 +120,8 @@ function get_bins(
     logspaced::Bool = default_log(feature_name, lookup_table),
     categorical::Bool = default_categorical(feature_name, lookup_table),
 )
+    colnames = names(lookup_table)
+    @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature ($(feature_name)) to be usable!"
     local bins, min_val, max_val
 
     if categorical
@@ -154,63 +153,6 @@ function get_bins(
         end
     end
     return bins
-end
-
-"Function for encoding onehot-style vectors based on values in a lookup table. Intended to be used as an `encode_f` for `ElementFeatureDescriptor` objects. See source code of convenience constructor for `ElementFeatureDescriptor` for more details."
-function onehot_lookup_encoder(
-    el::String,
-    feature_name::String,
-    lookup_table::DataFrame = atom_data_df;
-    nbins::Integer = default_nbins,
-    logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table),
-)
-    colnames = names(lookup_table)
-    @assert (feature_name in colnames) && ("Symbol" in colnames) "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
-
-    feature_vals = lookup_table[:, [:Symbol, Symbol(feature_name)]]
-
-    @assert el in feature_vals.Symbol "Element $el is not in the database! :("
-
-    bins = get_bins(
-        feature_name,
-        lookup_table;
-        nbins = nbins,
-        logspaced = logspaced,
-        categorical = categorical,
-    )
-
-    # pull value of feature for this element
-    val = getproperty(feature_vals[feature_vals.Symbol.==el, :][1, :], Symbol(feature_name))
-    build_onehot_vec(val, bins, categorical)
-end
-
-"Function for decoding onehot-style vectors based on values in a lookup table. Intended to be used as an `decode_f` for `ElementFeatureDescriptor` objects. See source code of convenience constructor for `ElementFeatureDescriptor` for more details."
-function onecold_decoder(
-    encoded,
-    feature_name::String,
-    lookup_table::DataFrame = atom_data_df;
-    nbins::Integer = default_nbins,
-    logspaced::Bool = default_log(feature_name, lookup_table),
-    categorical::Bool = default_categorical(feature_name, lookup_table),
-)
-    colnames = names(lookup_table)
-    @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
-
-    bins = get_bins(
-        feature_name,
-        lookup_table;
-        nbins = nbins,
-        logspaced = logspaced,
-        categorical = categorical,
-    )
-    local decoded
-    if categorical # return value
-        decoded = onecold(encoded, bins)
-    else # return bounds (TODO: should this be a tuple or a vector..? I like tuple for distinguishing from encoded vectors, but it doesn't play so nice with broadcasting...)
-        decoded = (onecold(encoded, bins[1:end-1]), onecold(encoded, bins[2:end]))
-    end
-    return decoded
 end
 
 end

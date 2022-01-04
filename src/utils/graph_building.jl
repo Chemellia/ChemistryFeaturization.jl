@@ -40,7 +40,7 @@ function build_graph(
     max_num_nbr::Integer = 12,
     dist_decay_func::Function = inverse_square,
 )
-    c = Crystal(file_path)
+    c = Crystal(abspath(file_path))
     atom_ids = String.(c.atoms.species)
 
     if use_voronoi
@@ -48,7 +48,7 @@ function build_graph(
         s = pyimport_conda("pymatgen.core.structure", "pymatgen", "conda-forge")
         struc = s.Structure.from_file(file_path)
         weight_mat = weights_voronoi(struc)
-        return weight_mat, atom_ids
+        return weight_mat, atom_ids, struc
     else
         build_graph(
             c;
@@ -88,7 +88,7 @@ function build_graph(
         max_num_nbr = max_num_nbr,
         dist_decay_func = dist_decay_func,
     )
-    return weight_mat, String.(crys.atoms.species)
+    return weight_mat, String.(crys.atoms.species), crys
 end
 
 """

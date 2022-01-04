@@ -24,7 +24,7 @@ We can build an `AtomGraph` "manually," by specifying an adjacency matrix and di
 julia> adj_mat = Float32.([0 1 1; 1 0 1; 1 1 0]);
 
 julia> triangle_C = AtomGraph(adj_mat, ["C", "C", "C"])
-AtomGraph  with 3 nodes, 3 edges
+AtomGraph{SimpleWeightedGraphs.SimpleWeightedGraph{Int64, Float32}}  with 3 nodes, 3 edges
 	atoms: ["C", "C", "C"]
 ```
 
@@ -36,7 +36,9 @@ In a "real" application, you'll likely be reading structures from files such as 
 
 ```jldoctest WS2; setup=:(cd("./src/files/"))
 julia> WS2 = AtomGraph("mp-224.cif")
-AtomGraph mp-224 with 6 nodes, 9 edges
+┌ Warning: Your cutoff radius is quite large relative to the size of your unit cell. This may cause issues with neighbor list generation, and will definitely cause a very dense graph. To avoid issues, I'm setting it to be approximately equal to the smallest unit cell dimension.
+└ @ ChemistryFeaturization.Utils.GraphBuilding ~/Chemellia/ChemistryFeaturization.jl/src/utils/graph_building.jl:174
+AtomGraph{Crystal} mp-224 with 6 nodes, 6 edges
 	atoms: ["W", "W", "S", "S", "S", "S"]
 
 ```
@@ -49,14 +51,13 @@ It's a two-dimensional material with two formula units per unit cell! Another wa
 
 ```jldoctest WS2
 julia> WS2.graph[[1,4,6,2,3,5]].weights
-6×6 SparseArrays.SparseMatrixCSC{Float64, Int64} with 18 stored entries:
- 1.0     0.9732   0.9732    ⋅       ⋅        ⋅ 
- 0.9732  1.0      0.17143   ⋅       ⋅        ⋅ 
- 0.9732  0.17143  1.0       ⋅       ⋅        ⋅ 
-  ⋅       ⋅        ⋅       1.0     0.9732   0.9732
-  ⋅       ⋅        ⋅       0.9732  1.0      0.17143
-  ⋅       ⋅        ⋅       0.9732  0.17143  1.0
-
+6×6 SparseArrays.SparseMatrixCSC{Float64, Int64} with 12 stored entries:
+  ⋅   1.0      1.0       ⋅    ⋅        ⋅
+ 1.0   ⋅       0.19762   ⋅    ⋅        ⋅
+ 1.0  0.19762   ⋅        ⋅    ⋅        ⋅
+  ⋅    ⋅        ⋅        ⋅   1.0      1.0
+  ⋅    ⋅        ⋅       1.0   ⋅       0.19762
+  ⋅    ⋅        ⋅       1.0  0.19762   ⋅
 ```
 
 However, we have options in how we actually construct the graph. The default option is based on the scheme from [the original cgcnn.py implementation](https://github.com/txie-93/cgcnn), which essentially involves setting a maximum neighbor distance and a maximum number of neighbors. However, in contrast to that implementation, we construct weighted graphs (with the user having an ability to specify the weight decay function with separation distance; it defaults to inverse-square).
@@ -68,12 +69,12 @@ julia> WS2_v = AtomGraph(joinpath("..", "files", "mp-224.cif"), use_voronoi=true
 
 julia> WS2_v.graph[[1,4,6,2,3,5]].weights
 6×6 SparseArrays.SparseMatrixCSC{Float64, Int64} with 22 stored entries:
- 0.371678  0.970447   0.970447    ⋅         ⋅          ⋅ 
- 0.970447  1.0        0.0231855   ⋅         ⋅         0.31894
- 0.970447  0.0231855  1.0         ⋅        0.31894     ⋅ 
-  ⋅         ⋅          ⋅         0.371678  0.970447   0.970447
-  ⋅         ⋅         0.31894    0.970447  1.0        0.0231855
-  ⋅        0.31894     ⋅         0.970447  0.0231855  1.0
+ 0.371678  0.970448   0.970448    ⋅         ⋅          ⋅ 
+ 0.970448  1.0        0.0231855   ⋅         ⋅         0.31894
+ 0.970448  0.0231855  1.0         ⋅        0.31894     ⋅ 
+  ⋅         ⋅          ⋅         0.371678  0.970448   0.970448
+  ⋅         ⋅         0.31894    0.970448  1.0        0.0231855
+  ⋅        0.31894     ⋅         0.970448  0.0231855  1.0
 ```
 
 (You can, of course, also visualize this one in your IDE)
@@ -151,12 +152,11 @@ julia> encode(block, triangle_C) # calling the encode fcn
  0.0  0.0  0.0
  0.0  0.0  0.0
 
-julia> block(triangle_C) # object itself is callable
-4×3 Matrix{Float64}:
- 0.0  0.0  0.0
- 1.0  1.0  1.0
- 0.0  0.0  0.0
- 0.0  0.0  0.0
+julia> block(triangle_C) # object itself is callable to give value
+3-element Vector{String}:
+ "p"
+ "p"
+ "p"
 ```
 
 Let's encode the whole featurization!
@@ -187,8 +187,8 @@ If we want to attach the encoded features to the graph, we can use the `featuriz
 
 ```jldoctest fzn
 julia> featurized = featurize(triangle_C, fzn)
-FeaturizedAtoms{AtomGraph, GraphNodeFeaturization} with 17 x 3 encoded features:
-	Atoms: AtomGraph  with 3 nodes, 3 edges
+FeaturizedAtoms{AtomGraph{SimpleWeightedGraphs.SimpleWeightedGraph{Int64, Float32}}, GraphNodeFeaturization} with 17 x 3 encoded features:
+	Atoms: AtomGraph{SimpleWeightedGraphs.SimpleWeightedGraph{Int64, Float32}}  with 3 nodes, 3 edges
 	Featurization: GraphNodeFeaturization encoding 3 features
 ```
 

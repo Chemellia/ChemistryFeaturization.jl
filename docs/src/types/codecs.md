@@ -3,4 +3,5 @@
 ```@docs
 Codec
 Codec.OneHotOneCold
+Codec.DirectCodec
 ```

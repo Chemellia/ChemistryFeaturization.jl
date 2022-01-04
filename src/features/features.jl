@@ -18,42 +18,52 @@ module FeatureDescriptor
 using Base: Int16
 using ..ChemistryFeaturization.AbstractType:
     AbstractAtoms, AbstractFeatureDescriptor, AbstractCodec
+using ..ChemistryFeaturization.Codec: OneHotOneCold
+
+# pretty printing, short version
+Base.show(io::IO, fd::AbstractFeatureDescriptor) = print(io, "$(typeof(fd)) $(fd.name)")
 
 import ..ChemistryFeaturization.encodable_elements
 encodable_elements(fd::AbstractFeatureDescriptor) =
     throw(MethodError(encodable_elements, fd))
 export encodable_elements
 
+"""
+    get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms)
+Get the value(s) of feature corresponding to feature descriptor `fd` for structure `atoms`.
+This function computes and returns the value that would actually get encoded by [`encode`](@ref).
+"""
+get_value(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) =
+    throw(MethodError(fd, atoms))
+(fd::AbstractFeatureDescriptor)(atoms::AbstractAtoms) = get_value(fd, atoms)
+
 import ..ChemistryFeaturization.encode
 """
-    encode(fd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms)
-Encode `atoms` using the feature descriptor `fd`.
+    encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms)
+Encode features for `atoms` using the feature descriptor `fd`.
 """
-encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) = fd(atoms)
+encode(fd::AbstractFeatureDescriptor, atoms::AbstractAtoms) =
+    encode(fd.encoder_decoder, get_value(fd, atoms))
 export encode
+export get_value
 
 import ..ChemistryFeaturization.decode
 """
-    decode(fd::AbstractAtomFeatureDescriptor, encoded_feature)
+    decode(fd::AbstractFeatureDescriptor, encoded_feature)
 Decode `encoded_feature` using the feature descriptor `fd`.
 """
 decode(fd::AbstractFeatureDescriptor, encoded_feature) =
-    fd.encoder_decoder(fd, encoded_feature)
+    decode(fd.encoder_decoder, encoded_feature)
 export decode
 
-(codec::AbstractCodec)(fd::AbstractFeatureDescriptor, a::AbstractAtoms) = error(
-    "Logic specifying how $(typeof(codec))'s encoding mechanism actually encodes $(typeof(fd)) is undefined.",
-)
-(codec::AbstractCodec)(fd::AbstractFeatureDescriptor, encoded_feature) = error(
-    "Logic specifying how $(typeof(codec))'s decoding mechanism actually decodes $(typeof(fd)) is undefined.",
-)
-
-output_shape(efd::AbstractFeatureDescriptor) = output_shape(efd, efd.encoder_decoder)
-export output_shape
-
 include("abstractfeatures.jl")
+encode(efd::AbstractAtomFeatureDescriptor, atoms::AbstractAtoms) =
+    hcat(encode(efd.encoder_decoder, get_value(efd, atoms))...)
 
-include("bondfeatures.jl")
+import ..ChemistryFeaturization.output_shape
+output_shape(afd::AbstractFeatureDescriptor) = output_shape(afd, afd.encoder_decoder)
+output_shape(::AbstractAtomFeatureDescriptor, ed::OneHotOneCold) = output_shape(ed)
+export output_shape
 
 include("elementfeature.jl")
 export ElementFeatureDescriptor, encode, decode, output_shape
@@ -66,5 +76,8 @@ export PairFeatureDescriptor
 
 include("speciesfeature.jl")
 export SpeciesFeatureDescriptor
+
+include("bondfeature.jl")
+export BondFeatureDescriptor
 
 end
