@@ -34,10 +34,9 @@ end
           sum(GraphBuilding.weights_cutoff(i, j, dist))
       end
 
-      @test gs[1] == fill(nothing, length(i))
-      @test gs[2] == fill(nothing, length(j))
+      @test gs[1] == nothing # fill(nothing, length(i))
+      @test gs[2] == nothing # fill(nothing, length(j))
       t = isapprox(gs[3], fd[3])
-      @show t
       @test t
   end
 

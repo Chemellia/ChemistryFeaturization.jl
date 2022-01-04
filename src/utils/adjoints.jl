@@ -40,7 +40,7 @@ _zero(::Nothing) = nothing
     Δ = vec(collect(Δ))
     for (ix, (_,_,d)) in zip(eachindex(Δ), ijd)
       y_, back_ = Zygote.pullback(f, d)
-      Δ[ix] *= back_(Δ[ix])[1]
+      Δ[ix] *= first(back_(Zygote.sensitivity(d)))
     end
     (reshape(Δ, s), nothing,
     collect(zip(fill(nothing, size(Δ,1)),
