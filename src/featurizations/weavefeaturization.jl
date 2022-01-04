@@ -120,7 +120,6 @@ end
 
 function Base.show(io::IO, fzn::WeaveFeaturization)
   println(io, "WeaveFeaturization(")
-  println(io)
   println(io, "  Species Features: $(map(x -> x.name, fzn.element_features))")
   println(io, "  Atom Features: $(map(x -> x.name, fzn.atom_features))")
   println(io, "  Bond Features: $(map(x -> x.name, fzn.bond_features))")
