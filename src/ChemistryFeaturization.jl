@@ -34,8 +34,8 @@ export output_shape, get_value
 
 include("featurizations/featurizations.jl")
 export Featurization
-using .Featurization: GraphNodeFeaturization, encode
-export GraphNodeFeaturization, encode
+using .Featurization: GraphNodeFeaturization, WeaveFeaturization, encode
+export GraphNodeFeaturization, WeaveFeaturization, encode
 
 export encodable_elements, decode
 

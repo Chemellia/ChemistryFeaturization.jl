@@ -1,5 +1,7 @@
 module SpeciesFeatureUtils
 
+using ...ChemistryFeaturization.Codec: DirectCodec
+
 using MolecularGraph
 
 # some convenience SFD constructors mapping names of species features to MolecularGraph functions...
@@ -49,6 +51,41 @@ const sfd_names_props = Dict(
         :categorical => true,
         :encodable_elements => mg_elements,
         :possible_vals => [0, 1, 2], # also not certain this is correct
+    ),
+    "degree" => Dict(
+        :A => GraphMol,
+        :compute_f => nodedegree,
+        :categorical => true,
+        :encodable_elements => mg_elements,
+        :possible_vals => collect(0:10),
+    ),
+    "radical_electrons" => Dict(
+        :A => GraphMol,
+        :compute_f => multiplicity,
+        :categorical => true,
+        :encodable_elements => mg_elements,
+        :possible_vals => [1, 2, 3],
+    ),
+    "multiplicity" => Dict(
+        :A => GraphMol,
+        :compute_f => multiplicity,
+        :categorical => true,
+        :encodable_elements => mg_elements,
+        :possible_vals => [1, 2, 3],
+    ),
+    "implicithconnected" => Dict(
+        :A => GraphMol,
+        :compute_f => implicithconnected,
+        :categorical => false,
+        :encodable_elements => mg_elements,
+        :codec => DirectCodec,
+    ),
+    "charge" => Dict(
+        :A => GraphMol,
+        :compute_f => charge,
+        :categorical => false,
+        :encodable_elements => mg_elements,
+        :codec => DirectCodec,
     ),
 )
 
