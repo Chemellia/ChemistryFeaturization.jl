@@ -1,7 +1,6 @@
 #=
 This module houses the built-in feature values for a variety of non-contextual atom features and also some convenience functions for constructing them easily.
 =#
-module ElementFeatureUtils
 
 using DataFrames
 using ..ChemistryFeaturization.Data: atom_data_df, feature_info
@@ -9,17 +8,10 @@ using ..ChemistryFeaturization.Data: atom_data_df, feature_info
 # export things
 export avail_feature_names, categorical_feature_names, categorical_feature_vals, continuous_feature_names
 import ..ChemistryFeaturization: default_log, default_categorical, get_bins
-export default_log,  default_categorical, get_bins
-export fea_minmax, get_param_vec
 
 # read in features...
 const categorical_feature_names = feature_info["categorical"]
-const categorical_feature_vals = Dict(
-    fea => sort(collect(Set(skipmissing(atom_data_df[:, fea])))) for
-    fea in categorical_feature_names
-)
-# but I want blocks to be in my order
-categorical_feature_vals["Block"] = ["s", "p", "d", "f"]
+
 const continuous_feature_names = feature_info["continuous"]
 const avail_feature_names =
     cat(categorical_feature_names, continuous_feature_names; dims = 1)
@@ -69,8 +61,6 @@ function get_bins(
     possible_vals = unique(skipmissing(lookup_table[:,Symbol(feature_name)]))
 
     get_bins(possible_vals, nbins=nbins, logspaced=logspaced, categorical=categorical)
-end
-
 end
 
 # this may just not be needed...

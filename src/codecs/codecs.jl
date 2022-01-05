@@ -1,29 +1,33 @@
 """
-    Codec
-
-Codecs provide the encoding-decoding scheme in a flexible way.
-Codecs are titled according to the general attributes that the codec scheme
-would require, and NOT the actual encoding/decoding function itself.
-
-This makes things customizable, and allows plug-and-play behaviour with
-different variants of the same codec scheme, or for strikingly similar codec
-schemes.
-"""
-
-"""
     AbstractCodec
 
 All [Codecs](@ref codecs) defined for different encoding-decoding schemes
 must be a subtype of AbstractCodec.
 """
 abstract type AbstractCodec end
-export AbstractCodec
+
+"""
+    encode(codec, val)
+Encode `val` according to the scheme described by `codec`.
+"""
+encode(codec::AbstractCodec, val) = throw(MethodError(encode, codec, val))
+
+"""
+    decode(codec, encoded)
+Decode `encoded` presuming it was encoded by `codec`.
+"""
+decode(codec::AbstractCodec, val) = throw(MethodError(decode, codec, val))
+
+"""
+    output_shape(codec)
+    output_shape(codec, val)
+Return the shape of the encoded output of `codec` (when applied to intput `val`).
+"""
+output_shape(codec::AbstractCodec) = throw(MethodError(output_shape, codec))
+output_shape(codec::AbstractCodec, val) = throw(MethodError(output_shape, codec, val))
 
 include("simplecodec.jl")
-export SimpleCodec
 
 include("onehotonecold.jl")
-export OneHotOneCold
 
 include("directcodec.jl")
-export DirectCodec
