@@ -1,6 +1,3 @@
-import ..ChemistryFeaturization.encode
-import ..ChemistryFeaturization.decode
-
 """
     DirectCodec
 

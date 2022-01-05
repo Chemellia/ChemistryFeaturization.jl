@@ -1,5 +1,4 @@
 using DataFrames
-using .Codec: OneHotOneCold, AbstractCodec
 
 include("elementfeature_utils.jl")
 

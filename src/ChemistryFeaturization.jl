@@ -10,7 +10,6 @@ include("data.jl")
 export Data
 
 include("codecs/codecs.jl")
-export Codec
 
 include("features/features.jl")
 export AbstractFeatureDescriptor, 
@@ -18,7 +17,7 @@ export AbstractFeatureDescriptor,
     AbstractPairFeatureDescriptor
 export ElementFeatureDescriptor, 
     SpeciesFeatureDescriptor, 
-    BondFeatureDescriptor
+    PairFeatureDescriptor
 export output_shape, get_value
 
 include("featurizations.jl")

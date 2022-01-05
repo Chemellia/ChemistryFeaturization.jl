@@ -1,8 +1,7 @@
-import ..ChemistryFeaturization.encode
-import ..ChemistryFeaturization.decode
 using Flux: onecold
 
 export encode, decode, output_shape
+include("onehotonecold_utils.jl")
 
 """
     OneHotOneCold(categorical, bins)

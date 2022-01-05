@@ -9,13 +9,7 @@ possible values, etc.
 A FeatureDescriptor does NOT store any actual instances of the value(s) of the
 feature it describes.
 Simply put, it can be understood to be "features of a feature".
-
-All FeatureDescriptors MUST also describe an encoding and decoding scheme.
-This can (and should) be easily done using a Codec.
 """
-
-using Base: Int16
-using .Codec: OneHotOneCold
 
 """
     AbstractFeatureDescriptor
@@ -46,7 +40,6 @@ Encode features for `atoms` using the feature descriptor `fd`.
 """
 encode(fd::AbstractFeatureDescriptor, atoms) =
     encode(fd.encoder_decoder, get_value(fd, atoms))
-export encode
 export get_value
 
 """
@@ -55,7 +48,6 @@ Decode `encoded_feature` using the feature descriptor `fd`.
 """
 decode(fd::AbstractFeatureDescriptor, encoded_feature) =
     decode(fd.encoder_decoder, encoded_feature)
-export decode
 
 export AbstractAtomFeatureDescriptor,
     AbstractPairFeatureDescriptor, AbstractEnvironmentFeatureDescriptor
@@ -71,6 +63,4 @@ output_shape(::AbstractAtomFeatureDescriptor, ed::OneHotOneCold) = output_shape(
 
 include("elementfeature.jl")
 
-
 include("pairfeature.jl")
-export PairFeatureDescriptor

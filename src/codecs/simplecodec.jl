@@ -1,8 +1,3 @@
-import ..ChemistryFeaturization.encode
-import ..ChemistryFeaturization.decode
-
-export encode, decode
-
 """
     SimpleCodec(encode_f, decode_f)
 

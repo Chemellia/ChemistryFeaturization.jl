@@ -9,7 +9,6 @@ This makes things customizable, and allows plug-and-play behaviour with
 different variants of the same codec scheme, or for strikingly similar codec
 schemes.
 """
-module Codec
 
 """
     AbstractCodec
@@ -20,17 +19,11 @@ must be a subtype of AbstractCodec.
 abstract type AbstractCodec end
 export AbstractCodec
 
-import ..ChemistryFeaturization.output_shape
-
 include("simplecodec.jl")
 export SimpleCodec
 
 include("onehotonecold.jl")
-export OneHotOneCold, output_shape
+export OneHotOneCold
 
 include("directcodec.jl")
 export DirectCodec
-
-export encode, decode
-
-end
