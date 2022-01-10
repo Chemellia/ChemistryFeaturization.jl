@@ -1,10 +1,5 @@
 module ChemistryFeaturization
-
-# encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
-# encode(a::Any, object_to_be_encoded) = throw(MethodError(encode, a))
-# decode(a::Any, encoded_features) = throw(MethodError(decode, a))
-# elements(a::Any) = throw(MethodError(elements, a))
-# output_shape(a::Any) = throw(MethodError(output_shape, a))
+using AtomsBase
 
 include("data.jl")
 export Data
@@ -17,17 +12,24 @@ include("features/features.jl")
 export AbstractFeatureDescriptor, 
     AbstractAtomFeatureDescriptor, 
     AbstractPairFeatureDescriptor
-export get_value, default_codec
+export get_value, default_codec, encodable_elements
 
 include("features/elementfeature.jl")
 export ElementFeature
 
-include("features/pairfeature.jl")
-
-
 include("featurizations.jl")
+export AbstractFeaturization, features
 
 include("featurizedatoms.jl")
 export FeaturizedAtoms, featurize
+
+export elements
+"""
+    elements(atoms)
+
+Return the list of elemental symbols corresponding to the atoms making up `atoms`.
+"""
+elements(atoms) = throw(MethodError(elements, atoms))
+elements(sys::AbstractAtomicSystem) = String.(atomic_symbol(sys))
 
 end

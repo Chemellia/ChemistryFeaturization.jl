@@ -4,9 +4,9 @@ authors = ["Rachel Kurchin <rkurchin@cmu.edu>", "Anant Thazhemadam <anant.thazhe
 version = "0.7.0"
 
 [deps]
+AtomsBase = "a963bdd2-2df7-4f54-a1ee-49d51e6be12a"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -18,7 +18,7 @@ CSV = "0.7, 0.8, 0.9"
 DataFrames = "0.21, 0.22, 1.0, 1.1"
 Flux = "0.11, 0.12"
 JSON3 = "1.9"
-julia = "1.6"
+julia = "1.6, 1.7"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

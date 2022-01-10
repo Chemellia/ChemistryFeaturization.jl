@@ -1,30 +1,35 @@
 """
-    Featurization
-
-A Featurization collectively stores a set of FeatureDescriptors (and any other
-supporting attributes that it may further require), and defines how to featurize
-an Atoms object by using the encoding schemes defined by the FeatureDescriptors
-stored.
-"""
-
-"""
     AbstractFeaturization
 
-All types defined for different [Featurizations](@ref fzn) must be a subtype
-of AbstractFeaturization.
+ A featurization stores a set of FeatureDescriptors and associated Codecs and defines how to combine the encoded values into whatever format is required to feed into a model.
 """
 abstract type AbstractFeaturization end
 
+"""
+    features(featurization)
 
-import ..ChemistryFeaturization.encodable_elements
-encodable_elements(fzn::AbstractFeaturization) = throw(MethodError(encodable_elements, fzn))
-export encodable_elements
+Return the list of feature descriptors used by `featurization`.
+"""
+features(fzn::AbstractFeaturization)::Vector{<:AbstractFeatureDescriptor} = throw(MethodError(features, fzn))
 
-import ..ChemistryFeaturization.encode
-encode(fzn::AbstractFeaturization, object_to_be_encoded) = throw(MethodError(encode, fzn))
-export encode
 
-import ..ChemistryFeaturization.decode
-decode(fzn::AbstractFeaturization, encoded_feature) = throw(MethodError(decode, fzn))
-export decode
+"""
+    encodable_elements(featurization)
 
+Return a list of elemental symbols that are valid constituents for structures that `featurization` can featurize.
+"""
+encodable_elements(fzn::AbstractFeaturization) = union(encodable_elements.(features(fzn)))
+
+"""
+    encode(featurization, atoms)
+
+Encode the features of `atoms` according to the scheme described by `featurization`.
+"""
+encode(fzn::AbstractFeaturization, atoms) = throw(MethodError(encode, fzn, atoms))
+
+"""
+    decode(featurization, encoded)
+
+Decode `encoded`, presuming it was encoded by `featurization`.
+"""
+decode(fzn::AbstractFeaturization, encoded) = throw(MethodError(decode, fzn, encoded))

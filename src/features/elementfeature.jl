@@ -3,7 +3,7 @@ module ElementFeature
 using DataFrames
 
 include("elementfeature_utils.jl")
-using ..ChemistryFeaturization.Data: atom_data_df
+using ..ChemistryFeaturization.Data: element_data_df
 import ..ChemistryFeaturization: encodable_elements, get_value, default_codec, AbstractAtomFeatureDescriptor, OneHotOneCold
 
 export ElementFeatureDescriptor, get_value, default_codec, encodable_elements
@@ -22,7 +22,7 @@ struct ElementFeatureDescriptor<: AbstractAtomFeatureDescriptor
     lookup_table::DataFrame
     function ElementFeatureDescriptor(
         feature_name::String,
-        lookup_table = atom_data_df,
+        lookup_table = element_data_df,
     )
         colnames = names(lookup_table)
         @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"

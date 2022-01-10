@@ -3,21 +3,21 @@ This module houses the built-in feature values for a variety of non-contextual a
 =#
 
 using DataFrames
-using ..ChemistryFeaturization.Data: atom_data_df, feature_info
+using ..ChemistryFeaturization.Data: element_data_df, elementfeature_info
 
 # export things
-export avail_feature_names, categorical_feature_names, categorical_feature_vals, continuous_feature_names
+export elementfeature_names, categorical_elementfeature_names, continuous_elementfeature_names
 import ..ChemistryFeaturization: default_log, default_categorical, get_bins
 
 # read in features...
-const categorical_feature_names = feature_info["categorical"]
+const categorical_elementfeature_names = elementfeature_info["categorical"]
 
-const continuous_feature_names = feature_info["continuous"]
-const avail_feature_names =
-    cat(categorical_feature_names, continuous_feature_names; dims = 1)
+const continuous_elementfeature_names = elementfeature_info["continuous"]
+const elementfeature_names =
+    cat(categorical_elementfeature_names, continuous_elementfeature_names; dims = 1)
 
 "Compute the minimum and maximum possible values of a feature."
-function fea_minmax(feature_name::String, lookup_table::DataFrame = atom_data_df)
+function fea_minmax(feature_name::String, lookup_table::DataFrame = element_data_df)
     @assert feature_name in names(lookup_table) "Feature $feature_name isn't in the lookup table!"
     return [
         f(skipmissing(lookup_table[:, Symbol(feature_name)])) for f in [minimum, maximum]
@@ -27,14 +27,14 @@ end
 # convenience dispatches of OHOC util functions to work directly with lookup table...
 default_log(
     feature_name::String,
-    lookup_table::DataFrame = atom_data_df;
+    lookup_table::DataFrame = element_data_df;
     threshold_oom::Real = 2,
 ) = default_log(fea_minmax(feature_name, lookup_table)...; threshold_oom=threshold_oom)
 
-function default_categorical(feature_name::String, lookup_table::DataFrame = atom_data_df; threshold_length = 5)
+function default_categorical(feature_name::String, lookup_table::DataFrame = element_data_df; threshold_length = 5)
     local categorical
-    if feature_name in avail_feature_names
-        if feature_name in categorical_feature_names
+    if feature_name in elementfeature_names
+        if feature_name in categorical_elementfeature_names
             categorical = true
         else
             categorical = false
@@ -48,7 +48,7 @@ end
 
 function get_bins(
     feature_name::String,
-    lookup_table::DataFrame = atom_data_df;
+    lookup_table::DataFrame = element_data_df;
     nbins::Integer = 10,
     threshold_oom=2,
     threshold_length=5,
