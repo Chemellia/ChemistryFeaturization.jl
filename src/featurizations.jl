@@ -18,18 +18,18 @@ features(fzn::AbstractFeaturization)::Vector{<:AbstractFeatureDescriptor} = thro
 
 Return a list of elemental symbols that are valid constituents for structures that `featurization` can featurize.
 """
-encodable_elements(fzn::AbstractFeaturization) = union(encodable_elements.(features(fzn)))
+encodable_elements(fzn::AbstractFeaturization) = intersect(encodable_elements.(features(fzn))...)
 
 """
     encode(featurization, atoms)
 
 Encode the features of `atoms` according to the scheme described by `featurization`.
 """
-encode(fzn::AbstractFeaturization, atoms) = throw(MethodError(encode, fzn, atoms))
+encode(fzn::AbstractFeaturization, atoms) = encode.(features(fzn), Ref(atoms))
 
 """
     decode(featurization, encoded)
 
 Decode `encoded`, presuming it was encoded by `featurization`.
 """
-decode(fzn::AbstractFeaturization, encoded) = throw(MethodError(decode, fzn, encoded))
+decode(fzn::AbstractFeaturization, encoded) = decode.(features(fzn), encoded)

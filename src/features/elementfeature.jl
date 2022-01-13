@@ -4,6 +4,7 @@ using DataFrames
 
 include("elementfeature_utils.jl")
 using ..ChemistryFeaturization.Data: element_data_df
+using ..ChemistryFeaturization: elements
 import ..ChemistryFeaturization: encodable_elements, get_value, default_codec, AbstractAtomFeatureDescriptor, OneHotOneCold
 
 export ElementFeatureDescriptor, get_value, default_codec, encodable_elements

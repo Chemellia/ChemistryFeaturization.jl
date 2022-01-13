@@ -40,8 +40,9 @@ function default_categorical(feature_name::String, lookup_table::DataFrame = ele
             categorical = false
         end
     else
+        colnames = names(lookup_table)
         @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature ($(feature_name)) to be usable!"
-        categorical = default_categorical(lookup_table[:,Symbol(feature_name)], threshold_length=threshold_length)
+        categorical = default_categorical(lookup_table[:,Symbol(feature_name)], threshold_length)
     end
     return categorical
 end

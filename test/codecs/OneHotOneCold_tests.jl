@@ -1,6 +1,7 @@
 @testset "OneHotOneCold" begin
     ohoc_cat = OneHotOneCold(true, ['a', 'b', 'c'])
     ohoc_cont = OneHotOneCold(false, 0:3)
+    @test_throws AssertionError OneHotOneCold(false, ['a', 'b', 'c'])
 
     @testset "Encode" begin
         @test encode(ohoc_cat, 'a') == [1, 0, 0]

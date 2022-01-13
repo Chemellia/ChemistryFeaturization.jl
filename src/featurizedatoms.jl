@@ -30,16 +30,11 @@ FeaturizedAtoms(
     FeaturizedAtoms{A,F}(atoms, featurization)
 
 # pretty printing, short
-function Base.show(io::IO, fa::FeaturizedAtoms)
-    a, b = size(fa.encoded_features)
-    st = string(typeof(fa), " with $a x $b encoded features")
-    print(io, st)
-end
+Base.show(io::IO, fa::FeaturizedAtoms) = print(io, string(typeof(fa), " with ", length(features(fa.featurization)), " features"))
 
-# pretty printing, long
+# # pretty printing, long
 function Base.show(io::IO, ::MIME"text/plain", fa::FeaturizedAtoms)
-    a, b = size(fa.encoded_features)
-    st = string(typeof(fa), " with $a x $b encoded features:\n")
+    st = string("FeaturizedAtoms with ", length(features(fa.featurization)), " features:\n")
     st = string(st, "\tAtoms: $(fa.atoms)\n\tFeaturization: $(fa.featurization)")
     print(io, st)
 end
@@ -49,14 +44,7 @@ end
 
 Decode a [FeaturizedAtoms](@ref) object, and return the decoded value.
 """
-function decode(featurized_atoms::FeaturizedAtoms)
-    decoded = decode(featurized_atoms.featurization, featurized_atoms.encoded_features)
-    # is this loop universally applicable?
-    # for (k, v) in decoded
-    #     v["Symbol"] = sef.atoms.elements[k]
-    # end
-    return decoded
-end
+decode(featurized_atoms::FeaturizedAtoms) = decode(featurized_atoms.featurization, featurized_atoms.encoded_features)
 
 
 """

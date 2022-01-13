@@ -11,6 +11,10 @@ one-hot encoding and a one-cold decoding scheme.
 struct OneHotOneCold <: AbstractCodec
     categorical::Bool
     bins::Vector
+    function OneHotOneCold(categorical, bins)
+        @assert categorical || eltype(bins) <: Number "Your bins aren't numbers...are you sure you didn't mean for this codec to be categorical?"
+        new(categorical, bins)
+    end
 end
 
 output_shape(ohoc::OneHotOneCold) =
@@ -23,7 +27,6 @@ function encode(ohoc::OneHotOneCold, val)
         onehot_vec = [0.0 for i = 1:length(ohoc.bins)]
         bin_index = findfirst(isequal(val), ohoc.bins)
     else
-        @assert eltype(ohoc.bins) <: Number "Your bins aren't numbers...are you sure you didn't mean for this feature to be categorical?"
         @assert ohoc.bins[1] <= val <= ohoc.bins[end] "The value $val is outside the range of bins $ohoc.bins"
         onehot_vec = [0.0 for i = 1:(length(ohoc.bins)-1)]
         bin_index = searchsorted(ohoc.bins, val).stop

@@ -1,5 +1,3 @@
-using ChemistryFeaturization.Codec
-
 @testset "Codecs" begin
     codec_tests = ["OneHotOneCold_tests", "SimpleCodec_tests", "DirectCodec_tests"]
     for t in codec_tests

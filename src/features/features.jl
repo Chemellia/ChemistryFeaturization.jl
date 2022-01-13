@@ -68,6 +68,6 @@ abstract type AbstractPairFeatureDescriptor <: AbstractFeatureDescriptor end
 
 # TODO: check that these work properly
 encode(afd::AbstractAtomFeatureDescriptor, atoms) =
-    hcat(encode.(Ref(afd), get_value(afd, atoms))...)
+    hcat(encode.(Ref(default_codec(afd)), get_value(afd, atoms))...)
 encode(afd::AbstractAtomFeatureDescriptor, codec::AbstractCodec, atoms) = 
     hcat(encode.(Ref(codec), get_value(afd, atoms))...)

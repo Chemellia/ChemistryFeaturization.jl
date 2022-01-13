@@ -1,6 +1,15 @@
 module ChemistryFeaturization
 using AtomsBase
 
+export elements
+"""
+    elements(atoms)
+
+Return the list of elemental symbols corresponding to the atoms making up `atoms`.
+"""
+elements(atoms) = throw(MethodError(elements, atoms))
+elements(sys::AbstractAtomicSystem) = String.(atomic_symbol(sys))
+
 include("data.jl")
 export Data
 
@@ -22,14 +31,5 @@ export AbstractFeaturization, features
 
 include("featurizedatoms.jl")
 export FeaturizedAtoms, featurize
-
-export elements
-"""
-    elements(atoms)
-
-Return the list of elemental symbols corresponding to the atoms making up `atoms`.
-"""
-elements(atoms) = throw(MethodError(elements, atoms))
-elements(sys::AbstractAtomicSystem) = String.(atomic_symbol(sys))
 
 end
