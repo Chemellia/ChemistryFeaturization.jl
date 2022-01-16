@@ -24,7 +24,7 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Xtals = "ede5f01d-793e-4c47-9885-c447d1f18d6d"
 
 [compat]
-CSV = "0.7, 0.8, 0.9"
+CSV = "0.7, 0.8, 0.9, 0.10"
 Colors = "0.12"
 Compose = "0.9"
 Conda = "1.4"
