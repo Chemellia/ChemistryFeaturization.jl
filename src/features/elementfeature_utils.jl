@@ -78,19 +78,18 @@ function get_bins(
     get_bins(possible_vals, nbins = nbins, logspaced = logspaced, categorical = categorical)
 end
 
-# this may just not be needed...
 # "Little helper function to check that the logspace/categorical vector/boolean is appropriate and convert it to a vector as needed."
-# function get_param_vec(vec, num_features::Integer; pad_val = false)
-#     if !(typeof(vec) <: Vector)
-#         output_vec = [vec for i = 1:num_features]
-#     elseif length(vec) == num_features # specified properly
-#         output_vec = vec
-#     elseif length(vec) < num_features
-#         @info "Parameter vector too short. Padding end with $pad_val."
-#         output_vec = vcat(vec, [pad_val for i = 1:num_features-size(vec, 1)])
-#     elseif size(vec, 1) > num_features
-#         @info "Parameter vector too long. Cutting off at appropriate length."
-#         output_vec = vec[1:num_features]
-#     end
-#     return output_vec
-# end
+function get_param_vec(vec, num_features::Integer; pad_val = false)
+    if !(typeof(vec) <: Vector)
+        output_vec = [vec for i = 1:num_features]
+    elseif length(vec) == num_features # specified properly
+        output_vec = vec
+    elseif length(vec) < num_features
+        @info "Parameter vector too short. Padding end with $pad_val."
+        output_vec = vcat(vec, [pad_val for i = 1:num_features-size(vec, 1)])
+    elseif size(vec, 1) > num_features
+        @info "Parameter vector too long. Cutting off at appropriate length."
+        output_vec = vec[1:num_features]
+    end
+    return output_vec
+end

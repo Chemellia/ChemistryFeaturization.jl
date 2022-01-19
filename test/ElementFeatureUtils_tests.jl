@@ -19,19 +19,19 @@ using ChemistryFeaturization.ElementFeature
 
     # default_categorical
     @test default_categorical("Block") == true
-    # @test get_param_vec(false, 2) == [false, false]
-    # @test get_param_vec([false, false], 2) == [false, false]
-    # @test get_param_vec([false, false], 3) == [false, false, false]
-    # @test get_param_vec([false, false, false], 2) == [false, false]
-    # @test get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
-    # @test get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
-    # @test get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
+    @test get_param_vec(false, 2) == [false, false]
+    @test get_param_vec([false, false], 2) == [false, false]
+    @test get_param_vec([false, false], 3) == [false, false, false]
+    @test get_param_vec([false, false, false], 2) == [false, false]
+    @test get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
+    @test get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
+    @test get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
 
-    # @test get_param_vec([false, false], 3) == [false, false, false]
-    # @test get_param_vec([false, false, false], 2) == [false, false]
-    # @test get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
-    # @test get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
-    # @test get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
+    @test get_param_vec([false, false], 3) == [false, false, false]
+    @test get_param_vec([false, false, false], 2) == [false, false]
+    @test get_param_vec([3, 2], 3, pad_val = 0) == [3, 2, 0]
+    @test get_param_vec(['a'], 3, pad_val = 'b') == ['a', 'b', 'b']
+    @test get_param_vec('a', 3, pad_val = 'b') == ['a', 'a', 'a']
 
     # get_bins
     @test get_bins("Block") == ["d", "f", "p", "s"]

@@ -3,7 +3,7 @@
     @test_throws MethodError features(fzn2)
 
     encoded = encode(C3, fzn1)
-    @test size(encoded[1]) == (3,4)
+    @test size(encoded[1]) == (3, 4)
     @test size(encoded[2]) == (3, 10)
     @test all(encoded[1][:, 3] .== 1)
 

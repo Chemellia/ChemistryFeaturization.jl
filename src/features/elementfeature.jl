@@ -12,7 +12,7 @@ import ..ChemistryFeaturization:
     AbstractAtomFeatureDescriptor,
     OneHotOneCold
 
-export ElementFeatureDescriptor, get_value, default_codec, encodable_elements
+export ElementFeatureDescriptor, get_value, default_codec, encodable_elements, get_param_vec
 
 """
     ElementFeatureDescriptor
