@@ -27,11 +27,11 @@ encodable_elements(fzn::AbstractFeaturization) =
 
 Encode the features of `atoms` according to the scheme described by `featurization`.
 """
-encode(fzn::AbstractFeaturization, atoms) = encode.(features(fzn), Ref(atoms))
+encode(atoms, fzn::AbstractFeaturization) = encode.(Ref(atoms), features(fzn))
 
 """
     decode(featurization, encoded)
 
 Decode `encoded`, presuming it was encoded by `featurization`.
 """
-decode(fzn::AbstractFeaturization, encoded) = decode.(features(fzn), encoded)
+decode(encoded, fzn::AbstractFeaturization) = decode.(encoded, features(fzn))

@@ -17,7 +17,7 @@ struct FeaturizedAtoms{A,F<:AbstractFeaturization}
     featurization::F
     encoded_features::Any
     FeaturizedAtoms{A,F}(atoms, featurization) where {A,F<:AbstractFeaturization} =
-        new(atoms, featurization, encode(featurization, atoms))
+        new(atoms, featurization, encode(atoms, featurization))
 end
 
 FeaturizedAtoms(atoms::A, featurization::F) where {A,F<:AbstractFeaturization} =
@@ -40,7 +40,7 @@ end
 Decode a [FeaturizedAtoms](@ref) object, and return the decoded value.
 """
 decode(featurized_atoms::FeaturizedAtoms) =
-    decode(featurized_atoms.featurization, featurized_atoms.encoded_features)
+    decode(featurized_atoms.encoded_features, featurized_atoms.featurization)
 
 
 """

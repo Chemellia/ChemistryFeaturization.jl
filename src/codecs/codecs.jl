@@ -10,13 +10,13 @@ abstract type AbstractCodec end
     encode(codec, val)
 Encode `val` according to the scheme described by `codec`.
 """
-encode(codec::AbstractCodec, val) = throw(MethodError(encode, codec, val))
+encode(val, codec::AbstractCodec) = throw(MethodError(encode, val, codec))
 
 """
     decode(codec, encoded)
 Decode `encoded` presuming it was encoded by `codec`.
 """
-decode(codec::AbstractCodec, val) = throw(MethodError(decode, codec, val))
+decode(val, codec::AbstractCodec) = throw(MethodError(decode, val, codec))
 
 """
     output_shape(codec)

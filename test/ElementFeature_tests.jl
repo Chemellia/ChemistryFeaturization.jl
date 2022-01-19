@@ -24,32 +24,32 @@ using ..ChemistryFeaturization.Data
         @test get_value(block, C3) == block(C3)
         @test_throws AssertionError get_value(X, He_mol)
 
-        @test_throws AssertionError encode(X, He_mol)
-        @test encode(block, He_mol) == Float64.([0 0; 0 0; 1 1; 0 0])
-        @test encode(amass, He_mol)[3, :] == ones(2)
+        @test_throws AssertionError encode(He_mol, X)
+        @test encode(He_mol, block) == Float64.([0 0; 0 0; 1 1; 0 0])
+        @test encode(He_mol, amass)[3, :] == ones(2)
 
         # explicit codec
-        @test encode(X, custom_xc, C3)[6, :] == ones(3)
+        @test encode(C3, X, custom_xc)[6, :] == ones(3)
     end
 
     @testset "Decode" begin
-        @test decode(block, encode(block, He_mol)) == ["p", "p"]
+        @test decode(encode(He_mol, block), block) == ["p", "p"]
 
         true_He_amass = element_data_df[2, Symbol("Atomic mass")]
-        He_amass_min, He_amass_max = decode(amass, encode(amass, He_mol)[:, 1])
+        He_amass_min, He_amass_max = decode(encode(He_mol, amass)[:, 1], amass)
         @test He_amass_min < true_He_amass < He_amass_max
 
         true_X = element_data_df.X[6]
-        decoded_X_range = decode(X, encode(X, C3)[:, 1])
+        decoded_X_range = decode(encode(C3, X)[:, 1], X)
         @test decoded_X_range[1] < true_X < decoded_X_range[2]
-        @test decode(block, encode(block, C3)) == ["p", "p", "p"]
+        @test decode(encode(C3, block), block) == ["p", "p", "p"]
     end
 
     # and make a custom lookup table...
     @testset "Custom Lookup Table" begin
         df = CSV.read(abspath(@__DIR__, "test_data", "lookup_table.csv"), DataFrame)
         meaning = ElementFeatureDescriptor("MeaningOfLife", df)
-        @test encode(meaning, C3)[3, :] == ones(3)
+        @test encode(C3, meaning)[3, :] == ones(3)
 
         @test encodable_elements(meaning) == ["C", "As", "Tc"]
         @test_throws AssertionError get_value(meaning, He_mol)

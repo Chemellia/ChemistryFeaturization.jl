@@ -49,24 +49,24 @@ get_value(fd::AbstractFeatureDescriptor, atoms) = throw(MethodError(fd, atoms))
     encode(fd, codec, atoms)
 Encode features for `atoms` using the feature descriptor `fd` using the default codec for `fd`. if `codec` is not specified.
 """
-encode(fd::AbstractFeatureDescriptor, atoms) =
-    encode(default_codec(fd), get_value(fd, atoms))
-encode(fd::AbstractFeatureDescriptor, codec::AbstractCodec, atoms) =
-    encode(codec, get_value(fd, atoms))
+encode(atoms, fd::AbstractFeatureDescriptor) =
+    encode(get_value(fd, atoms), default_codec(fd))
+encode(atoms, fd::AbstractFeatureDescriptor, codec::AbstractCodec) =
+    encode(get_value(fd, atoms), codec)
 
 """
     decode(fd, encoded_feature)
     decode(fd, codec, encoded_feature)
 Decode `encoded_feature` using the feature descriptor `fd`, presuming it was encoded via `fd`'s default codec if `codec` is not specified.
 """
-decode(fd::AbstractFeatureDescriptor, encoded_feature) =
-    decode(default_codec(fd), encoded_feature)
+decode(encoded_feature, fd::AbstractFeatureDescriptor) =
+    decode(encoded_feature, default_codec(fd))
 
 abstract type AbstractAtomFeatureDescriptor <: AbstractFeatureDescriptor end
 abstract type AbstractPairFeatureDescriptor <: AbstractFeatureDescriptor end
 
 # TODO: check that these work properly...also possibly change this default behavior? i.e. make first index always be atom index (needs corresponding change in AGN)
-encode(afd::AbstractAtomFeatureDescriptor, atoms) =
-    hcat(encode.(Ref(default_codec(afd)), get_value(afd, atoms))...)
-encode(afd::AbstractAtomFeatureDescriptor, codec::AbstractCodec, atoms) =
-    hcat(encode.(Ref(codec), get_value(afd, atoms))...)
+encode(atoms, afd::AbstractAtomFeatureDescriptor) =
+    hcat(encode.(get_value(afd, atoms), Ref(default_codec(afd)))...)
+encode(atoms, afd::AbstractAtomFeatureDescriptor, codec::AbstractCodec) =
+    hcat(encode.(get_value(afd, atoms), Ref(codec))...)

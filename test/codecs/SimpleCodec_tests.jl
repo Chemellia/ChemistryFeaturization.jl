@@ -1,7 +1,7 @@
 @testset "SimpleCodec" begin
     sc = SimpleCodec(x -> x .^ 2, x -> sqrt.(x))
-    @test encode(sc, 3) == 9
-    @test encode(sc, [1, 2]) == [1, 4]
-    @test decode(sc, 100) == 10
-    @test decode(sc, [1, 9]) == [1, 3]
+    @test encode(3, sc) == 9
+    @test encode([1, 2], sc) == [1, 4]
+    @test decode(100, sc) == 10
+    @test decode([1, 9], sc) == [1, 3]
 end
