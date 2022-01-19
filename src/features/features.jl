@@ -62,11 +62,22 @@ Decode `encoded_feature` using the feature descriptor `fd`, presuming it was enc
 decode(encoded_feature, fd::AbstractFeatureDescriptor) =
     decode(encoded_feature, default_codec(fd))
 
+
+"""
+    AbstractAtomFeatureDescriptor
+
+All feature descriptors that describe single atoms within a structure should subtype this.
+"""
 abstract type AbstractAtomFeatureDescriptor <: AbstractFeatureDescriptor end
+
+"""
+    AbstractAtomFeatureDescriptor
+
+All feature descriptors that describe pairs of atoms within a structure should subtype this.
+"""
 abstract type AbstractPairFeatureDescriptor <: AbstractFeatureDescriptor end
 
-# TODO: check that these work properly...also possibly change this default behavior? i.e. make first index always be atom index (needs corresponding change in AGN)
-encode(atoms, afd::AbstractAtomFeatureDescriptor) =
-    hcat(encode.(get_value(afd, atoms), Ref(default_codec(afd)))...)
+# first index is always atom index, hence transposition
 encode(atoms, afd::AbstractAtomFeatureDescriptor, codec::AbstractCodec) =
-    hcat(encode.(get_value(afd, atoms), Ref(codec))...)
+    vcat(transpose.(encode.(get_value(afd, atoms), Ref(codec)))...)
+encode(atoms, afd::AbstractAtomFeatureDescriptor) = encode(atoms, afd, default_codec(afd))

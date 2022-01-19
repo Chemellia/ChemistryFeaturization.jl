@@ -3,9 +3,9 @@
     @test_throws MethodError features(fzn2)
 
     encoded = encode(C3, fzn1)
-    @test size(encoded[1]) == (4, 3)
-    @test size(encoded[2]) == (10, 3)
-    @test all(encoded[1][3, :] .== 1)
+    @test size(encoded[1]) == (3,4)
+    @test size(encoded[2]) == (3, 10)
+    @test all(encoded[1][:, 3] .== 1)
 
     decoded = decode(encoded, fzn1)
     @test all(decoded[1] .== "p")

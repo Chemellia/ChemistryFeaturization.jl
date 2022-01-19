@@ -64,29 +64,6 @@ function decode(encoded::Vector, ohoc::OneHotOneCold)
     return decoded
 end
 
-# this is separate from the Array case because at the moment there are different conventions of index ordering for ndims == 2 vs. ndims > 2...oops, we should probably change that, but it will require changes in AtomicGraphNets as well
-function decode(encoded::Matrix, ohoc::OneHotOneCold)
-    @assert size(encoded)[1] == output_shape(ohoc)
-    local decoded
-    decoded_length = size(encoded)[2]
-    decoded_eltype = eltype(ohoc.bins)
-    if ohoc.categorical
-        decoded = Vector{Union{decoded_eltype,Missing}}(missing, decoded_length)
-    else
-        decoded = Vector{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(
-            missing,
-            decoded_length,
-        )
-    end
-    for i = 1:decoded_length
-        vec = encoded[:, i] # this is the key difference from the Array dispatch below
-        if !all(ismissing.(vec))
-            decoded[i] = decode(vec, ohoc)
-        end
-    end
-    return decoded
-end
-
 function decode(encoded::Array, ohoc::OneHotOneCold)
     @assert size(encoded)[end] == output_shape(ohoc)
     local decoded
