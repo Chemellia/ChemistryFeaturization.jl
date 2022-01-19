@@ -8,7 +8,7 @@ export elements
 Return the list of elemental symbols corresponding to the atoms making up `atoms`.
 """
 elements(atoms) = throw(MethodError(elements, atoms))
-elements(sys::AbstractAtomicSystem) = String.(atomic_symbol(sys))
+elements(sys::AbstractSystem) = String.(atomic_symbol(sys))
 
 include("data.jl")
 export Data
