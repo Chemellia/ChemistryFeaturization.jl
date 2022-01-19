@@ -41,8 +41,7 @@ encodable_elements(fd::AbstractFeatureDescriptor) =
 Get the value(s) of feature corresponding to feature descriptor `fd` for structure `atoms`.
 This function computes and returns the value that would actually get encoded by [`encode`](@ref).
 """
-get_value(fd::AbstractFeatureDescriptor, atoms) =
-    throw(MethodError(fd, atoms))
+get_value(fd::AbstractFeatureDescriptor, atoms) = throw(MethodError(fd, atoms))
 (fd::AbstractFeatureDescriptor)(atoms) = get_value(fd, atoms)
 
 """
@@ -66,8 +65,8 @@ decode(fd::AbstractFeatureDescriptor, encoded_feature) =
 abstract type AbstractAtomFeatureDescriptor <: AbstractFeatureDescriptor end
 abstract type AbstractPairFeatureDescriptor <: AbstractFeatureDescriptor end
 
-# TODO: check that these work properly
+# TODO: check that these work properly...also possibly change this default behavior? i.e. make first index always be atom index (needs corresponding change in AGN)
 encode(afd::AbstractAtomFeatureDescriptor, atoms) =
     hcat(encode.(Ref(default_codec(afd)), get_value(afd, atoms))...)
-encode(afd::AbstractAtomFeatureDescriptor, codec::AbstractCodec, atoms) = 
+encode(afd::AbstractAtomFeatureDescriptor, codec::AbstractCodec, atoms) =
     hcat(encode.(Ref(codec), get_value(afd, atoms))...)

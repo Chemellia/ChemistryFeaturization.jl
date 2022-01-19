@@ -10,7 +10,8 @@ abstract type AbstractFeaturization end
 
 Return the list of feature descriptors used by `featurization`.
 """
-features(fzn::AbstractFeaturization)::Vector{<:AbstractFeatureDescriptor} = throw(MethodError(features, fzn))
+features(fzn::AbstractFeaturization)::Vector{<:AbstractFeatureDescriptor} =
+    throw(MethodError(features, fzn))
 
 
 """
@@ -18,7 +19,8 @@ features(fzn::AbstractFeaturization)::Vector{<:AbstractFeatureDescriptor} = thro
 
 Return a list of elemental symbols that are valid constituents for structures that `featurization` can featurize.
 """
-encodable_elements(fzn::AbstractFeaturization) = intersect(encodable_elements.(features(fzn))...)
+encodable_elements(fzn::AbstractFeaturization) =
+    intersect(encodable_elements.(features(fzn))...)
 
 """
     encode(featurization, atoms)

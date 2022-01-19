@@ -18,9 +18,8 @@ export AbstractCodec, SimpleCodec, OneHotOneCold, DirectCodec
 export encode, decode, output_shape
 
 include("features/features.jl")
-export AbstractFeatureDescriptor, 
-    AbstractAtomFeatureDescriptor, 
-    AbstractPairFeatureDescriptor
+export AbstractFeatureDescriptor,
+    AbstractAtomFeatureDescriptor, AbstractPairFeatureDescriptor
 export get_value, default_codec, encodable_elements
 
 include("features/elementfeature.jl")

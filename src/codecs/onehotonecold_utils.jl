@@ -8,7 +8,7 @@ Determine whether a `OneHotOneCold` codec used with a particular `FeatureDescrip
 
 Operates by comparing the ratio of the maximum to minimum values to a specified order-of-magnitude threshold.
 """
-function default_log(min_val::T, max_val::T; threshold_oom = 2) where T
+function default_log(min_val::T, max_val::T; threshold_oom = 2) where {T}
     local log
     if T <: Number
         signs = sign.([min_val, max_val])
@@ -27,9 +27,13 @@ function default_log(min_val::T, max_val::T; threshold_oom = 2) where T
 end
 
 # adding this dispatch for uniformity with next one
-function default_log(possible_vals::Vector{T}, threshold_oom=2) where T
+function default_log(possible_vals::Vector{T}, threshold_oom = 2) where {T}
     if T <: Number
-        default_log(minimum(possible_vals), maximum(possible_vals), threshold_oom=threshold_oom)
+        default_log(
+            minimum(possible_vals),
+            maximum(possible_vals),
+            threshold_oom = threshold_oom,
+        )
     else
         return false
     end
@@ -42,7 +46,7 @@ Determine if a feature should be treated as categorical or continuous-valued.
 
 If the value type is not a number, always returns true. If it is numerical, returns true if the number of possible values is less than `threshold_length` and false otherwise.
 """
-function default_categorical(possible_vals::Vector{T}, threshold_length=5) where T
+function default_categorical(possible_vals::Vector{T}, threshold_length = 5) where {T}
     num_vals = length(unique(possible_vals))
     if num_vals < threshold_length
         return true
@@ -55,7 +59,14 @@ function default_categorical(possible_vals::Vector{T}, threshold_length=5) where
     end
 end
 
-function get_bins(possible_vals::Vector; threshold_oom=2, threshold_length=5, nbins=10, logspaced::Bool=default_log(possible_vals, threshold_oom), categorical::Bool=default_categorical(possible_vals,threshold_length))
+function get_bins(
+    possible_vals::Vector;
+    threshold_oom = 2,
+    threshold_length = 5,
+    nbins = 10,
+    logspaced::Bool = default_log(possible_vals, threshold_oom),
+    categorical::Bool = default_categorical(possible_vals, threshold_length),
+)
     local bins
     if categorical
         bins = sort(unique(possible_vals))

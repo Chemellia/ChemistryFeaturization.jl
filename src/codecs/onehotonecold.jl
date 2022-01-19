@@ -73,8 +73,10 @@ function decode(ohoc::OneHotOneCold, encoded::Matrix)
     if ohoc.categorical
         decoded = Vector{Union{decoded_eltype,Missing}}(missing, decoded_length)
     else
-        decoded =
-            Vector{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(missing, decoded_length)
+        decoded = Vector{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(
+            missing,
+            decoded_length,
+        )
     end
     for i = 1:decoded_length
         vec = encoded[:, i] # this is the key difference from the Array dispatch below
@@ -93,7 +95,10 @@ function decode(ohoc::OneHotOneCold, encoded::Array)
     if ohoc.categorical
         decoded = Array{Union{decoded_eltype,Missing}}(missing, decoded_size...)
     else
-        decoded = Array{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(missing, decoded_size...)
+        decoded = Array{Union{Tuple{decoded_eltype,decoded_eltype},Missing}}(
+            missing,
+            decoded_size...,
+        )
     end
     for ind in CartesianIndices(decoded)
         vec = encoded[ind, :]

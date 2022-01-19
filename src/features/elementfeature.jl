@@ -5,7 +5,12 @@ using DataFrames
 include("elementfeature_utils.jl")
 using ..ChemistryFeaturization.Data: element_data_df
 using ..ChemistryFeaturization: elements
-import ..ChemistryFeaturization: encodable_elements, get_value, default_codec, AbstractAtomFeatureDescriptor, OneHotOneCold
+import ..ChemistryFeaturization:
+    encodable_elements,
+    get_value,
+    default_codec,
+    AbstractAtomFeatureDescriptor,
+    OneHotOneCold
 
 export ElementFeatureDescriptor, get_value, default_codec, encodable_elements
 
@@ -18,23 +23,17 @@ A descriptor for features associated with individual atoms that depend only upon
 - `name::String`: Name of the feature
 - `lookup_table::DataFrame`: table containing values of feature for every encodable element
 """
-struct ElementFeatureDescriptor<: AbstractAtomFeatureDescriptor
+struct ElementFeatureDescriptor <: AbstractAtomFeatureDescriptor
     name::String
     lookup_table::DataFrame
-    function ElementFeatureDescriptor(
-        feature_name::String,
-        lookup_table = element_data_df,
-    )
+    function ElementFeatureDescriptor(feature_name::String, lookup_table = element_data_df)
         colnames = names(lookup_table)
         @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature to be usable!"
 
         lookup_table = lookup_table[:, ["Symbol", feature_name]]
         dropmissing!(lookup_table)
 
-        new(
-            feature_name,
-            lookup_table,
-        )
+        new(feature_name, lookup_table)
     end
 end
 
@@ -51,7 +50,9 @@ function get_value(efd::ElementFeatureDescriptor, a)
     )
 end
 
-default_codec(efd::ElementFeatureDescriptor) =
-    OneHotOneCold(default_categorical(efd.name, efd.lookup_table), get_bins(efd.name, efd.lookup_table))
+default_codec(efd::ElementFeatureDescriptor) = OneHotOneCold(
+    default_categorical(efd.name, efd.lookup_table),
+    get_bins(efd.name, efd.lookup_table),
+)
 
 end

@@ -16,21 +16,16 @@ struct FeaturizedAtoms{A,F<:AbstractFeaturization}
     atoms::A
     featurization::F
     encoded_features::Any
-    FeaturizedAtoms{A,F}(
-        atoms,
-        featurization,
-    ) where {A,F<:AbstractFeaturization} =
+    FeaturizedAtoms{A,F}(atoms, featurization) where {A,F<:AbstractFeaturization} =
         new(atoms, featurization, encode(featurization, atoms))
 end
 
-FeaturizedAtoms(
-    atoms::A,
-    featurization::F,
-) where {A,F<:AbstractFeaturization} =
+FeaturizedAtoms(atoms::A, featurization::F) where {A,F<:AbstractFeaturization} =
     FeaturizedAtoms{A,F}(atoms, featurization)
 
 # pretty printing, short
-Base.show(io::IO, fa::FeaturizedAtoms) = print(io, string(typeof(fa), " with ", length(features(fa.featurization)), " features"))
+Base.show(io::IO, fa::FeaturizedAtoms) =
+    print(io, string(typeof(fa), " with ", length(features(fa.featurization)), " features"))
 
 # # pretty printing, long
 function Base.show(io::IO, ::MIME"text/plain", fa::FeaturizedAtoms)
@@ -44,7 +39,8 @@ end
 
 Decode a [FeaturizedAtoms](@ref) object, and return the decoded value.
 """
-decode(featurized_atoms::FeaturizedAtoms) = decode(featurized_atoms.featurization, featurized_atoms.encoded_features)
+decode(featurized_atoms::FeaturizedAtoms) =
+    decode(featurized_atoms.featurization, featurized_atoms.encoded_features)
 
 
 """
