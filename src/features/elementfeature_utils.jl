@@ -6,7 +6,8 @@ using DataFrames
 using ..ChemistryFeaturization.Data: element_data_df, elementfeature_info
 
 # export things
-export elementfeature_names, categorical_elementfeature_names, continuous_elementfeature_names
+export elementfeature_names,
+    categorical_elementfeature_names, continuous_elementfeature_names
 import ..ChemistryFeaturization: default_log, default_categorical, get_bins
 
 # read in features...
@@ -29,9 +30,13 @@ default_log(
     feature_name::String,
     lookup_table::DataFrame = element_data_df;
     threshold_oom::Real = 2,
-) = default_log(fea_minmax(feature_name, lookup_table)...; threshold_oom=threshold_oom)
+) = default_log(fea_minmax(feature_name, lookup_table)...; threshold_oom = threshold_oom)
 
-function default_categorical(feature_name::String, lookup_table::DataFrame = element_data_df; threshold_length = 5)
+function default_categorical(
+    feature_name::String,
+    lookup_table::DataFrame = element_data_df;
+    threshold_length = 5,
+)
     local categorical
     if feature_name in elementfeature_names
         if feature_name in categorical_elementfeature_names
@@ -42,7 +47,8 @@ function default_categorical(feature_name::String, lookup_table::DataFrame = ele
     else
         colnames = names(lookup_table)
         @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature ($(feature_name)) to be usable!"
-        categorical = default_categorical(lookup_table[:,Symbol(feature_name)], threshold_length)
+        categorical =
+            default_categorical(lookup_table[:, Symbol(feature_name)], threshold_length)
     end
     return categorical
 end
@@ -51,17 +57,25 @@ function get_bins(
     feature_name::String,
     lookup_table::DataFrame = element_data_df;
     nbins::Integer = 10,
-    threshold_oom=2,
-    threshold_length=5,
-    logspaced::Bool = default_log(feature_name, lookup_table; threshold_oom=threshold_oom),
-    categorical::Bool = default_categorical(feature_name, lookup_table; threshold_length=threshold_length),
+    threshold_oom = 2,
+    threshold_length = 5,
+    logspaced::Bool = default_log(
+        feature_name,
+        lookup_table;
+        threshold_oom = threshold_oom,
+    ),
+    categorical::Bool = default_categorical(
+        feature_name,
+        lookup_table;
+        threshold_length = threshold_length,
+    ),
 )
     colnames = names(lookup_table)
     @assert feature_name in colnames && "Symbol" in colnames "Your lookup table must have a column called :Symbol and one with the same name as your feature ($(feature_name)) to be usable!"
 
-    possible_vals = unique(skipmissing(lookup_table[:,Symbol(feature_name)]))
+    possible_vals = unique(skipmissing(lookup_table[:, Symbol(feature_name)]))
 
-    get_bins(possible_vals, nbins=nbins, logspaced=logspaced, categorical=categorical)
+    get_bins(possible_vals, nbins = nbins, logspaced = logspaced, categorical = categorical)
 end
 
 # this may just not be needed...
