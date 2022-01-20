@@ -37,7 +37,8 @@ function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
     box = replicate(crystal.box, repfactors)
 
     xf_shift = Zygote.ignore() do
-      x = repeat(collect.(sort(vec(collect(Iterators.product(0:2, 0:2, 0:2))))), inner = crystal.atoms.n)
+      rf = range.(0, repfactors .- 1, step = 1)
+      x = repeat(collect.(sort(vec(collect(Iterators.product(rf...))))), inner = crystal.atoms.n)
       reduce(hcat, x)
     end
 
@@ -57,9 +58,3 @@ function replicate2(crystal::Crystal, repfactors::Tuple{Int, Int, Int})
     
     return Crystal(crystal.name, box, atoms, charges, Xtals.MetaGraph(n_atoms), crystal.symmetry)
 end
-
-function Xtals.distance(coords::Xtals.Frac, box::Xtals.Box, i, j, pbc)
-  dxf = @views coords.xf[:, i] - coords.xf[:, j]
-  norm.(eachcol(box.f_to_c * dxf))
-end
-
