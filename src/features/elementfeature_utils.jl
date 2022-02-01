@@ -17,7 +17,11 @@ const continuous_elementfeature_names = elementfeature_info["continuous"]
 const elementfeature_names =
     cat(categorical_elementfeature_names, continuous_elementfeature_names; dims = 1)
 
-"Compute the minimum and maximum possible values of a feature."
+"""
+    fea_minmax(feature_name, lookup_table)
+
+Compute the minimum and maximum possible values of an `ElementFeatureDescriptor`, given a(n optional) lookup table.
+"""
 function fea_minmax(feature_name::String, lookup_table::DataFrame = element_data_df)
     @assert feature_name in names(lookup_table) "Feature $feature_name isn't in the lookup table!"
     return [
@@ -25,13 +29,22 @@ function fea_minmax(feature_name::String, lookup_table::DataFrame = element_data
     ]
 end
 
-# convenience dispatches of OHOC util functions to work directly with lookup table...
+"""
+    default_log(feature_name, lookup_table=element_data_df; threshold_oom=2)
+
+Determine whether an element feature should be encoded by a `OneHotOneCold` codec with logarithmically spaced bins.
+"""
 default_log(
     feature_name::String,
     lookup_table::DataFrame = element_data_df;
     threshold_oom::Real = 2,
 ) = default_log(fea_minmax(feature_name, lookup_table)...; threshold_oom = threshold_oom)
 
+"""
+    default_categorical(feature_name, lookup_table=element_data_df; threshold_length=5)
+
+Determine whether an element feature should be treated as categorical- or continuous-valued.
+"""
 function default_categorical(
     feature_name::String,
     lookup_table::DataFrame = element_data_df;
@@ -53,6 +66,11 @@ function default_categorical(
     return categorical
 end
 
+"""
+    get_bins(feature_name, lookup_table=element_data_df; nbins=10, threshold_oom=2, threshold_length=5, logspaced, categorical)
+
+Compute list of bins for an element feature.
+"""
 function get_bins(
     feature_name::String,
     lookup_table::DataFrame = element_data_df;
@@ -78,7 +96,7 @@ function get_bins(
     get_bins(possible_vals, nbins = nbins, logspaced = logspaced, categorical = categorical)
 end
 
-# "Little helper function to check that the logspace/categorical vector/boolean is appropriate and convert it to a vector as needed."
+"Little helper function to check that the logspace/categorical vector/boolean is appropriate and convert it to a vector as needed."
 function get_param_vec(vec, num_features::Integer; pad_val = false)
     if !(typeof(vec) <: Vector)
         output_vec = [vec for i = 1:num_features]

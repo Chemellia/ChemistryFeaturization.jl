@@ -59,6 +59,13 @@ function default_categorical(possible_vals::Vector{T}, threshold_length = 5) whe
     end
 end
 
+"""
+    get_bins(possible_vals; threshold_oom=2, threshold_length=5, nbins=10, logspaced, categorical)
+
+Given a list of possible values, return a list of bins, making sensible default choices for the binning parameters.
+
+See also: [`default_log`](@ref), [`default_categorical`](@ref)
+"""
 function get_bins(
     possible_vals::Vector;
     threshold_oom = 2,

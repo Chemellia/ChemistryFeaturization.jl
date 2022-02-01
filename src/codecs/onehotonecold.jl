@@ -20,7 +20,11 @@ end
 output_shape(ohoc::OneHotOneCold) =
     ohoc.categorical ? length(ohoc.bins) : length(ohoc.bins) - 1
 
-"A flexible version of Flux.onehot that can handle both categorical and continuous-valued encoding."
+"""
+    encode(val, ohoc::OneHotOneCold)
+
+A flexible version of Flux.onehot that can handle both categorical and continuous-valued encoding.
+"""
 function encode(val, ohoc::OneHotOneCold)
     local bin_index, onehot_vec
     if ohoc.categorical

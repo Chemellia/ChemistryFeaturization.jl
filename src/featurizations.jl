@@ -6,7 +6,7 @@
 abstract type AbstractFeaturization end
 
 """
-    features(featurization)
+    features(featurization::AbstractFeaturization)
 
 Return the list of feature descriptors used by `featurization`.
 """
@@ -23,14 +23,14 @@ encodable_elements(fzn::AbstractFeaturization) =
     intersect(encodable_elements.(features(fzn))...)
 
 """
-    encode(featurization, atoms)
+    encode(atoms, featurization)
 
 Encode the features of `atoms` according to the scheme described by `featurization`.
 """
 encode(atoms, fzn::AbstractFeaturization) = encode.(Ref(atoms), features(fzn))
 
 """
-    decode(featurization, encoded)
+    decode(encoded, featurization)
 
 Decode `encoded`, presuming it was encoded by `featurization`.
 """

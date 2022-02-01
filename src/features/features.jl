@@ -14,7 +14,7 @@ Simply put, it can be understood to be "features of a feature".
 """
     AbstractFeatureDescriptor
 
-All [FeatureDescriptors](@ref fd) defined for different types of features must be a
+All feature descriptors defined for different types of features must be a
 subtype of AbstractFeatureDescriptor.
 """
 abstract type AbstractFeatureDescriptor end
@@ -45,8 +45,8 @@ get_value(fd::AbstractFeatureDescriptor, atoms) = throw(MethodError(fd, atoms))
 (fd::AbstractFeatureDescriptor)(atoms) = get_value(fd, atoms)
 
 """
-    encode(fd, atoms)
-    encode(fd, codec, atoms)
+    encode(atoms, fd::AbstractFeatureDescriptor)
+    encode(atoms, fd::AbstractFeatureDescriptor, codec::AbstractCodec)
 Encode features for `atoms` using the feature descriptor `fd` using the default codec for `fd`. if `codec` is not specified.
 """
 encode(atoms, fd::AbstractFeatureDescriptor) =
@@ -55,8 +55,7 @@ encode(atoms, fd::AbstractFeatureDescriptor, codec::AbstractCodec) =
     encode(get_value(fd, atoms), codec)
 
 """
-    decode(fd, encoded_feature)
-    decode(fd, codec, encoded_feature)
+    decode(encoded_feature, fd::AbstractFeatureDescriptor)
 Decode `encoded_feature` using the feature descriptor `fd`, presuming it was encoded via `fd`'s default codec if `codec` is not specified.
 """
 decode(encoded_feature, fd::AbstractFeatureDescriptor) =
@@ -71,7 +70,7 @@ All feature descriptors that describe single atoms within a structure should sub
 abstract type AbstractAtomFeatureDescriptor <: AbstractFeatureDescriptor end
 
 """
-    AbstractAtomFeatureDescriptor
+    AbstractPairFeatureDescriptor
 
 All feature descriptors that describe pairs of atoms within a structure should subtype this.
 """

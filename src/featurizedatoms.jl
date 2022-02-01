@@ -1,12 +1,12 @@
 """
     FeaturizedAtoms
 
-Container object for an [Atoms](@ref atoms) object, a [Featurization](@ref fzn), and the resulting
+Container object for an atomic structure object, a featurization, and the resulting
 `encoded_features` from applying the `featurization` to the `atoms`.
 
 ## Fields
-- `atoms`: [Atoms](@ref atoms) object to be featurized
-- `featurization`: [Featurization](@ref fzn) scheme meant to be used for featurizing `atoms`
+- `atoms`: object to be featurized
+- `featurization`: Featurization scheme meant to be used for featurizing `atoms`
 - `encoded_features`: The result of featurizing `atoms` using `featurization`
 
 !!! note
@@ -29,7 +29,7 @@ Base.show(io::IO, fa::FeaturizedAtoms) =
 
 # # pretty printing, long
 function Base.show(io::IO, ::MIME"text/plain", fa::FeaturizedAtoms)
-    st = string("FeaturizedAtoms with ", length(features(fa.featurization)), " features:\n")
+    st = string("FeaturizedAtoms:\n")
     st = string(st, "\tAtoms: $(fa.atoms)\n\tFeaturization: $(fa.featurization)")
     print(io, st)
 end
@@ -37,7 +37,7 @@ end
 """
     decode(featurized_atoms::FeaturizedAtoms)
 
-Decode a [FeaturizedAtoms](@ref) object, and return the decoded value.
+Decode a `FeaturizedAtoms` object, and return the decoded value.
 """
 decode(featurized_atoms::FeaturizedAtoms) =
     decode(featurized_atoms.encoded_features, featurized_atoms.featurization)
@@ -47,7 +47,7 @@ decode(featurized_atoms::FeaturizedAtoms) =
     featurize(atoms, featurization::AbstractFeaturization)
 
 Featurize an `atoms` object using a `featurization` and return the
-[FeaturizedAtoms](@ref) object created.
+`FeaturizedAtoms` object created.
 """
 featurize(atoms, featurization::AbstractFeaturization) =
     FeaturizedAtoms(atoms, featurization)
