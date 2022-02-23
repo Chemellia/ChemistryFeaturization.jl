@@ -12,6 +12,7 @@
         @test encode(1.5, ohoc_cont) == [0, 1, 0]
         @test encode(3, ohoc_cont) == [0, 0, 1]
         @test_throws AssertionError encode(4, ohoc_cont)
+        @test all(ismissing.(encode(missing, ohoc_cont)))
     end
 
     @testset "Decode" begin

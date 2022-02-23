@@ -6,7 +6,7 @@ using ..ChemistryFeaturization.Data
 @testset "ElementFeatureDescriptor" begin
     # construct a few from built-in features...
     X = ElementFeatureDescriptor("X")
-    custom_xc = OneHotOneCold(false, get_bins("X", nbins=8, logspaced=true))
+    custom_xc = OneHotOneCold(false, get_bins("X", nbins = 8, logspaced = true))
     block = ElementFeatureDescriptor("Block")
     amass = ElementFeatureDescriptor("Atomic mass")
     @testset "default codec" begin

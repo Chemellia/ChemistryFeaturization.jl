@@ -46,7 +46,7 @@ using ChemistryFeaturization.ElementFeature
     @test get_bins("Block", nbins = 3) == ["d", "f", "p", "s"]
     @test get_bins("Valence", logspaced = true) == 0:1:13
     @test_throws AssertionError get_bins("Valence", categorical = false, logspaced = true)
-    @test get_bins("noarsenic", df) == [1,2]
+    @test get_bins("noarsenic", df) == [1, 2]
     @test get_bins("noarsenic", df, categorical = true) == [1, 2]
 
 end

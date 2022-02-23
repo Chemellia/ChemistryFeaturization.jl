@@ -4,7 +4,7 @@ using Test
 const testdir = dirname(@__FILE__)
 
 tests = [
-    "interface_tests",
+    "interface/interface_tests",
     "ElementFeatureUtils_tests",
     "ElementFeature_tests",
     "codecs/codec_tests",
