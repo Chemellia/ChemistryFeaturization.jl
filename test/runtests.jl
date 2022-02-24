@@ -4,18 +4,21 @@ using Test
 const testdir = dirname(@__FILE__)
 
 tests = [
-    "module_tests",
-    "utils/ElementFeatureUtils_tests",
-    "utils/GraphBuilding_tests",
-    "atoms/AtomGraph_tests",
-    "features/ElementFeature_tests",
-    "features/OrbitalFeature_tests",
-    "features/SpeciesFeature_tests",
-    "utils/OrbitalFeatureUtils_tests",
-    "featurizations/GraphNodeFeaturization_tests",
-    "featurizedatoms_tests",
+    "interface/interface_tests",
+    "ElementFeatureUtils_tests",
+    "ElementFeature_tests",
     "codecs/codec_tests",
 ]
+
+# a few things we'll use in multiple tests
+import ChemistryFeaturization: elements
+struct DummyAtoms
+    els::Vector{String}
+end
+elements(da::DummyAtoms) = da.els
+
+He_mol = DummyAtoms(["He", "He"])
+C3 = DummyAtoms(["C", "C", "C"])
 
 @testset "ChemistryFeaturization" begin
     for t in tests

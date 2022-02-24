@@ -1,45 +1,34 @@
 module ChemistryFeaturization
+using AtomsBase
 
-using SimpleWeightedGraphs
+export elements
+"""
+    elements(atoms)
 
-encodable_elements(a::Any) = throw(MethodError(encodable_elements, a))
-encode(a::Any, object_to_be_encoded) = throw(MethodError(encode, a))
-decode(a::Any, encoded_features) = throw(MethodError(decode, a))
-elements(a::Any) = throw(MethodError(elements, a))
-output_shape(a::Any) = throw(MethodError(output_shape, a))
+Return the list of elemental symbols corresponding to the atoms making up `atoms`.
+"""
+elements(atoms) = throw(MethodError(elements, atoms))
+elements(sys::AbstractSystem) = String.(atomic_symbol(sys))
 
 include("data.jl")
 export Data
 
-include("abstracts/abstracttypes.jl")
-export AbstractType
-
 include("codecs/codecs.jl")
-export Codec
-
-include("utils/Utils.jl")
-export Utils
-
-include("atoms/atoms.jl")
-export Atoms
-
-using .Atoms: AtomGraph, visualize, elements
-export AtomGraph, visualize
+export AbstractCodec, SimpleCodec, OneHotOneCold, DirectCodec
+export encode, decode, output_shape
 
 include("features/features.jl")
-export FeatureDescriptor
-using .FeatureDescriptor
-export ElementFeatureDescriptor, SpeciesFeatureDescriptor, BondFeatureDescriptor
-export output_shape, get_value
+export AbstractFeatureDescriptor,
+    AbstractAtomFeatureDescriptor, AbstractPairFeatureDescriptor
+export get_value, default_codec, encodable_elements
 
-include("featurizations/featurizations.jl")
-export Featurization
-using .Featurization: GraphNodeFeaturization, encode
-export GraphNodeFeaturization, encode
+include("features/elementfeature.jl")
+export ElementFeature
 
-export encodable_elements, decode
+include("featurizations.jl")
+export AbstractFeaturization, features
 
 include("featurizedatoms.jl")
-export FeaturizedAtoms, featurize, decode
+export FeaturizedAtoms, featurize
 
 end

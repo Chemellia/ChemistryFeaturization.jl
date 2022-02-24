@@ -1,25 +1,36 @@
-using Documenter, ChemistryFeaturization, Xtals
+using Documenter, ChemistryFeaturization, PlutoStaticHTML
+
+# this next bit is from https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/main/docs/make.jl
+const NOTEBOOK_DIR = joinpath(pkgdir(ChemistryFeaturization), "docs", "src", "tutorial")
+"""
+    write_notebook()
+Write Pluto output to a HTML file.
+This avoidings running via the Documenter.jl evaluation, which appears to just hang.
+Probably similar cause as https://github.com/JuliaDocs/Documenter.jl/issues/1514.
+"""
+function write_notebooks()
+    hopts = HTMLOptions()
+    bopts = BuildOptions(NOTEBOOK_DIR; output_format = documenter_output)
+    parallel_build(bopts, hopts)
+    return nothing
+end
+
+# write_notebooks()
+
+pages = Any[
+    "Overview"=>"index.md",
+    "Tutorials"=>Any[
+        "Usage: `AtomGraphs`"=>"tutorial/atomgraphs.md",
+        # "Implementing"=>"tutorial/interface.md",
+    ],
+    "API"=>"api.md",
+    "Changelog"=>"changelog.md",
+]
 
 makedocs(
     sitename = "ChemistryFeaturization.jl",
     modules = [ChemistryFeaturization],
-    pages = Any[
-        "Home"=>"index.md",
-        "Terminology"=>"terminology.md",
-        "Tutorial"=>"tutorial.md",
-        "Types"=>Any[
-            "Overview"=>"types/overview.md",
-            "Abstract Types"=>"types/abstracttypes.md",
-            "Atoms Objects"=>"types/atoms.md",
-            "Feature Descriptors"=>"types/feature_descriptors.md",
-            "Codec"=>"types/codecs.md",
-            "Featurization"=>"types/featurizations.md",
-            "Featurized Atoms"=>"types/featurizedatoms.md",
-        ],
-        "Utilities"=>"utils.md",
-        "Contributing"=>"contributing.md",
-        "Changelog"=>"changelog.md",
-    ],
+    pages = pages,
     format = Documenter.HTML(
         # Use clean URLs, unless built as a "local" build
         prettyurls = !("local" in ARGS),
@@ -40,22 +51,7 @@ deploydocs(
 makedocs(
     sitename = "ChemistryFeaturization.jl",
     modules = [ChemistryFeaturization],
-    pages = Any[
-        "Home"=>"index.md",
-        "Terminology"=>"terminology.md",
-        "Tutorial"=>"tutorial.md",
-        "Types"=>Any[
-            "Abstract Types"=>"types/abstracttypes.md",
-            "Atoms Objects"=>"types/atoms.md",
-            "Feature Descriptors"=>"types/feature_descriptors.md",
-            "Featurization"=>"types/featurizations.md",
-            "Featurized Atoms"=>"types/featurizedatoms.md",
-            "Codec"=>"types/codecs.md",
-        ],
-        "Utilities"=>"utils.md",
-        "Contributing"=>"contributing.md",
-        "Changelog"=>"changelog.md",
-    ],
+    pages = pages,
     format = Documenter.HTML(
         # Use clean URLs, unless built as a "local" build
         prettyurls = false,

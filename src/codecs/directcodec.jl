@@ -1,7 +1,3 @@
-using ..ChemistryFeaturization.AbstractType: AbstractCodec
-import ..ChemistryFeaturization.encode
-import ..ChemistryFeaturization.decode
-
 """
     DirectCodec
 
@@ -11,5 +7,5 @@ struct DirectCodec <: AbstractCodec
     scale::Number
 end
 
-encode(dc::DirectCodec, val) = dc.scale .* val
-decode(dc::DirectCodec, encoded) = encoded ./ dc.scale
+encode(val, dc::DirectCodec) = dc.scale .* val
+decode(encoded, dc::DirectCodec) = encoded ./ dc.scale
