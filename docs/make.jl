@@ -10,7 +10,7 @@ function write_notebooks()
     return nothing
 end
 
-write_notebooks()
+# write_notebooks() # running this locally for now because the CI runners bork on it for some reason
 
 pages = Any[
     "Overview"=>"index.md",
