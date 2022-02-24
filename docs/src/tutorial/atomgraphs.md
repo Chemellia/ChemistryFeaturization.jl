@@ -17,7 +17,7 @@
 <!--
     # This information is used for caching.
     [PlutoStaticHTML.State]
-    input_sha = "10ba6afb16fc6a1cccb0657afcbbc9417d70a98d7b5eadb9454e2782231b4034"
+    input_sha = "80cd118dc3755075d6b77426af658a4dbde0287c914d129e84f9c7f49dfcc1e2"
     julia_version = "1.7.1"
 -->
 
@@ -25,23 +25,11 @@
 <p>This tutorial will demonstrate usage of ChemistryFeaturization.jl for a case that has already implemented the interface. The structure representation is <code>AtomGraph</code>, provided by the <a href="https://github.com/Chemellia/AtomGraphs.jl">AtomGraphs</a> package, and the featurization is <code>GraphNodeFeaturization</code> from <a href="https://github.com/Chemellia/AtomicGraphNets.jl">AtomicGraphNets</a>. We will choose some <code>ElementFeatureDescriptors</code> by which to featurize each node of our <code>AtomGraph</code> object and step through how to do it.</p>
 </div>
 
-<pre class='language-julia'><code class='language-julia'># this will all get less ugly once everything is regsitered but while we're still working on branches it's necessary for now...
-begin
-    import Pkg
-    Pkg.activate("./")
-  #   Pkg.add([
-  #       Pkg.PackageSpec(name="ChemistryFeaturization", rev="interface"),
-  #       Pkg.PackageSpec(name="AtomGraphs", rev="cf"),
-		# Pkg.PackageSpec(name="AtomicGraphNets", rev="cf_reorg"),
-		# Pkg.PackageSpec(name="PlutoUI")
-  #   ])
-end</code></pre>
-
-
 <pre class='language-julia'><code class='language-julia'>using ChemistryFeaturization, AtomGraphs, AtomicGraphNets, PlutoUI</code></pre>
 
 
-<pre class='language-julia'><code class='language-julia'>TableOfContents()</code></pre>
+<pre class='language-julia'><code class='language-julia'>#! format: off
+TableOfContents()</code></pre>
 <script>const getParentCell = el => el.closest("pluto-cell")
 
 const getHeaders = () => {
@@ -261,14 +249,14 @@ end</code></pre>
   </marker>
 </defs>
 <g fill="#000000" fill-opacity="0.000" stroke="#D3D3D3" id="img-316d3e65-1">
-  <g transform="translate(37.78,50)" stroke-width="1.73">
-    <path fill="none" d="M22.56,-36.16 L-22.56,36.16 " class="primitive"/>
+  <g transform="translate(70.71,84.88)" stroke-width="1.73">
+    <path fill="none" d="M-50.53,-5.82 L50.53,5.82 " class="primitive"/>
   </g>
-  <g transform="translate(96.71,46.85)" stroke-width="1.73">
-    <path fill="none" d="M-28.53,-33.37 L28.53,33.37 " class="primitive"/>
+  <g transform="translate(49.09,43.21)" stroke-width="1.73">
+    <path fill="none" d="M-32.17,30.08 L32.17,-30.08 " class="primitive"/>
   </g>
-  <g transform="translate(70.71,88.52)" stroke-width="1.73">
-    <path fill="none" d="M-50.44,2.69 L50.44,-2.69 " class="primitive"/>
+  <g transform="translate(108.01,50)" stroke-width="1.73">
+    <path fill="none" d="M18.69,36.02 L-18.69,-36.02 " class="primitive"/>
   </g>
 </g>
 <g stroke="#D3D3D3" id="img-316d3e65-2">
@@ -276,28 +264,28 @@ end</code></pre>
 <g font-size="4" stroke="#000000" stroke-opacity="0.000" fill="#000000" id="img-316d3e65-3">
 </g>
 <g stroke-width="0" stroke="#000000" stroke-opacity="0.000" id="img-316d3e65-4">
-  <g transform="translate(63.78,8.33)" fill="#008B8B">
+  <g transform="translate(11.79,78.09)" fill="#008B8B">
     <circle cx="0" cy="0" r="8.16" class="primitive"/>
   </g>
-  <g transform="translate(11.79,91.67)" fill="#008B8B">
+  <g transform="translate(129.64,91.67)" fill="#008B8B">
     <circle cx="0" cy="0" r="8.16" class="primitive"/>
   </g>
-  <g transform="translate(129.64,85.38)" fill="#008B8B">
+  <g transform="translate(86.39,8.33)" fill="#008B8B">
     <circle cx="0" cy="0" r="8.16" class="primitive"/>
   </g>
 </g>
 <g font-size="4" stroke="#000000" stroke-opacity="0.000" fill="#000000" id="img-316d3e65-5">
-  <g transform="translate(63.78,8.33)">
+  <g transform="translate(11.79,78.09)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">C</text>
     </g>
   </g>
-  <g transform="translate(11.79,91.67)">
+  <g transform="translate(129.64,91.67)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">C</text>
     </g>
   </g>
-  <g transform="translate(129.64,85.38)">
+  <g transform="translate(86.39,8.33)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">C</text>
     </g>
@@ -487,23 +475,23 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
   </marker>
 </defs>
 <g fill="#000000" fill-opacity="0.000" stroke="#D3D3D3" id="img-b31f045a-1">
-  <g transform="translate(116.41,12.59)" stroke-width="1.22">
-    <path fill="none" d="M7.73,-2.43 L-7.73,2.43 " class="primitive"/>
+  <g transform="translate(16.72,9.36)" stroke-width="1.22">
+    <path fill="none" d="M0.83,0.17 L-0.83,-0.17 " class="primitive"/>
   </g>
-  <g transform="translate(105.75,8.38)" stroke-width="1.22">
-    <path fill="none" d="M17.88,0.03 L-17.88,-0.03 " class="primitive"/>
+  <g transform="translate(13.12,16.01)" stroke-width="1.22">
+    <path fill="none" d="M-0.6,-3.45 L0.6,3.45 " class="primitive"/>
   </g>
-  <g transform="translate(38.18,85.62)" stroke-width="1.22">
-    <path fill="none" d="M20.39,0.32 L-20.39,-0.32 " class="primitive"/>
+  <g transform="translate(126.14,81.54)" stroke-width="1.22">
+    <path fill="none" d="M-1.18,-1.99 L1.18,1.99 " class="primitive"/>
   </g>
-  <g transform="translate(50.27,88.85)" stroke-width="1.22">
-    <path fill="none" d="M8.51,-1.67 L-8.51,1.67 " class="primitive"/>
+  <g transform="translate(120.94,83.64)" stroke-width="1.22">
+    <path fill="none" d="M0.82,-3.82 L-0.82,3.82 " class="primitive"/>
   </g>
-  <g transform="translate(23.88,88.43)" stroke-width="0.24">
-    <path fill="none" d="M-6.47,-1.73 L6.47,1.73 " class="primitive"/>
+  <g transform="translate(124.43,89.56)" stroke-width="0.24">
+    <path fill="none" d="M-0.01,0.01 L0.01,-0.01 " class="primitive"/>
   </g>
-  <g transform="translate(92.52,12.54)" stroke-width="0.24">
-    <path fill="none" d="M5.42,2.14 L-5.42,-2.14 " class="primitive"/>
+  <g transform="translate(18.06,17.03)" stroke-width="0.24">
+    <path fill="none" d="M1.45,-2.68 L-1.45,2.68 " class="primitive"/>
   </g>
 </g>
 <g stroke="#D3D3D3" id="img-b31f045a-2">
@@ -511,52 +499,52 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
 <g font-size="4" stroke="#000000" stroke-opacity="0.000" fill="#000000" id="img-b31f045a-3">
 </g>
 <g stroke-width="0" stroke="#000000" stroke-opacity="0.000" id="img-b31f045a-4">
-  <g transform="translate(129.64,8.43)" fill="#008B8B">
+  <g transform="translate(11.79,8.33)" fill="#008B8B">
     <circle cx="0" cy="0" r="5.77" class="primitive"/>
   </g>
-  <g transform="translate(64.58,86.04)" fill="#008B8B">
+  <g transform="translate(122.65,75.62)" fill="#008B8B">
     <circle cx="0" cy="0" r="5.77" class="primitive"/>
   </g>
-  <g transform="translate(11.79,85.2)" fill="#FF005D">
+  <g transform="translate(129.64,87.45)" fill="#FF005D">
     <circle cx="0" cy="0" r="5.77" class="primitive"/>
   </g>
-  <g transform="translate(103.19,16.75)" fill="#FF005D">
+  <g transform="translate(21.66,10.39)" fill="#FF005D">
     <circle cx="0" cy="0" r="5.77" class="primitive"/>
   </g>
-  <g transform="translate(35.97,91.67)" fill="#FF005D">
+  <g transform="translate(119.22,91.67)" fill="#FF005D">
     <circle cx="0" cy="0" r="5.77" class="primitive"/>
   </g>
-  <g transform="translate(81.86,8.33)" fill="#FF005D">
+  <g transform="translate(14.46,23.68)" fill="#FF005D">
     <circle cx="0" cy="0" r="5.77" class="primitive"/>
   </g>
 </g>
 <g font-size="4" stroke="#000000" stroke-opacity="0.000" fill="#000000" id="img-b31f045a-5">
-  <g transform="translate(129.64,8.43)">
+  <g transform="translate(11.79,8.33)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">W</text>
     </g>
   </g>
-  <g transform="translate(64.58,86.04)">
+  <g transform="translate(122.65,75.62)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">W</text>
     </g>
   </g>
-  <g transform="translate(11.79,85.2)">
+  <g transform="translate(129.64,87.45)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">S</text>
     </g>
   </g>
-  <g transform="translate(103.19,16.75)">
+  <g transform="translate(21.66,10.39)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">S</text>
     </g>
   </g>
-  <g transform="translate(35.97,91.67)">
+  <g transform="translate(119.22,91.67)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">S</text>
     </g>
   </g>
-  <g transform="translate(81.86,8.33)">
+  <g transform="translate(14.46,23.68)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">S</text>
     </g>
@@ -978,12 +966,8 @@ end</code></pre>
 <div class="markdown"><p>If we want to attach the encoded features to the graph, we can use the <code>featurize</code> function, which returns a <code>FeaturizedAtoms</code> object. This is the recommended approach for preprocessing many structures, as a serialized <code>FeaturizedAtoms</code> object stores the structure, the featurization, and the encoded features so you know what you&#39;ve encoded it and how, and have the ability to decode.</p>
 </div>
 
-<pre class='language-julia'><code class='language-julia'>try
-	featurize(WS2, fzn)
-catch e
-	@show e
-end</code></pre>
-<pre id='var-hash421897' class='pre-class'><code class='code-output'>AssertionError("Feature MeaningOfLife cannot encode some element(s) in this structure!")</code></pre>
+<pre class='language-julia'><code class='language-julia'>	featurize(WS2, fzn)</code></pre>
+<pre id='var-hash226861' class='pre-class'><code class='code-output'>AssertionError("Feature MeaningOfLife cannot encode some element(s) in this structure!")</code></pre>
 
 
 <div class="markdown"><p>Oops&#33; What happened here?&#33;?</p>

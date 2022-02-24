@@ -2,12 +2,7 @@ using Documenter, ChemistryFeaturization, PlutoStaticHTML
 
 # this next bit is from https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/main/docs/make.jl
 const NOTEBOOK_DIR = joinpath(pkgdir(ChemistryFeaturization), "docs", "src", "tutorial")
-"""
-    write_notebook()
-Write Pluto output to a HTML file.
-This avoidings running via the Documenter.jl evaluation, which appears to just hang.
-Probably similar cause as https://github.com/JuliaDocs/Documenter.jl/issues/1514.
-"""
+
 function write_notebooks()
     hopts = HTMLOptions()
     bopts = BuildOptions(NOTEBOOK_DIR; output_format = documenter_output)
@@ -15,7 +10,7 @@ function write_notebooks()
     return nothing
 end
 
-# write_notebooks()
+write_notebooks()
 
 pages = Any[
     "Overview"=>"index.md",
