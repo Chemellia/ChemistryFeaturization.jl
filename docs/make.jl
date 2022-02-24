@@ -19,9 +19,8 @@ end
 
 pages = Any[
     "Overview"=>"index.md",
-    "Tutorials"=>Any[
-        "Usage: `AtomGraphs`"=>"tutorial/atomgraphs.md",
-        # "Implementing"=>"tutorial/interface.md",
+    "Tutorials"=>Any["Usage: `AtomGraphs`"=>"tutorial/atomgraphs.md",
+    # "Implementing"=>"tutorial/interface.md",
     ],
     "API"=>"api.md",
     "Changelog"=>"changelog.md",
