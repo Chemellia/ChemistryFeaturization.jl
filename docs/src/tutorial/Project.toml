@@ -1,9 +1,0 @@
-[deps]
-AtomGraphs = "5a360db7-3336-4c46-b5a1-be4fe079ea55"
-AtomicGraphNets = "ccdf130a-3c88-4595-a023-a7e7f78b9dd5"
-ChemistryFeaturization = "6c925690-434a-421d-aea7-51398c5b007a"
-GraphPlot = "a2cc645c-3eea-5389-862e-a155d0052231"
-Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
-ImageShow = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
-Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
