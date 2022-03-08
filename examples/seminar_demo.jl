@@ -40,7 +40,7 @@ meaning(WS2)
 
 # building a featurization
 fzn = GraphNodeFeaturization(["Block", "Atomic mass", "X"])
-featurized_WS2 = featurize(WS2, new_fzn)
+featurized_WS2 = featurize(WS2, fzn)
 propertynames(featurized_WS2)
 decode(featurized_WS2)
 
