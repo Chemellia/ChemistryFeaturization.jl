@@ -1,7 +1,7 @@
 name = "ChemistryFeaturization"
 uuid = "6c925690-434a-421d-aea7-51398c5b007a"
 authors = ["Rachel Kurchin <rkurchin@cmu.edu>", "Anant Thazhemadam <anant.thazhemadam@gmail.com>"]
-version = "0.7.0"
+version = "0.7.1"
 
 [deps]
 AtomsBase = "a963bdd2-2df7-4f54-a1ee-49d51e6be12a"
@@ -17,7 +17,7 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 AtomsBase = "0.2"
 CSV = "0.7, 0.8, 0.9, 0.10"
 DataFrames = "0.21, 0.22, 1.0, 1.1"
-Flux = "0.11, 0.12"
+Flux = "0.11, 0.12, 0.13"
 JSON3 = "1.9"
 julia = "1.6, 1.7"
 
