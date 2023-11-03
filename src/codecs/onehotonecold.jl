@@ -1,4 +1,4 @@
-using Flux: onecold
+using OneHotArrays: onecold
 
 include("onehotonecold_utils.jl")
 
